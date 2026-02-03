@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 1 of 6 (Foundation & Authentication)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 01-04-PLAN.md (Admin Referentials API)
+Last activity: 2026-02-03 - Completed 01-05-PLAN.md (UI Foundation)
 
-Progress: [████░░░░░░] ~40%
+Progress: [█████░░░░░] ~50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 13 min
-- Total execution time: 0.9 hours
+- Total plans completed: 5
+- Average duration: 14 min
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 4 | 52m | 13m |
+| 01 | 5 | 71m | 14m |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (14m), 01-02 (12m), 01-03 (10m), 01-04 (16m)
+- Last 5 plans: 01-01 (14m), 01-02 (12m), 01-03 (10m), 01-04 (16m), 01-05 (19m)
 - Trend: Execution time stable
 
 *Updated after each plan completion*
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - Popup-based login flow for better UX (01-03)
 - Created db plugin to attach drizzle to Fastify instance (01-04)
 - Usage counts return 0 placeholder until projects table exists (01-04)
+- Use shadcn/ui patterns with class-variance-authority for component variants (01-05)
+- Eurostar brand colors via CSS custom properties (01-05)
+- DataTable built with @tanstack/react-table for sorting/filtering control (01-05)
 
 ### Pending Todos
 
@@ -67,7 +70,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 01-04-PLAN.md (Admin Referentials API)
+Stopped at: Completed 01-05-PLAN.md (UI Foundation)
 Resume file: None
 
 ---
