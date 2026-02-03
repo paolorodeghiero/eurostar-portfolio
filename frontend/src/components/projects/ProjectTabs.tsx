@@ -1,6 +1,8 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GeneralTab } from './tabs/GeneralTab';
 import { PeopleTab } from './tabs/PeopleTab';
+import { TeamsTab } from './tabs/TeamsTab';
+import { ValueTab } from './tabs/ValueTab';
 import type { Project } from '@/lib/project-api';
 
 interface ProjectTabsProps {
@@ -49,7 +51,7 @@ export function ProjectTabs({ project, formData, onChange }: ProjectTabsProps) {
         </TabsContent>
 
         <TabsContent value="teams" className="mt-0 h-full">
-          <div className="text-muted-foreground">Teams tab - coming next</div>
+          <TeamsTab projectId={project.id} />
         </TabsContent>
 
         <TabsContent value="value" className="mt-0 h-full">
