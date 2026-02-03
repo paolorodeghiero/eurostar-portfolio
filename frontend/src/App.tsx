@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
 import { AuthProvider } from './components/AuthProvider';
 import { DevAuthProvider, useDevAuth } from './components/DevAuthProvider';
@@ -15,6 +15,7 @@ import { CurrencyRatesPage } from './pages/admin/CurrencyRatesPage';
 import { CommitteeThresholdsPage } from './pages/admin/CommitteeThresholdsPage';
 import { CostTshirtThresholdsPage } from './pages/admin/CostTshirtThresholdsPage';
 import { CompetenceMonthPatternsPage } from './pages/admin/CompetenceMonthPatternsPage';
+import { PortfolioPage } from './pages/portfolio/PortfolioPage';
 
 // Dev mode user menu (simpler than MSAL version)
 function DevUserMenu() {
@@ -34,11 +35,14 @@ function DevUserMenu() {
   );
 }
 
-// Admin routes (shared between dev mode and production)
-function AdminRoutes() {
+// App routes (shared between dev mode and production)
+function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/admin" replace />} />
+      {/* Portfolio is the home page */}
+      <Route path="/" element={<PortfolioPage />} />
+
+      {/* Admin routes for referential data management */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<ReferentialList />} />
         <Route path="departments" element={<DepartmentsPage />} />
@@ -86,7 +90,7 @@ function AppContent() {
           </h1>
           <DevUserMenu />
         </header>
-        <AdminRoutes />
+        <AppRoutes />
       </div>
     );
   }
@@ -119,7 +123,7 @@ function AppContent() {
         </UnauthenticatedTemplate>
 
         <AuthenticatedTemplate>
-          <AdminRoutes />
+          <AppRoutes />
         </AuthenticatedTemplate>
       </div>
     </AuthProvider>
