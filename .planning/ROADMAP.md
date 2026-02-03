@@ -54,12 +54,19 @@ Plans:
   5. User can add/remove involved teams and change impact teams with T-shirt sizes
   6. User can stop projects and delete projects only when no actuals are associated
   7. All project operations are available via REST API
-**Plans**: TBD
+**Plans**: 10 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
-- [ ] 02-03: TBD
+- [ ] 02-01-PLAN.md - Database schema for projects and related tables
+- [ ] 02-02-PLAN.md - Install shadcn/ui components for sidebar and forms
+- [ ] 02-03-PLAN.md - Project CRUD API with optimistic locking
+- [ ] 02-04-PLAN.md - Project teams, values, and change impact API
+- [ ] 02-05-PLAN.md - Portfolio page with sidebar shell and auto-save hook
+- [ ] 02-06-PLAN.md - General and People tabs with form fields
+- [ ] 02-07-PLAN.md - Teams tab with chip interface
+- [ ] 02-08-PLAN.md - Value tab with scoring cards and slider
+- [ ] 02-09-PLAN.md - Change Impact tab, menu actions, and create dialog
+- [ ] 02-10-PLAN.md - Conflict resolution and integration verification
 
 ### Phase 3: Financial Tracking
 **Goal**: Enable comprehensive budget management and actuals tracking
@@ -150,7 +157,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 0/6 | Planned | - |
-| 2. Core Projects | 0/TBD | Not started | - |
+| 2. Core Projects | 0/10 | Planned | - |
 | 3. Financial Tracking | 0/TBD | Not started | - |
 | 4. Governance & Workflow | 0/TBD | Not started | - |
 | 5. Portfolio GUI | 0/TBD | Not started | - |
