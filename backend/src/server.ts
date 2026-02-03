@@ -4,6 +4,7 @@ import { config } from './config/index.js';
 import { dbPlugin } from './plugins/db.js';
 import { authPlugin } from './plugins/auth.js';
 import { referentialsRoutes } from './routes/admin/referentials.js';
+import { projectsRouter } from './routes/projects/index.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -34,6 +35,9 @@ fastify.get('/api/me', async (request) => {
 
 // Register admin routes
 await fastify.register(referentialsRoutes, { prefix: '/api/admin' });
+
+// Register projects routes
+await fastify.register(projectsRouter, { prefix: '/api' });
 
 // Start server
 const start = async () => {
