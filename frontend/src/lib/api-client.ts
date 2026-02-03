@@ -2,7 +2,35 @@ import { msalInstance, loginRequest } from './auth-config';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// Cache dev mode status
+let isDevModeCache: boolean | null = null;
+
+async function checkIfDevMode(): Promise<boolean> {
+  if (isDevModeCache !== null) return isDevModeCache;
+
+  try {
+    // Try to call /api/me without any token
+    // If backend is in dev mode, it will return the dev user
+    const response = await fetch(`${API_URL}/api/me`);
+    if (response.ok) {
+      const user = await response.json();
+      isDevModeCache = user.id === 'dev-user';
+      return isDevModeCache;
+    }
+  } catch {
+    // Network error or backend not responding
+  }
+  isDevModeCache = false;
+  return false;
+}
+
 async function getAccessToken(): Promise<string | null> {
+  // Check if we're in dev mode first
+  const devMode = await checkIfDevMode();
+  if (devMode) {
+    return null; // No token needed in dev mode
+  }
+
   const account = msalInstance.getActiveAccount();
   if (!account) return null;
 
