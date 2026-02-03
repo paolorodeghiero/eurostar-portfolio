@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 2 of 6 (Core Projects)
-Plan: 2 of 10 in current phase
+Plan: 3 of 10 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 02-02-PLAN.md (shadcn/ui Components)
+Last activity: 2026-02-03 - Completed 02-01-PLAN.md (Database schema for projects)
 
-Progress: [████████░░] ~80%
+Progress: [█████████░] ~90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 12 min
-- Total execution time: 1.6 hours
+- Total plans completed: 9
+- Average duration: 11 min
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
-| 02 | 2 | 8m | 4m |
+| 02 | 3 | 12m | 4m |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (16m), 01-05 (19m), 01-06 (11m), 02-01 (4m), 02-02 (4m)
+- Last 5 plans: 01-05 (19m), 01-06 (11m), 02-01 (4m), 02-02 (4m), 02-01 (4m)
 - Trend: Execution time improving
 
 *Updated after each plan completion*
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - Delete button disabled when usageCount > 0 to prevent orphan references (01-06)
 - Command + Popover pattern for combobox team selection (02-02)
 - use-debounce library for auto-save to avoid stale closure bugs (02-02)
+- PostgreSQL upsert for atomic project ID generation (02-01)
+- Cascade delete on project child tables, restrict on reference tables (02-01)
 
 ### Pending Todos
 
@@ -76,7 +78,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 02-02-PLAN.md (shadcn/ui Components)
+Stopped at: Completed 02-01-PLAN.md (Database schema for projects)
 Resume file: None
 
 ---
