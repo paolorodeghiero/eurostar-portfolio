@@ -3,6 +3,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
 import { ProjectHeader } from './ProjectHeader';
 import { ProjectFooter } from './ProjectFooter';
+import { ProjectTabs } from './ProjectTabs';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { fetchProject, updateProject, type Project } from '@/lib/project-api';
 
@@ -92,17 +93,18 @@ export function ProjectSidebar({
         >
           <ProjectHeader project={project} onClose={handleClose} />
 
-          <div className="flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto">
             {loading ? (
               <div className="flex items-center justify-center h-32">
                 Loading...
               </div>
-            ) : (
-              <div className="text-muted-foreground">
-                {/* Tabs will be added in next plans */}
-                Project form tabs placeholder
-              </div>
-            )}
+            ) : project ? (
+              <ProjectTabs
+                project={project}
+                formData={formData}
+                onChange={setFormData}
+              />
+            ) : null}
           </div>
 
           <ProjectFooter status={status} statusText={statusText} />
