@@ -1,16 +1,20 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import 'dotenv/config';
+import { config } from './config/index.js';
+import { authPlugin } from './plugins/auth.js';
 
 const fastify = Fastify({ logger: true });
 
 // Register CORS
 await fastify.register(cors, {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: config.frontend.url,
   credentials: true,
 });
 
-// Health check endpoint
+// Register authentication plugin
+await fastify.register(authPlugin);
+
+// Health check endpoint (skips auth)
 fastify.get('/health', async () => {
   return {
     status: 'ok',
@@ -18,12 +22,16 @@ fastify.get('/health', async () => {
   };
 });
 
+// Current user endpoint
+fastify.get('/api/me', async (request) => {
+  return request.user;
+});
+
 // Start server
 const start = async () => {
   try {
-    const port = parseInt(process.env.PORT || '3000', 10);
-    await fastify.listen({ port, host: '0.0.0.0' });
-    fastify.log.info(`Server running on port ${port}`);
+    await fastify.listen({ port: config.port, host: '0.0.0.0' });
+    fastify.log.info(`Server running on port ${config.port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
