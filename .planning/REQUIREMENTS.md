@@ -199,100 +199,100 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| PROJ-01 | — | Pending |
-| PROJ-02 | — | Pending |
-| PROJ-03 | — | Pending |
-| PROJ-04 | — | Pending |
-| PROJ-05 | — | Pending |
-| PROJ-06 | — | Pending |
-| PROJ-07 | — | Pending |
-| TEAM-01 | — | Pending |
-| TEAM-02 | — | Pending |
-| TEAM-03 | — | Pending |
-| VALU-01 | — | Pending |
-| VALU-02 | — | Pending |
-| VALU-03 | — | Pending |
-| VALU-04 | — | Pending |
-| CHNG-01 | — | Pending |
-| CHNG-02 | — | Pending |
-| BUDG-01 | — | Pending |
-| BUDG-02 | — | Pending |
-| BUDG-03 | — | Pending |
-| BUDG-04 | — | Pending |
-| BUDG-05 | — | Pending |
-| BLIN-01 | — | Pending |
-| BLIN-02 | — | Pending |
-| BLIN-03 | — | Pending |
-| GOVN-01 | — | Pending |
-| GOVN-02 | — | Pending |
-| GOVN-03 | — | Pending |
-| GOVN-04 | — | Pending |
-| ACTL-01 | — | Pending |
-| ACTL-02 | — | Pending |
-| ACTL-03 | — | Pending |
-| ACTL-04 | — | Pending |
-| ACTL-05 | — | Pending |
-| ACTL-06 | — | Pending |
-| ACTL-07 | — | Pending |
-| ACTL-08 | — | Pending |
-| PGUI-01 | — | Pending |
-| PGUI-02 | — | Pending |
-| PGUI-03 | — | Pending |
-| PGUI-04 | — | Pending |
-| PGUI-05 | — | Pending |
-| PGUI-06 | — | Pending |
-| PGUI-07 | — | Pending |
-| PGUI-08 | — | Pending |
-| PGUI-09 | — | Pending |
-| PGUI-10 | — | Pending |
-| ADMN-01 | — | Pending |
-| ADMN-02 | — | Pending |
-| ADMN-03 | — | Pending |
-| ADMN-04 | — | Pending |
-| ADMN-05 | — | Pending |
-| REFD-01 | — | Pending |
-| REFD-02 | — | Pending |
-| REFD-03 | — | Pending |
-| REFD-04 | — | Pending |
-| REFD-05 | — | Pending |
-| REFD-06 | — | Pending |
-| REFD-07 | — | Pending |
-| REFD-08 | — | Pending |
-| REFD-09 | — | Pending |
-| REFD-10 | — | Pending |
-| ALRT-01 | — | Pending |
-| ALRT-02 | — | Pending |
-| ALRT-03 | — | Pending |
-| AUDT-01 | — | Pending |
-| AUDT-02 | — | Pending |
-| AUDT-03 | — | Pending |
-| APID-01 | — | Pending |
-| APID-02 | — | Pending |
-| APID-03 | — | Pending |
-| APID-04 | — | Pending |
-| APID-05 | — | Pending |
-| APID-06 | — | Pending |
-| APID-07 | — | Pending |
-| APID-08 | — | Pending |
-| APID-09 | — | Pending |
-| REPT-01 | — | Pending |
-| REPT-02 | — | Pending |
-| REPT-03 | — | Pending |
-| UXUI-01 | — | Pending |
-| UXUI-02 | — | Pending |
-| UXUI-03 | — | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Pending |
+| PROJ-01 | Phase 2 | Pending |
+| PROJ-02 | Phase 2 | Pending |
+| PROJ-03 | Phase 2 | Pending |
+| PROJ-04 | Phase 2 | Pending |
+| PROJ-05 | Phase 2 | Pending |
+| PROJ-06 | Phase 2 | Pending |
+| PROJ-07 | Phase 2 | Pending |
+| TEAM-01 | Phase 2 | Pending |
+| TEAM-02 | Phase 2 | Pending |
+| TEAM-03 | Phase 2 | Pending |
+| VALU-01 | Phase 2 | Pending |
+| VALU-02 | Phase 2 | Pending |
+| VALU-03 | Phase 2 | Pending |
+| VALU-04 | Phase 2 | Pending |
+| CHNG-01 | Phase 2 | Pending |
+| CHNG-02 | Phase 2 | Pending |
+| BUDG-01 | Phase 3 | Pending |
+| BUDG-02 | Phase 3 | Pending |
+| BUDG-03 | Phase 3 | Pending |
+| BUDG-04 | Phase 3 | Pending |
+| BUDG-05 | Phase 3 | Pending |
+| BLIN-01 | Phase 3 | Pending |
+| BLIN-02 | Phase 3 | Pending |
+| BLIN-03 | Phase 3 | Pending |
+| GOVN-01 | Phase 4 | Pending |
+| GOVN-02 | Phase 4 | Pending |
+| GOVN-03 | Phase 4 | Pending |
+| GOVN-04 | Phase 4 | Pending |
+| ACTL-01 | Phase 3 | Pending |
+| ACTL-02 | Phase 3 | Pending |
+| ACTL-03 | Phase 3 | Pending |
+| ACTL-04 | Phase 3 | Pending |
+| ACTL-05 | Phase 3 | Pending |
+| ACTL-06 | Phase 3 | Pending |
+| ACTL-07 | Phase 3 | Pending |
+| ACTL-08 | Phase 3 | Pending |
+| PGUI-01 | Phase 5 | Pending |
+| PGUI-02 | Phase 5 | Pending |
+| PGUI-03 | Phase 5 | Pending |
+| PGUI-04 | Phase 5 | Pending |
+| PGUI-05 | Phase 5 | Pending |
+| PGUI-06 | Phase 5 | Pending |
+| PGUI-07 | Phase 5 | Pending |
+| PGUI-08 | Phase 5 | Pending |
+| PGUI-09 | Phase 5 | Pending |
+| PGUI-10 | Phase 5 | Pending |
+| ADMN-01 | Phase 1 | Pending |
+| ADMN-02 | Phase 1 | Pending |
+| ADMN-03 | Phase 1 | Pending |
+| ADMN-04 | Phase 1 | Pending |
+| ADMN-05 | Phase 1 | Pending |
+| REFD-01 | Phase 1 | Pending |
+| REFD-02 | Phase 1 | Pending |
+| REFD-03 | Phase 1 | Pending |
+| REFD-04 | Phase 1 | Pending |
+| REFD-05 | Phase 1 | Pending |
+| REFD-06 | Phase 1 | Pending |
+| REFD-07 | Phase 1 | Pending |
+| REFD-08 | Phase 1 | Pending |
+| REFD-09 | Phase 1 | Pending |
+| REFD-10 | Phase 1 | Pending |
+| ALRT-01 | Phase 4 | Pending |
+| ALRT-02 | Phase 4 | Pending |
+| ALRT-03 | Phase 4 | Pending |
+| AUDT-01 | Phase 4 | Pending |
+| AUDT-02 | Phase 4 | Pending |
+| AUDT-03 | Phase 4 | Pending |
+| APID-01 | Phase 2 | Pending |
+| APID-02 | Phase 6 | Pending |
+| APID-03 | Phase 3 | Pending |
+| APID-04 | Phase 4 | Pending |
+| APID-05 | Phase 4 | Pending |
+| APID-06 | Phase 4 | Pending |
+| APID-07 | Phase 6 | Pending |
+| APID-08 | Phase 6 | Pending |
+| APID-09 | Phase 3 | Pending |
+| REPT-01 | Phase 6 | Pending |
+| REPT-02 | Phase 6 | Pending |
+| REPT-03 | Phase 6 | Pending |
+| UXUI-01 | Phase 5 | Pending |
+| UXUI-02 | Phase 5 | Pending |
+| UXUI-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 72 total
-- Mapped to phases: 0
-- Unmapped: 72 ⚠️
+- Mapped to phases: 72
+- Unmapped: 0 (100% coverage achieved)
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after initial definition*
+*Last updated: 2026-02-03 after roadmap creation*
