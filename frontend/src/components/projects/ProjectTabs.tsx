@@ -55,7 +55,7 @@ export function ProjectTabs({ project, formData, onChange }: ProjectTabsProps) {
         </TabsContent>
 
         <TabsContent value="value" className="mt-0 h-full">
-          <div className="text-muted-foreground">Value tab - coming next</div>
+          <ValueTab projectId={project.id} />
         </TabsContent>
 
         <TabsContent value="change-impact" className="mt-0 h-full">
