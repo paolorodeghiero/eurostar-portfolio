@@ -12,25 +12,25 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 1 of 6 (Foundation & Authentication)
 Plan: 3 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 01-03-PLAN.md (Frontend Authentication)
+Last activity: 2026-02-03 - Completed 01-02-PLAN.md (Backend Authentication)
 
 Progress: [███░░░░░░░] ~30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: 12 min
-- Total execution time: 0.4 hours
+- Total execution time: 0.6 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 2 | 24m | 12m |
+| 01 | 3 | 36m | 12m |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (14m), 01-03 (10m)
+- Last 5 plans: 01-01 (14m), 01-02 (12m), 01-03 (10m)
 - Trend: Execution time improving
 
 *Updated after each plan completion*
@@ -48,6 +48,9 @@ Recent decisions affecting current work:
 - Store currency at source, convert only for reporting
 - Sleek modern UI (Linear/Notion style)
 - Use PostgreSQL identity columns instead of serial (01-01)
+- Use jwks-rsa for automatic Azure AD key rotation (01-02)
+- Dev mode bypasses all auth for local development productivity (01-02)
+- Admin role determined by Azure AD group membership (01-02)
 - MSAL v5 with localStorage caching for session persistence (01-03)
 - Popup-based login flow for better UX (01-03)
 
@@ -62,7 +65,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 01-03-PLAN.md (Frontend Authentication)
+Stopped at: Completed 01-02-PLAN.md (Backend Authentication)
 Resume file: None
 
 ---
