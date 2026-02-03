@@ -99,3 +99,54 @@ export async function updateProject(
 
   return response.json();
 }
+
+// Team management functions
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+export async function fetchProjectTeams(projectId: number): Promise<ProjectTeam[]> {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams`);
+  if (!res.ok) throw new Error('Failed to fetch teams');
+  return res.json();
+}
+
+export async function addProjectTeam(
+  projectId: number,
+  teamId: number,
+  effortSize: string
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ teamId, effortSize }),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to add team');
+  }
+}
+
+export async function updateProjectTeamSize(
+  projectId: number,
+  teamId: number,
+  effortSize: string
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams/${teamId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ effortSize }),
+  });
+  if (!res.ok) throw new Error('Failed to update team size');
+}
+
+export async function removeProjectTeam(
+  projectId: number,
+  teamId: number
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams/${teamId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to remove team');
+  }
+}
