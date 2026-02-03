@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 1 of 6 (Foundation & Authentication)
-Plan: 1 of 7 in current phase
+Plan: 3 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 01-01-PLAN.md (Project Scaffolding)
+Last activity: 2026-02-03 - Completed 01-03-PLAN.md (Frontend Authentication)
 
-Progress: [█░░░░░░░░░] ~10%
+Progress: [███░░░░░░░] ~30%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 14 min
-- Total execution time: 0.2 hours
+- Total plans completed: 2
+- Average duration: 12 min
+- Total execution time: 0.4 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 1 | 14m | 14m |
+| 01 | 2 | 24m | 12m |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (14m)
-- Trend: First plan completed
+- Last 5 plans: 01-01 (14m), 01-03 (10m)
+- Trend: Execution time improving
 
 *Updated after each plan completion*
 
@@ -48,6 +48,8 @@ Recent decisions affecting current work:
 - Store currency at source, convert only for reporting
 - Sleek modern UI (Linear/Notion style)
 - Use PostgreSQL identity columns instead of serial (01-01)
+- MSAL v5 with localStorage caching for session persistence (01-03)
+- Popup-based login flow for better UX (01-03)
 
 ### Pending Todos
 
@@ -60,7 +62,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 01-01-PLAN.md (Project Scaffolding)
+Stopped at: Completed 01-03-PLAN.md (Frontend Authentication)
 Resume file: None
 
 ---
