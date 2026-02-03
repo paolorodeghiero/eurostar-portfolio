@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 1 of 6 (Foundation & Authentication)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 01-05-PLAN.md (UI Foundation)
+Last activity: 2026-02-03 - Completed 01-06-PLAN.md (Admin Pages)
 
-Progress: [█████░░░░░] ~50%
+Progress: [██████░░░░] ~60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 14 min
-- Total execution time: 1.2 hours
+- Total plans completed: 6
+- Average duration: 13 min
+- Total execution time: 1.4 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 5 | 71m | 14m |
+| 01 | 6 | 82m | 14m |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (14m), 01-02 (12m), 01-03 (10m), 01-04 (16m), 01-05 (19m)
+- Last 5 plans: 01-02 (12m), 01-03 (10m), 01-04 (16m), 01-05 (19m), 01-06 (11m)
 - Trend: Execution time stable
 
 *Updated after each plan completion*
@@ -58,6 +58,9 @@ Recent decisions affecting current work:
 - Use shadcn/ui patterns with class-variance-authority for component variants (01-05)
 - Eurostar brand colors via CSS custom properties (01-05)
 - DataTable built with @tanstack/react-table for sorting/filtering control (01-05)
+- Admin layout with sidebar navigation for 9 referential types (01-06)
+- Each CRUD page follows consistent pattern with DataTable, Dialog, and inline form (01-06)
+- Delete button disabled when usageCount > 0 to prevent orphan references (01-06)
 
 ### Pending Todos
 
@@ -70,7 +73,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 01-05-PLAN.md (UI Foundation)
+Stopped at: Completed 01-06-PLAN.md (Admin Pages)
 Resume file: None
 
 ---
