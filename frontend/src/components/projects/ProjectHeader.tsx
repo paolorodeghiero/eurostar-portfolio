@@ -1,14 +1,17 @@
 import { X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ProjectMenu } from './ProjectMenu';
 import type { Project } from '@/lib/project-api';
 
 interface ProjectHeaderProps {
   project: Project | null;
   onClose: () => void;
+  onProjectUpdated?: () => void;
+  onDeleted?: () => void;
 }
 
-export function ProjectHeader({ project, onClose }: ProjectHeaderProps) {
+export function ProjectHeader({ project, onClose, onProjectUpdated, onDeleted }: ProjectHeaderProps) {
   if (!project) return null;
 
   return (
@@ -30,9 +33,18 @@ export function ProjectHeader({ project, onClose }: ProjectHeaderProps) {
           <Badge variant="secondary">Stopped</Badge>
         )}
       </div>
-      <Button variant="ghost" size="icon" onClick={onClose}>
-        <X className="h-4 w-4" />
-      </Button>
+      <div className="flex items-center gap-2">
+        {onProjectUpdated && onDeleted && (
+          <ProjectMenu
+            project={project}
+            onProjectUpdated={onProjectUpdated}
+            onDeleted={onDeleted}
+          />
+        )}
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

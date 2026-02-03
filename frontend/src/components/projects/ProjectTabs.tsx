@@ -3,6 +3,7 @@ import { GeneralTab } from './tabs/GeneralTab';
 import { PeopleTab } from './tabs/PeopleTab';
 import { TeamsTab } from './tabs/TeamsTab';
 import { ValueTab } from './tabs/ValueTab';
+import { ChangeImpactTab } from './tabs/ChangeImpactTab';
 import type { Project } from '@/lib/project-api';
 
 interface ProjectTabsProps {
@@ -59,7 +60,7 @@ export function ProjectTabs({ project, formData, onChange }: ProjectTabsProps) {
         </TabsContent>
 
         <TabsContent value="change-impact" className="mt-0 h-full">
-          <div className="text-muted-foreground">Change Impact tab - coming next</div>
+          <ChangeImpactTab projectId={project.id} />
         </TabsContent>
       </div>
     </Tabs>

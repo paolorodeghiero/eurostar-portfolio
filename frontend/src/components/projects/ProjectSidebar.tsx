@@ -12,13 +12,15 @@ interface ProjectSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onProjectUpdated?: () => void;
+  onDeleted?: () => void;
 }
 
 export function ProjectSidebar({
   projectId,
   open,
   onOpenChange,
-  onProjectUpdated
+  onProjectUpdated,
+  onDeleted
 }: ProjectSidebarProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState<Partial<Project>>({});
@@ -91,7 +93,21 @@ export function ProjectSidebar({
             "w-[500px] sm:w-[540px] p-0 flex flex-col"
           )}
         >
-          <ProjectHeader project={project} onClose={handleClose} />
+          <ProjectHeader
+            project={project}
+            onClose={handleClose}
+            onProjectUpdated={() => {
+              // Reload project data and notify parent
+              if (projectId) {
+                fetchProject(projectId).then(setProject);
+              }
+              onProjectUpdated?.();
+            }}
+            onDeleted={() => {
+              onOpenChange(false);
+              onDeleted?.();
+            }}
+          />
 
           <div className="flex-1 overflow-auto">
             {loading ? (

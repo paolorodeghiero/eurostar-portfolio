@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { ProjectSidebar } from '@/components/projects/ProjectSidebar';
+import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { fetchProjects, type Project } from '@/lib/project-api';
 
 export function PortfolioPage() {
@@ -9,6 +12,7 @@ export function PortfolioPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -33,7 +37,10 @@ export function PortfolioPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Portfolio</h1>
-        {/* Create button will be added later */}
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          New Project
+        </Button>
       </div>
 
       {loading ? (
@@ -93,6 +100,20 @@ export function PortfolioPage() {
         open={sidebarOpen}
         onOpenChange={setSidebarOpen}
         onProjectUpdated={loadProjects}
+        onDeleted={() => {
+          loadProjects();
+          setSelectedProjectId(null);
+        }}
+      />
+
+      <CreateProjectDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={(project) => {
+          loadProjects();
+          setSelectedProjectId(project.id);
+          setSidebarOpen(true);
+        }}
       />
     </div>
   );
