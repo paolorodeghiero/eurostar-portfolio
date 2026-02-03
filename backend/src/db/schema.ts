@@ -6,6 +6,8 @@ import {
   timestamp,
   numeric,
   date,
+  boolean,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 // Departments table
@@ -102,3 +104,87 @@ export const competenceMonthPatterns = pgTable('competence_month_patterns', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// Project ID Counters table - for PRJ-YYYY-INC generation
+export const projectIdCounters = pgTable('project_id_counters', {
+  year: integer('year').primaryKey(),
+  lastId: integer('last_id').notNull().default(0),
+});
+
+// Projects table - Core project entity
+export const projects = pgTable('projects', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  projectId: varchar('project_id', { length: 20 }).notNull().unique(), // PRJ-YYYY-00001 format
+  name: varchar('name', { length: 255 }).notNull(),
+  statusId: integer('status_id').references(() => statuses.id, { onDelete: 'restrict' }),
+  startDate: date('start_date'),
+  endDate: date('end_date'),
+  leadTeamId: integer('lead_team_id')
+    .notNull()
+    .references(() => teams.id, { onDelete: 'restrict' }),
+  projectManager: varchar('project_manager', { length: 255 }),
+  isOwner: varchar('is_owner', { length: 255 }),
+  sponsor: varchar('sponsor', { length: 255 }),
+  isStopped: boolean('is_stopped').notNull().default(false),
+  version: integer('version').notNull().default(1), // For optimistic locking
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdBy: varchar('created_by', { length: 255 }),
+  updatedBy: varchar('updated_by', { length: 255 }),
+});
+
+// Project Teams table - Involved teams with T-shirt sizes
+export const projectTeams = pgTable(
+  'project_teams',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    projectId: integer('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    teamId: integer('team_id')
+      .notNull()
+      .references(() => teams.id, { onDelete: 'restrict' }),
+    effortSize: varchar('effort_size', { length: 5 }).notNull(), // XS/S/M/L/XL/XXL
+    isLead: boolean('is_lead').notNull().default(false),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.projectId, table.teamId)]
+);
+
+// Project Values table - Value scores per outcome
+export const projectValues = pgTable(
+  'project_values',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    projectId: integer('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    outcomeId: integer('outcome_id')
+      .notNull()
+      .references(() => outcomes.id, { onDelete: 'restrict' }),
+    score: integer('score'), // 1-5
+    justification: text('justification'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.projectId, table.outcomeId)]
+);
+
+// Project Change Impact table - Change impact teams
+export const projectChangeImpact = pgTable(
+  'project_change_impact',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    projectId: integer('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    teamId: integer('team_id')
+      .notNull()
+      .references(() => teams.id, { onDelete: 'restrict' }),
+    impactSize: varchar('impact_size', { length: 5 }).notNull(), // XS/S/M/L/XL/XXL
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.projectId, table.teamId)]
+);
