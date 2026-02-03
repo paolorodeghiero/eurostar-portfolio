@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  /* Eurostar brand colors */
+  --color-eurostar-teal: #006B6B;
+  --color-eurostar-cream: #E8E4D9;
+  --color-eurostar-light: #F5F3EE;
+
+  /* shadcn/ui CSS variables for components */
+  --color-background: #ffffff;
+  --color-foreground: #0a0a0a;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0a0a0a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
+  --color-primary: #006B6B;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #18181b;
+  --color-accent: #f4f4f5;
+  --color-accent-foreground: #18181b;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+  --color-ring: #006B6B;
+
+  /* Radius */
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-eurostar-light);
+    color: var(--color-foreground);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}

@@ -1,7 +1,9 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { config } from './config/index.js';
+import { dbPlugin } from './plugins/db.js';
 import { authPlugin } from './plugins/auth.js';
+import { referentialsRoutes } from './routes/admin/referentials.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -10,6 +12,9 @@ await fastify.register(cors, {
   origin: config.frontend.url,
   credentials: true,
 });
+
+// Register database plugin
+await fastify.register(dbPlugin);
 
 // Register authentication plugin
 await fastify.register(authPlugin);
@@ -26,6 +31,9 @@ fastify.get('/health', async () => {
 fastify.get('/api/me', async (request) => {
   return request.user;
 });
+
+// Register admin routes
+await fastify.register(referentialsRoutes, { prefix: '/api/admin' });
 
 // Start server
 const start = async () => {
