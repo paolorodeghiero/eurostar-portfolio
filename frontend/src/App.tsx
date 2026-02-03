@@ -1,67 +1,85 @@
-function App() {
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { AuthProvider } from './components/AuthProvider';
+import { LoginButton } from './components/LoginButton';
+import { UserMenu } from './components/UserMenu';
+import { useEffect, useState } from 'react';
+import { apiClient } from './lib/api-client';
+
+function AppContent() {
+  const { accounts } = useMsal();
+  const [user, setUser] = useState<{ id: string; email: string; role: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (accounts.length > 0) {
+      apiClient<{ id: string; email: string; role: string }>('/api/me')
+        .then(setUser)
+        .catch((err) => setError(err.message));
+    }
+  }, [accounts]);
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f0' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F5F3EE' }}>
       {/* Header */}
-      <header
-        style={{
-          backgroundColor: '#006B6B',
-          padding: '1.5rem 2rem',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        }}
-      >
-        <h1
-          style={{
-            color: '#f5f5f0',
-            margin: 0,
-            fontSize: '1.5rem',
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
-          }}
-        >
+      <header style={{
+        backgroundColor: '#006B6B',
+        padding: '16px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <h1 style={{ color: '#E8E4D9', margin: 0, fontSize: '24px' }}>
           Eurostar Portfolio
         </h1>
+        <AuthenticatedTemplate>
+          <UserMenu />
+        </AuthenticatedTemplate>
       </header>
 
-      {/* Main content */}
-      <main
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '3rem 2rem',
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            padding: '2rem',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          }}
-        >
-          <h2
-            style={{
-              color: '#1a1a1a',
-              fontSize: '1.25rem',
-              fontWeight: 500,
-              marginTop: 0,
-              marginBottom: '0.5rem',
-            }}
-          >
-            Foundation Phase
-          </h2>
-          <p
-            style={{
-              color: '#666',
-              margin: 0,
-              fontSize: '0.95rem',
-            }}
-          >
-            Authentication Setup Pending
-          </p>
-        </div>
+      {/* Content */}
+      <main style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
+        <UnauthenticatedTemplate>
+          <div style={{ textAlign: 'center', marginTop: '80px' }}>
+            <h2 style={{ color: '#333', marginBottom: '24px' }}>
+              Welcome to Eurostar Portfolio
+            </h2>
+            <p style={{ color: '#666', marginBottom: '32px' }}>
+              Sign in to access the IT project portfolio management tool.
+            </p>
+            <LoginButton />
+          </div>
+        </UnauthenticatedTemplate>
+
+        <AuthenticatedTemplate>
+          <div>
+            <h2 style={{ color: '#333' }}>Dashboard</h2>
+            {error && (
+              <p style={{ color: 'red' }}>Error: {error}</p>
+            )}
+            {user && (
+              <div style={{
+                backgroundColor: 'white',
+                padding: '24px',
+                borderRadius: '8px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                <h3 style={{ margin: '0 0 16px 0' }}>Current User</h3>
+                <p><strong>ID:</strong> {user.id}</p>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Role:</strong> {user.role}</p>
+              </div>
+            )}
+          </div>
+        </AuthenticatedTemplate>
       </main>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
