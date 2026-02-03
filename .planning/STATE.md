@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 2 of 6 (Core Projects)
-Plan: 3 of 10 in current phase
+Plan: 4 of 10 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 02-01-PLAN.md (Database schema for projects)
+Last activity: 2026-02-03 - Completed 02-04-PLAN.md (Project sub-resource APIs)
 
 Progress: [█████████░] ~90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 11 min
-- Total execution time: 1.7 hours
+- Total plans completed: 10
+- Average duration: 10 min
+- Total execution time: 1.8 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
-| 02 | 3 | 12m | 4m |
+| 02 | 4 | 15m | 4m |
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (19m), 01-06 (11m), 02-01 (4m), 02-02 (4m), 02-01 (4m)
+- Last 5 plans: 01-06 (11m), 02-01 (4m), 02-02 (4m), 02-03 (4m), 02-04 (3m)
 - Trend: Execution time improving
 
 *Updated after each plan completion*
@@ -66,6 +66,8 @@ Recent decisions affecting current work:
 - use-debounce library for auto-save to avoid stale closure bugs (02-02)
 - PostgreSQL upsert for atomic project ID generation (02-01)
 - Cascade delete on project child tables, restrict on reference tables (02-01)
+- Upsert pattern for project values using onConflictDoUpdate (02-04)
+- Lead team protection: cannot be removed from involved teams (02-04)
 
 ### Pending Todos
 
@@ -78,7 +80,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 02-01-PLAN.md (Database schema for projects)
+Stopped at: Completed 02-04-PLAN.md (Project sub-resource APIs)
 Resume file: None
 
 ---
