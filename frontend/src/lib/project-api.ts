@@ -36,6 +36,16 @@ export interface ProjectValue {
   justification: string | null;
 }
 
+export interface Outcome {
+  id: number;
+  name: string;
+  score1Example: string | null;
+  score2Example: string | null;
+  score3Example: string | null;
+  score4Example: string | null;
+  score5Example: string | null;
+}
+
 export interface ProjectChangeImpact {
   teamId: number;
   teamName: string;
@@ -149,4 +159,31 @@ export async function removeProjectTeam(
     const error = await res.json();
     throw new Error(error.message || 'Failed to remove team');
   }
+}
+
+// Value score management functions
+export async function fetchOutcomes(): Promise<Outcome[]> {
+  const res = await fetch(`${API_BASE}/api/admin/outcomes`);
+  if (!res.ok) throw new Error('Failed to fetch outcomes');
+  return res.json();
+}
+
+export async function fetchProjectValues(projectId: number): Promise<ProjectValue[]> {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/values`);
+  if (!res.ok) throw new Error('Failed to fetch values');
+  return res.json();
+}
+
+export async function updateProjectValue(
+  projectId: number,
+  outcomeId: number,
+  score: number,
+  justification: string | null
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/values/${outcomeId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ score, justification }),
+  });
+  if (!res.ok) throw new Error('Failed to update value');
 }
