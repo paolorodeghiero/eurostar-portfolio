@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Enable clear visibility into the IT project portfolio with accurate budget tracking and governance
-**Current focus:** Phase 2 - Core Projects
+**Current focus:** Phase 2 - Core Projects (Complete)
 
 ## Current Position
 
 Phase: 2 of 6 (Core Projects)
-Plan: 9 of 10 in current phase
-Status: In progress
-Last activity: 2026-02-03 - Completed 02-09-PLAN.md (Change Impact, Menu, Create Dialog)
+Plan: 10 of 10 in current phase
+Status: Phase complete
+Last activity: 2026-02-03 - Completed 02-10-PLAN.md (Conflict Dialog, Read-only Mode)
 
-Progress: [█████████████░] ~97%
+Progress: [████████████████] 100% (Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 10 min
-- Total execution time: 2.3 hours
+- Total execution time: 2.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
-| 02 | 9 | 51m | 6m |
+| 02 | 10 | 61m | 6m |
 
 **Recent Trend:**
-- Last 5 plans: 02-05 (8m), 02-06 (8m), 02-07 (6m), 02-08 (7m), 02-09 (7m)
+- Last 5 plans: 02-06 (8m), 02-07 (6m), 02-08 (7m), 02-09 (7m), 02-10 (10m)
 - Trend: Execution time consistent
 
 *Updated after each plan completion*
@@ -82,6 +82,9 @@ Recent decisions affecting current work:
 - Delete confirmation requires typing exact project name (02-09)
 - Stop action is immediate with no confirmation (02-09)
 - Change impact teams reuse TeamChip component (02-09)
+- Conflict dialog shows side-by-side field comparison (02-10)
+- Read-only mode disables all inputs and hides action buttons for stopped projects (02-10)
+- Optional onSizeChange in TeamChip allows static read-only display (02-10)
 
 ### Pending Todos
 
@@ -89,12 +92,12 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Human verification checkpoint pending for 02-10 (end-to-end testing)
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 02-09-PLAN.md (Change Impact, Menu, Create Dialog)
+Stopped at: Completed 02-10-PLAN.md (Conflict Dialog, Read-only Mode)
 Resume file: None
 
 ---
