@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 1 of 6 (Foundation & Authentication)
-Plan: 3 of 7 in current phase
+Plan: 4 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 01-02-PLAN.md (Backend Authentication)
+Last activity: 2026-02-03 - Completed 01-04-PLAN.md (Admin Referentials API)
 
-Progress: [███░░░░░░░] ~30%
+Progress: [████░░░░░░] ~40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 12 min
-- Total execution time: 0.6 hours
+- Total plans completed: 4
+- Average duration: 13 min
+- Total execution time: 0.9 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01 | 3 | 36m | 12m |
+| 01 | 4 | 52m | 13m |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (14m), 01-02 (12m), 01-03 (10m)
-- Trend: Execution time improving
+- Last 5 plans: 01-01 (14m), 01-02 (12m), 01-03 (10m), 01-04 (16m)
+- Trend: Execution time stable
 
 *Updated after each plan completion*
 
@@ -53,6 +53,8 @@ Recent decisions affecting current work:
 - Admin role determined by Azure AD group membership (01-02)
 - MSAL v5 with localStorage caching for session persistence (01-03)
 - Popup-based login flow for better UX (01-03)
+- Created db plugin to attach drizzle to Fastify instance (01-04)
+- Usage counts return 0 placeholder until projects table exists (01-04)
 
 ### Pending Todos
 
@@ -65,7 +67,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 01-02-PLAN.md (Backend Authentication)
+Stopped at: Completed 01-04-PLAN.md (Admin Referentials API)
 Resume file: None
 
 ---
