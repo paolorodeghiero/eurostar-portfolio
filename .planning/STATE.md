@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Enable clear visibility into the IT project portfolio with accurate budget tracking and governance
-**Current focus:** Phase 1 - Foundation & Authentication
+**Current focus:** Phase 2 - Core Projects
 
 ## Current Position
 
-Phase: 1 of 6 (Foundation & Authentication)
-Plan: 6 of 7 in current phase
+Phase: 2 of 6 (Core Projects)
+Plan: 2 of 10 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 01-06-PLAN.md (Admin Pages)
+Last activity: 2026-02-03 - Completed 02-02-PLAN.md (shadcn/ui Components)
 
-Progress: [██████░░░░] ~60%
+Progress: [████████░░] ~80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 13 min
-- Total execution time: 1.4 hours
+- Total plans completed: 8
+- Average duration: 12 min
+- Total execution time: 1.6 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
+| 02 | 2 | 8m | 4m |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (12m), 01-03 (10m), 01-04 (16m), 01-05 (19m), 01-06 (11m)
-- Trend: Execution time stable
+- Last 5 plans: 01-04 (16m), 01-05 (19m), 01-06 (11m), 02-01 (4m), 02-02 (4m)
+- Trend: Execution time improving
 
 *Updated after each plan completion*
 
@@ -61,6 +62,8 @@ Recent decisions affecting current work:
 - Admin layout with sidebar navigation for 9 referential types (01-06)
 - Each CRUD page follows consistent pattern with DataTable, Dialog, and inline form (01-06)
 - Delete button disabled when usageCount > 0 to prevent orphan references (01-06)
+- Command + Popover pattern for combobox team selection (02-02)
+- use-debounce library for auto-save to avoid stale closure bugs (02-02)
 
 ### Pending Todos
 
@@ -73,7 +76,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 01-06-PLAN.md (Admin Pages)
+Stopped at: Completed 02-02-PLAN.md (shadcn/ui Components)
 Resume file: None
 
 ---
