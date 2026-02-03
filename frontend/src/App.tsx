@@ -1,34 +1,27 @@
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
 import { AuthProvider } from './components/AuthProvider';
 import { LoginButton } from './components/LoginButton';
 import { UserMenu } from './components/UserMenu';
-import { useEffect, useState } from 'react';
-import { apiClient } from './lib/api-client';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { ReferentialList } from './pages/admin/ReferentialList';
+import { DepartmentsPage } from './pages/admin/DepartmentsPage';
+import { TeamsPage } from './pages/admin/TeamsPage';
+import { StatusesPage } from './pages/admin/StatusesPage';
+import { OutcomesPage } from './pages/admin/OutcomesPage';
+import { CostCentersPage } from './pages/admin/CostCentersPage';
+import { CurrencyRatesPage } from './pages/admin/CurrencyRatesPage';
+import { CommitteeThresholdsPage } from './pages/admin/CommitteeThresholdsPage';
+import { CostTshirtThresholdsPage } from './pages/admin/CostTshirtThresholdsPage';
+import { CompetenceMonthPatternsPage } from './pages/admin/CompetenceMonthPatternsPage';
 
 function AppContent() {
-  const { accounts } = useMsal();
-  const [user, setUser] = useState<{ id: string; email: string; role: string } | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (accounts.length > 0) {
-      apiClient<{ id: string; email: string; role: string }>('/api/me')
-        .then(setUser)
-        .catch((err) => setError(err.message));
-    }
-  }, [accounts]);
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F3EE' }}>
+    <div className="min-h-screen bg-eurostar-light">
       {/* Header */}
-      <header style={{
-        backgroundColor: '#006B6B',
-        padding: '16px 24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <h1 style={{ color: '#E8E4D9', margin: 0, fontSize: '24px' }}>
+      <header className="bg-eurostar-teal px-6 py-4 flex justify-between items-center">
+        <h1 className="text-eurostar-cream text-xl font-semibold">
           Eurostar Portfolio
         </h1>
         <AuthenticatedTemplate>
@@ -37,49 +30,47 @@ function AppContent() {
       </header>
 
       {/* Content */}
-      <main style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-        <UnauthenticatedTemplate>
-          <div style={{ textAlign: 'center', marginTop: '80px' }}>
-            <h2 style={{ color: '#333', marginBottom: '24px' }}>
+      <UnauthenticatedTemplate>
+        <main className="p-10 max-w-3xl mx-auto">
+          <div className="text-center mt-20">
+            <h2 className="text-2xl text-gray-900 mb-6">
               Welcome to Eurostar Portfolio
             </h2>
-            <p style={{ color: '#666', marginBottom: '32px' }}>
+            <p className="text-gray-600 mb-8">
               Sign in to access the IT project portfolio management tool.
             </p>
             <LoginButton />
           </div>
-        </UnauthenticatedTemplate>
+        </main>
+      </UnauthenticatedTemplate>
 
-        <AuthenticatedTemplate>
-          <div>
-            <h2 style={{ color: '#333' }}>Dashboard</h2>
-            {error && (
-              <p style={{ color: 'red' }}>Error: {error}</p>
-            )}
-            {user && (
-              <div style={{
-                backgroundColor: 'white',
-                padding: '24px',
-                borderRadius: '8px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              }}>
-                <h3 style={{ margin: '0 0 16px 0' }}>Current User</h3>
-                <p><strong>ID:</strong> {user.id}</p>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Role:</strong> {user.role}</p>
-              </div>
-            )}
-          </div>
-        </AuthenticatedTemplate>
-      </main>
+      <AuthenticatedTemplate>
+        <Routes>
+          <Route path="/" element={<Navigate to="/admin" replace />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<ReferentialList />} />
+            <Route path="departments" element={<DepartmentsPage />} />
+            <Route path="teams" element={<TeamsPage />} />
+            <Route path="statuses" element={<StatusesPage />} />
+            <Route path="outcomes" element={<OutcomesPage />} />
+            <Route path="cost-centers" element={<CostCentersPage />} />
+            <Route path="currency-rates" element={<CurrencyRatesPage />} />
+            <Route path="committee-thresholds" element={<CommitteeThresholdsPage />} />
+            <Route path="cost-tshirt-thresholds" element={<CostTshirtThresholdsPage />} />
+            <Route path="competence-month-patterns" element={<CompetenceMonthPatternsPage />} />
+          </Route>
+        </Routes>
+      </AuthenticatedTemplate>
     </div>
   );
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
