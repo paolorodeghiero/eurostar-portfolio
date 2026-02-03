@@ -16,6 +16,7 @@ import type { Project } from '@/lib/project-api';
 interface PeopleTabProps {
   formData: Partial<Project>;
   onChange: (updates: Partial<Project>) => void;
+  disabled?: boolean;
 }
 
 // Autocomplete component for people fields
@@ -24,11 +25,13 @@ function PersonAutocomplete({
   onChange,
   suggestions,
   placeholder,
+  disabled,
 }: {
   value: string;
   onChange: (value: string) => void;
   suggestions: string[];
   placeholder: string;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -52,14 +55,16 @@ function PersonAutocomplete({
               onChange(e.target.value);
               setOpen(true);
             }}
-            onFocus={() => setOpen(true)}
+            onFocus={() => !disabled && setOpen(true)}
             placeholder={placeholder}
+            disabled={disabled}
           />
           <Button
             variant="ghost"
             size="sm"
             className="absolute right-0 top-0 h-full px-2"
-            onClick={() => setOpen(!open)}
+            onClick={() => !disabled && setOpen(!open)}
+            disabled={disabled}
           >
             <ChevronsUpDown className="h-4 w-4" />
           </Button>
@@ -90,7 +95,7 @@ function PersonAutocomplete({
   );
 }
 
-export function PeopleTab({ formData, onChange }: PeopleTabProps) {
+export function PeopleTab({ formData, onChange, disabled }: PeopleTabProps) {
   // In production, these would come from API (distinct values from existing projects)
   // For now, use empty arrays - autocomplete will build up over time
   const [pmSuggestions] = useState<string[]>([]);
@@ -106,6 +111,7 @@ export function PeopleTab({ formData, onChange }: PeopleTabProps) {
           onChange={(v) => onChange({ ...formData, projectManager: v })}
           suggestions={pmSuggestions}
           placeholder="Enter project manager name"
+          disabled={disabled}
         />
       </div>
 
@@ -116,6 +122,7 @@ export function PeopleTab({ formData, onChange }: PeopleTabProps) {
           onChange={(v) => onChange({ ...formData, isOwner: v })}
           suggestions={ownerSuggestions}
           placeholder="Enter IS owner name"
+          disabled={disabled}
         />
       </div>
 
@@ -126,6 +133,7 @@ export function PeopleTab({ formData, onChange }: PeopleTabProps) {
           onChange={(v) => onChange({ ...formData, sponsor: v })}
           suggestions={sponsorSuggestions}
           placeholder="Enter sponsor name"
+          disabled={disabled}
         />
       </div>
     </div>

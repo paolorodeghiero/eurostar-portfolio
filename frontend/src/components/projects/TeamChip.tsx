@@ -14,7 +14,7 @@ interface TeamChipProps {
   teamName: string;
   size: string;
   isLead?: boolean;
-  onSizeChange: (size: string) => void;
+  onSizeChange?: (size: string) => void;
   onRemove?: () => void;
 }
 
@@ -41,30 +41,36 @@ export function TeamChip({
         </Badge>
       )}
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Badge
-            variant="secondary"
-            className="cursor-pointer hover:bg-secondary/80 ml-1"
-          >
-            {size}
-          </Badge>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {TSHIRT_SIZES.map((s) => (
-            <DropdownMenuItem
-              key={s}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSizeChange(s);
-              }}
-              className={s === size ? 'bg-muted' : ''}
+      {onSizeChange ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Badge
+              variant="secondary"
+              className="cursor-pointer hover:bg-secondary/80 ml-1"
             >
-              {s}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+              {size}
+            </Badge>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {TSHIRT_SIZES.map((s) => (
+              <DropdownMenuItem
+                key={s}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSizeChange(s);
+                }}
+                className={s === size ? 'bg-muted' : ''}
+              >
+                {s}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Badge variant="secondary" className="ml-1">
+          {size}
+        </Badge>
+      )}
 
       {!isLead && onRemove && (
         <button

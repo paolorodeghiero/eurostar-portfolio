@@ -4,8 +4,9 @@ import { cn } from '@/lib/utils';
 import { ProjectHeader } from './ProjectHeader';
 import { ProjectFooter } from './ProjectFooter';
 import { ProjectTabs } from './ProjectTabs';
+import { ConflictDialog } from './ConflictDialog';
 import { useAutoSave } from '@/hooks/useAutoSave';
-import { fetchProject, updateProject, type Project } from '@/lib/project-api';
+import { fetchProject, updateProject, type Project, type ConflictError } from '@/lib/project-api';
 
 interface ProjectSidebarProps {
   projectId: number | null;
@@ -25,6 +26,10 @@ export function ProjectSidebar({
   const [project, setProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState<Partial<Project>>({});
   const [loading, setLoading] = useState(false);
+  const [conflictState, setConflictState] = useState<{
+    localData: Partial<Project>;
+    serverData: Project;
+  } | null>(null);
 
   // Load project when ID changes
   useEffect(() => {
@@ -48,21 +53,70 @@ export function ProjectSidebar({
     }
   }, [projectId, open]);
 
-  // Auto-save
+  // Auto-save with conflict detection
   const handleSave = useCallback(async (data: Partial<Project>) => {
     if (!project) return;
-    const updated = await updateProject(project.id, {
-      ...data,
-      expectedVersion: project.version,
-    });
-    setProject(updated);
-    onProjectUpdated?.();
+    try {
+      const updated = await updateProject(project.id, {
+        ...data,
+        expectedVersion: project.version,
+      });
+      setProject(updated);
+      onProjectUpdated?.();
+    } catch (error) {
+      const conflictError = error as ConflictError;
+      if (conflictError.statusCode === 409) {
+        setConflictState({
+          localData: data,
+          serverData: conflictError.serverData,
+        });
+        throw error; // Re-throw so auto-save shows error state
+      }
+      throw error;
+    }
   }, [project, onProjectUpdated]);
+
+  // Conflict resolution handlers
+  const handleKeepLocal = useCallback(async () => {
+    if (!conflictState || !project) return;
+    try {
+      // Update with new version from server
+      const updated = await updateProject(project.id, {
+        ...conflictState.localData,
+        expectedVersion: conflictState.serverData.version,
+      });
+      setProject(updated);
+      setConflictState(null);
+      onProjectUpdated?.();
+    } catch (error) {
+      console.error('Failed to save local version:', error);
+    }
+  }, [conflictState, project, onProjectUpdated]);
+
+  const handleKeepServer = useCallback(() => {
+    if (!conflictState) return;
+    // Reset form data to server version
+    setProject(conflictState.serverData);
+    setFormData({
+      name: conflictState.serverData.name,
+      statusId: conflictState.serverData.statusId,
+      startDate: conflictState.serverData.startDate,
+      endDate: conflictState.serverData.endDate,
+      leadTeamId: conflictState.serverData.leadTeamId,
+      projectManager: conflictState.serverData.projectManager,
+      isOwner: conflictState.serverData.isOwner,
+      sponsor: conflictState.serverData.sponsor,
+    });
+    setConflictState(null);
+  }, [conflictState]);
+
+  // Read-only mode for stopped projects
+  const isReadOnly = project?.isStopped ?? false;
 
   const { status, statusText, saveNow } = useAutoSave({
     data: formData,
     onSave: handleSave,
-    enabled: !!project && !loading,
+    enabled: !!project && !loading && !isReadOnly,
   });
 
   // Handle close - save first
@@ -118,12 +172,24 @@ export function ProjectSidebar({
               <ProjectTabs
                 project={project}
                 formData={formData}
-                onChange={setFormData}
+                onChange={isReadOnly ? () => {} : setFormData}
+                disabled={isReadOnly}
               />
             ) : null}
           </div>
 
           <ProjectFooter status={status} statusText={statusText} />
+
+          {conflictState && (
+            <ConflictDialog
+              open={true}
+              localData={conflictState.localData}
+              serverData={conflictState.serverData}
+              onKeepLocal={handleKeepLocal}
+              onKeepServer={handleKeepServer}
+              onCancel={() => setConflictState(null)}
+            />
+          )}
         </SheetPrimitive.Content>
       </SheetPrimitive.Portal>
     </SheetPrimitive.Root>

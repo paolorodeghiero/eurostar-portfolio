@@ -11,6 +11,7 @@ import { useDebouncedCallback } from 'use-debounce';
 
 interface ValueTabProps {
   projectId: number;
+  disabled?: boolean;
 }
 
 interface ScoreState {
@@ -19,7 +20,7 @@ interface ScoreState {
   justification: string | null;
 }
 
-export function ValueTab({ projectId }: ValueTabProps) {
+export function ValueTab({ projectId, disabled }: ValueTabProps) {
   const [outcomes, setOutcomes] = useState<Outcome[]>([]);
   const [scores, setScores] = useState<Map<number, ScoreState>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -91,7 +92,8 @@ export function ValueTab({ projectId }: ValueTabProps) {
               outcome={outcome}
               score={scoreState?.score || 3}
               justification={scoreState?.justification || null}
-              onChange={(s, j) => handleChange(outcome.id, s, j)}
+              onChange={disabled ? () => {} : (s, j) => handleChange(outcome.id, s, j)}
+              disabled={disabled}
             />
           );
         })}

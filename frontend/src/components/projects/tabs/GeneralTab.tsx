@@ -14,6 +14,7 @@ interface GeneralTabProps {
   project: Project;
   formData: Partial<Project>;
   onChange: (updates: Partial<Project>) => void;
+  disabled?: boolean;
 }
 
 interface Status {
@@ -27,7 +28,7 @@ interface Team {
   name: string;
 }
 
-export function GeneralTab({ project, formData, onChange }: GeneralTabProps) {
+export function GeneralTab({ formData, onChange, disabled }: GeneralTabProps) {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
 
@@ -46,6 +47,7 @@ export function GeneralTab({ project, formData, onChange }: GeneralTabProps) {
           value={formData.name || ''}
           onChange={(e) => onChange({ ...formData, name: e.target.value })}
           placeholder="Enter project name"
+          disabled={disabled}
         />
       </div>
 
@@ -53,7 +55,8 @@ export function GeneralTab({ project, formData, onChange }: GeneralTabProps) {
         <Label htmlFor="status">Status</Label>
         <Select
           value={formData.statusId?.toString() || ''}
-          onValueChange={(v) => onChange({ ...formData, statusId: parseInt(v) })}
+          onValueChange={(v: string) => onChange({ ...formData, statusId: parseInt(v) })}
+          disabled={disabled}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select status" />
@@ -82,6 +85,7 @@ export function GeneralTab({ project, formData, onChange }: GeneralTabProps) {
             type="date"
             value={formData.startDate || ''}
             onChange={(e) => onChange({ ...formData, startDate: e.target.value })}
+            disabled={disabled}
           />
         </div>
         <div className="space-y-2">
@@ -91,6 +95,7 @@ export function GeneralTab({ project, formData, onChange }: GeneralTabProps) {
             type="date"
             value={formData.endDate || ''}
             onChange={(e) => onChange({ ...formData, endDate: e.target.value })}
+            disabled={disabled}
           />
         </div>
       </div>
@@ -99,7 +104,8 @@ export function GeneralTab({ project, formData, onChange }: GeneralTabProps) {
         <Label htmlFor="leadTeam">Lead Team</Label>
         <Select
           value={formData.leadTeamId?.toString() || ''}
-          onValueChange={(v) => onChange({ ...formData, leadTeamId: parseInt(v) })}
+          onValueChange={(v: string) => onChange({ ...formData, leadTeamId: parseInt(v) })}
+          disabled={disabled}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select lead team" />

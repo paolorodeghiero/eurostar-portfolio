@@ -15,6 +15,7 @@ interface ValueScoreCardProps {
   score: number;
   justification: string | null;
   onChange: (score: number, justification: string | null) => void;
+  disabled?: boolean;
 }
 
 function ScoreDots({ score }: { score: number }) {
@@ -37,6 +38,7 @@ export function ValueScoreCard({
   score,
   justification,
   onChange,
+  disabled,
 }: ValueScoreCardProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -76,11 +78,12 @@ export function ValueScoreCard({
             </label>
             <Slider
               value={[score]}
-              onValueChange={([v]) => onChange(v, justification)}
+              onValueChange={disabled ? undefined : ([v]) => onChange(v, justification)}
               min={1}
               max={5}
               step={1}
               className="w-full"
+              disabled={disabled}
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>1 - Minimal</span>
@@ -103,6 +106,7 @@ export function ValueScoreCard({
               placeholder="Why did you choose this score?"
               rows={3}
               className="resize-none"
+              disabled={disabled}
             />
           </div>
         </div>

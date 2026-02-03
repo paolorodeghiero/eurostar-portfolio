@@ -27,9 +27,10 @@ interface Team {
 
 interface TeamsTabProps {
   projectId: number;
+  disabled?: boolean;
 }
 
-export function TeamsTab({ projectId }: TeamsTabProps) {
+export function TeamsTab({ projectId, disabled }: TeamsTabProps) {
   const [projectTeams, setProjectTeams] = useState<ProjectTeam[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +93,7 @@ export function TeamsTab({ projectId }: TeamsTabProps) {
         <h3 className="font-medium">Involved Teams</h3>
         <Popover open={addOpen} onOpenChange={setAddOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled={disabled}>
               <Plus className="h-4 w-4 mr-1" />
               Add Team
             </Button>
@@ -128,8 +129,8 @@ export function TeamsTab({ projectId }: TeamsTabProps) {
               teamName={team.teamName}
               size={team.effortSize}
               isLead={team.isLead}
-              onSizeChange={(size) => handleSizeChange(team.teamId, size)}
-              onRemove={team.isLead ? undefined : () => handleRemove(team.teamId)}
+              onSizeChange={disabled ? undefined : (size) => handleSizeChange(team.teamId, size)}
+              onRemove={disabled || team.isLead ? undefined : () => handleRemove(team.teamId)}
             />
           ))
         )}

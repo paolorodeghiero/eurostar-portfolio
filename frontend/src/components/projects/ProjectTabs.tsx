@@ -10,6 +10,7 @@ interface ProjectTabsProps {
   project: Project;
   formData: Partial<Project>;
   onChange: (updates: Partial<Project>) => void;
+  disabled?: boolean;
 }
 
 const tabs = [
@@ -20,7 +21,7 @@ const tabs = [
   { id: 'change-impact', label: 'Change Impact' },
 ];
 
-export function ProjectTabs({ project, formData, onChange }: ProjectTabsProps) {
+export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTabsProps) {
   return (
     <Tabs defaultValue="general" orientation="vertical" className="flex h-full">
       <TabsList className="flex flex-col h-auto w-40 shrink-0 border-r bg-transparent p-2 space-y-1">
@@ -41,6 +42,7 @@ export function ProjectTabs({ project, formData, onChange }: ProjectTabsProps) {
             project={project}
             formData={formData}
             onChange={onChange}
+            disabled={disabled}
           />
         </TabsContent>
 
@@ -48,19 +50,20 @@ export function ProjectTabs({ project, formData, onChange }: ProjectTabsProps) {
           <PeopleTab
             formData={formData}
             onChange={onChange}
+            disabled={disabled}
           />
         </TabsContent>
 
         <TabsContent value="teams" className="mt-0 h-full">
-          <TeamsTab projectId={project.id} />
+          <TeamsTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="value" className="mt-0 h-full">
-          <ValueTab projectId={project.id} />
+          <ValueTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="change-impact" className="mt-0 h-full">
-          <ChangeImpactTab projectId={project.id} />
+          <ChangeImpactTab projectId={project.id} disabled={disabled} />
         </TabsContent>
       </div>
     </Tabs>

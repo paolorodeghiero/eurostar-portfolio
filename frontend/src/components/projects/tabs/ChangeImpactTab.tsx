@@ -26,9 +26,10 @@ interface Team {
 
 interface ChangeImpactTabProps {
   projectId: number;
+  disabled?: boolean;
 }
 
-export function ChangeImpactTab({ projectId }: ChangeImpactTabProps) {
+export function ChangeImpactTab({ projectId, disabled }: ChangeImpactTabProps) {
   const [impactTeams, setImpactTeams] = useState<ProjectChangeImpact[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +84,7 @@ export function ChangeImpactTab({ projectId }: ChangeImpactTabProps) {
         <h3 className="font-medium">Change Impact Teams</h3>
         <Popover open={addOpen} onOpenChange={setAddOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled={disabled}>
               <Plus className="h-4 w-4 mr-1" />
               Add Team
             </Button>
@@ -122,8 +123,8 @@ export function ChangeImpactTab({ projectId }: ChangeImpactTabProps) {
               key={team.teamId}
               teamName={team.teamName}
               size={team.impactSize}
-              onSizeChange={(size) => handleSizeChange(team.teamId, size)}
-              onRemove={() => handleRemove(team.teamId)}
+              onSizeChange={disabled ? undefined : (size) => handleSizeChange(team.teamId, size)}
+              onRemove={disabled ? undefined : () => handleRemove(team.teamId)}
             />
           ))
         )}
