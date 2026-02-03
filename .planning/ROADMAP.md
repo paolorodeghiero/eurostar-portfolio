@@ -32,12 +32,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Dev mode allows local development without authentication when enabled
   5. All referentials (departments, teams, statuses, outcomes, cost centers, thresholds, currency rates, regex patterns) can be created, edited, and deleted with usage protection
   6. Each referential item shows usage count and deletion is blocked when item is in use
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md - Project scaffolding + Database schema with all referential tables
+- [ ] 01-02-PLAN.md - Backend authentication plugin + dev mode bypass
+- [ ] 01-03-PLAN.md - Frontend MSAL authentication with session persistence
+- [ ] 01-04-PLAN.md - Referential CRUD API endpoints with usage tracking
+- [ ] 01-05-PLAN.md - Admin GUI with data tables and delete protection
+- [ ] 01-06-PLAN.md - Integration verification checkpoint
 
 ### Phase 2: Core Projects
 **Goal**: Enable complete project management with multi-dimensional scoring
@@ -146,7 +149,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Authentication | 0/TBD | Not started | - |
+| 1. Foundation & Authentication | 0/6 | Planned | - |
 | 2. Core Projects | 0/TBD | Not started | - |
 | 3. Financial Tracking | 0/TBD | Not started | - |
 | 4. Governance & Workflow | 0/TBD | Not started | - |
