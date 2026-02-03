@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 2 of 6 (Core Projects)
-Plan: 4 of 10 in current phase
+Plan: 5 of 10 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 02-04-PLAN.md (Project sub-resource APIs)
+Last activity: 2026-02-03 - Completed 02-05-PLAN.md (Portfolio page with sidebar)
 
-Progress: [█████████░] ~90%
+Progress: [███████████░] ~92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 10 min
-- Total execution time: 1.8 hours
+- Total execution time: 1.9 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
-| 02 | 4 | 15m | 4m |
+| 02 | 5 | 23m | 5m |
 
 **Recent Trend:**
-- Last 5 plans: 01-06 (11m), 02-01 (4m), 02-02 (4m), 02-03 (4m), 02-04 (3m)
+- Last 5 plans: 02-01 (4m), 02-02 (4m), 02-03 (4m), 02-04 (3m), 02-05 (8m)
 - Trend: Execution time improving
 
 *Updated after each plan completion*
@@ -68,6 +68,9 @@ Recent decisions affecting current work:
 - Cascade delete on project child tables, restrict on reference tables (02-01)
 - Upsert pattern for project values using onConflictDoUpdate (02-04)
 - Lead team protection: cannot be removed from involved teams (02-04)
+- useAutoSave hook uses 2500ms debounce delay for Linear-style UX (02-05)
+- Portfolio route is home (/), admin routes at /admin/* (02-05)
+- 409 conflict handling with structured error for future conflict modal (02-05)
 
 ### Pending Todos
 
@@ -80,7 +83,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 02-04-PLAN.md (Project sub-resource APIs)
+Stopped at: Completed 02-05-PLAN.md (Portfolio page with sidebar)
 Resume file: None
 
 ---
