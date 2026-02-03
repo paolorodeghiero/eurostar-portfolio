@@ -43,7 +43,10 @@ export function CreateProjectDialog({
 
   useEffect(() => {
     if (open) {
-      fetch('/api/admin/teams').then(r => r.json()).then(setTeams);
+      fetch('/api/admin/teams')
+        .then(r => r.json())
+        .then(data => setTeams(Array.isArray(data) ? data : []))
+        .catch(() => setTeams([]));
     }
   }, [open]);
 

@@ -28,14 +28,25 @@ interface Team {
   name: string;
 }
 
-export function GeneralTab({ formData, onChange, disabled }: GeneralTabProps) {
+export function GeneralTab({ project, formData, onChange, disabled }: GeneralTabProps) {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
 
+  // Get current names for display (from project or from loaded data)
+  const currentTeamName = teams.find(t => t.id === formData.leadTeamId)?.name || project.leadTeam?.name;
+  const currentStatusName = statuses.find(s => s.id === formData.statusId)?.name || project.status?.name;
+  const currentStatusColor = statuses.find(s => s.id === formData.statusId)?.color || project.status?.color;
+
   // Load statuses and teams for dropdowns
   useEffect(() => {
-    fetch('/api/admin/statuses').then(r => r.json()).then(setStatuses);
-    fetch('/api/admin/teams').then(r => r.json()).then(setTeams);
+    fetch('/api/admin/statuses')
+      .then(r => r.json())
+      .then(data => setStatuses(Array.isArray(data) ? data : []))
+      .catch(() => setStatuses([]));
+    fetch('/api/admin/teams')
+      .then(r => r.json())
+      .then(data => setTeams(Array.isArray(data) ? data : []))
+      .catch(() => setTeams([]));
   }, []);
 
   return (
@@ -59,7 +70,17 @@ export function GeneralTab({ formData, onChange, disabled }: GeneralTabProps) {
           disabled={disabled}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select status" />
+            {currentStatusName ? (
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: currentStatusColor }}
+                />
+                {currentStatusName}
+              </div>
+            ) : (
+              <SelectValue placeholder="Select status" />
+            )}
           </SelectTrigger>
           <SelectContent>
             {statuses.map((s) => (
@@ -108,7 +129,11 @@ export function GeneralTab({ formData, onChange, disabled }: GeneralTabProps) {
           disabled={disabled}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select lead team" />
+            {currentTeamName ? (
+              <span>{currentTeamName}</span>
+            ) : (
+              <SelectValue placeholder="Select lead team" />
+            )}
           </SelectTrigger>
           <SelectContent>
             {teams.map((t) => (

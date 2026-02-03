@@ -487,4 +487,31 @@ export async function projectRoutes(fastify: FastifyInstance) {
 
     return updated;
   });
+
+  // GET /api/projects/people-suggestions - Get distinct people values for autocomplete
+  fastify.get('/people-suggestions', async () => {
+    // Get distinct project managers
+    const pmResults = await db
+      .selectDistinct({ value: projects.projectManager })
+      .from(projects)
+      .where(sql`${projects.projectManager} IS NOT NULL AND ${projects.projectManager} != ''`);
+
+    // Get distinct IS owners
+    const ownerResults = await db
+      .selectDistinct({ value: projects.isOwner })
+      .from(projects)
+      .where(sql`${projects.isOwner} IS NOT NULL AND ${projects.isOwner} != ''`);
+
+    // Get distinct sponsors
+    const sponsorResults = await db
+      .selectDistinct({ value: projects.sponsor })
+      .from(projects)
+      .where(sql`${projects.sponsor} IS NOT NULL AND ${projects.sponsor} != ''`);
+
+    return {
+      projectManagers: pmResults.map(r => r.value).filter(Boolean).sort(),
+      isOwners: ownerResults.map(r => r.value).filter(Boolean).sort(),
+      sponsors: sponsorResults.map(r => r.value).filter(Boolean).sort(),
+    };
+  });
 }
