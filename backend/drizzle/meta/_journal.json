@@ -8,6 +8,13 @@
       "when": 1770123995280,
       "tag": "0000_clever_jane_foster",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770141757847,
+      "tag": "0001_nosy_rogue",
+      "breakpoints": true
     }
   ]
 }
