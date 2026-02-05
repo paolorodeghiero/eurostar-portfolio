@@ -57,8 +57,16 @@ export async function fetchAvailableBudgetLines(currency: string): Promise<Avail
   const res = await fetch(`${API_BASE}/api/admin/budget-lines?${params}`);
   if (!res.ok) throw new Error('Failed to fetch available budget lines');
   const allLines = await res.json();
-  // Filter to only those with available > 0
-  return allLines.filter((line: any) => parseFloat(line.available) > 0);
+  // Filter to only those with available > 0 and map to expected interface
+  return allLines
+    .filter((line: any) => parseFloat(line.availableAmount) > 0)
+    .map((line: any) => ({
+      id: line.id,
+      lineValue: line.lineValue,
+      company: line.company,
+      available: line.availableAmount,
+      currency: line.currency,
+    }));
 }
 
 export async function addBudgetAllocation(
