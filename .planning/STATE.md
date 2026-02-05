@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 ## Current Position
 
-Phase: 2 of 6 (Core Projects)
-Plan: 10 of 10 in current phase
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 02-10-PLAN.md (Conflict Dialog, Read-only Mode)
+Phase: 3 of 6 (Financial Tracking)
+Plan: 1 of 8 in current phase
+Status: In progress
+Last activity: 2026-02-05 - Completed 03-01-PLAN.md (Financial Tracking Schema)
 
-Progress: [████████████████] 100% (Phase 2)
+Progress: [███████░░░░░░░░░] 41% (17/41 total plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: 10 min
-- Total execution time: 2.5 hours
+- Total execution time: 2.9 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [████████████████] 100% (Phase 2)
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
+| 03 | 1 | 23m | 23m |
 
 **Recent Trend:**
-- Last 5 plans: 02-06 (8m), 02-07 (6m), 02-08 (7m), 02-09 (7m), 02-10 (10m)
-- Trend: Execution time consistent
+- Last 5 plans: 02-07 (6m), 02-08 (7m), 02-09 (7m), 02-10 (10m), 03-01 (23m)
+- Trend: Phase 3 first plan longer (schema setup)
 
 *Updated after each plan completion*
 
@@ -85,6 +86,10 @@ Recent decisions affecting current work:
 - Conflict dialog shows side-by-side field comparison (02-10)
 - Read-only mode disables all inputs and hides action buttons for stopped projects (02-10)
 - Optional onSizeChange in TeamChip allows static read-only display (02-10)
+- Store all monetary amounts as NUMERIC(15,2) never as JavaScript Number (03-01)
+- Store currency alongside amounts using ISO 4217 codes (03-01)
+- Competence month for invoices supports extraction flag and manual override (03-01)
+- Unique constraints prevent duplicate budget line and actuals imports (03-01)
 
 ### Pending Todos
 
@@ -92,14 +97,15 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- Human verification checkpoint pending for 02-10 (end-to-end testing)
+- Database migration 0002 not applied - requires Docker/PostgreSQL running (03-01)
+- Migration file ready, can be applied with: `docker compose up -d && cd backend && npx drizzle-kit push`
 
 ## Session Continuity
 
-Last session: 2026-02-03
-Stopped at: Completed 02-10-PLAN.md (Conflict Dialog, Read-only Mode)
+Last session: 2026-02-05
+Stopped at: Completed 03-01-PLAN.md (Financial Tracking Schema)
 Resume file: None
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-03*
+*Last updated: 2026-02-05*
