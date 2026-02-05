@@ -160,8 +160,20 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
                       <tr className="border-t">
                         <td className="px-3 py-2 font-mono">ReceiptNumber</td>
                         <td className="px-3 py-2">Text</td>
-                        <td className="px-3 py-2">No</td>
-                        <td className="px-3 py-2">Optional reference number</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Unique receipt reference</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Company</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Company code (e.g., THIF, EIL)</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">PurchaseOrder</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Purchase order reference</td>
                       </tr>
                       <tr className="border-t">
                         <td className="px-3 py-2 font-mono">Amount</td>
@@ -287,16 +299,22 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
                     </thead>
                     <tbody className="text-muted-foreground">
                       <tr className="border-t">
-                        <td className="px-3 py-2 font-mono">ProjectId</td>
+                        <td className="px-3 py-2 font-mono">Company</td>
                         <td className="px-3 py-2">Text</td>
                         <td className="px-3 py-2">Yes</td>
-                        <td className="px-3 py-2">Format: PRJ-YYYY-XXXXX</td>
+                        <td className="px-3 py-2">Company code (e.g., THIF, EIL)</td>
                       </tr>
                       <tr className="border-t">
                         <td className="px-3 py-2 font-mono">InvoiceNumber</td>
                         <td className="px-3 py-2">Text</td>
                         <td className="px-3 py-2">Yes</td>
-                        <td className="px-3 py-2">Unique invoice number</td>
+                        <td className="px-3 py-2">Unique per company</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">PurchaseOrder</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Purchase order reference</td>
                       </tr>
                       <tr className="border-t">
                         <td className="px-3 py-2 font-mono">Amount</td>
@@ -317,16 +335,16 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
                         <td className="px-3 py-2">Format: YYYY-MM-DD</td>
                       </tr>
                       <tr className="border-t">
-                        <td className="px-3 py-2 font-mono">Description</td>
-                        <td className="px-3 py-2">Text</td>
-                        <td className="px-3 py-2">Yes</td>
-                        <td className="px-3 py-2">Invoice description</td>
-                      </tr>
-                      <tr className="border-t">
-                        <td className="px-3 py-2 font-mono">Company</td>
+                        <td className="px-3 py-2 font-mono">CompetenceMonth</td>
                         <td className="px-3 py-2">Text</td>
                         <td className="px-3 py-2">No</td>
-                        <td className="px-3 py-2">Vendor company name</td>
+                        <td className="px-3 py-2">Format: YYYY-MM</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Description</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">No</td>
+                        <td className="px-3 py-2">Optional description</td>
                       </tr>
                     </tbody>
                   </table>

@@ -26,8 +26,8 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
   fastify.get('/receipts/template', async (request, reply) => {
     const workbook = XLSX.utils.book_new();
     const data = [
-      ['ProjectId', 'ReceiptNumber', 'Amount', 'Currency', 'Date', 'Description'],
-      ['PRJ-2026-00001', 'REC-001', 5000, 'EUR', '2026-01-15', 'Office supplies']
+      ['ProjectId', 'ReceiptNumber', 'Company', 'PurchaseOrder', 'Amount', 'Currency', 'Date', 'Description'],
+      ['PRJ-2026-00001', 'REC-001', 'THIF', 'PO-2026-001', 5000, 'EUR', '2026-01-15', 'Office supplies']
     ];
     const sheet = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(workbook, sheet, 'Template');
@@ -57,6 +57,8 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
         projectId: projects.projectId,
         projectName: projects.name,
         receiptNumber: receipts.receiptNumber,
+        company: receipts.company,
+        purchaseOrder: receipts.purchaseOrder,
         amount: receipts.amount,
         currency: receipts.currency,
         receiptDate: receipts.receiptDate,
@@ -195,7 +197,9 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
 
         receiptsToInsert.push({
           projectId: project.id,
-          receiptNumber: row.ReceiptNumber || null,
+          receiptNumber: row.ReceiptNumber,
+          company: row.Company,
+          purchaseOrder: row.PurchaseOrder,
           amount: row.Amount.toString(),
           currency: row.Currency,
           receiptDate: row.Date,
@@ -214,7 +218,7 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
           if (error.code === '23505') {
             return reply.code(400).send({
               error: 'Duplicate receipt detected',
-              message: 'One or more receipts with the same projectId and receiptNumber already exist',
+              message: 'One or more receipts with the same company and receiptNumber already exist',
             });
           }
           throw error;
@@ -236,7 +240,9 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
   fastify.post<{
     Body: Array<{
       projectId: string;
-      receiptNumber?: string;
+      receiptNumber: string;
+      company: string;
+      purchaseOrder: string;
       amount: number;
       currency: string;
       receiptDate: string;
@@ -303,10 +309,30 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
         continue;
       }
 
+      // Validate receiptNumber
+      if (!receipt.receiptNumber) {
+        errors.push({ index, message: 'receiptNumber is required' });
+        continue;
+      }
+
+      // Validate company
+      if (!receipt.company) {
+        errors.push({ index, message: 'company is required' });
+        continue;
+      }
+
+      // Validate purchaseOrder
+      if (!receipt.purchaseOrder) {
+        errors.push({ index, message: 'purchaseOrder is required' });
+        continue;
+      }
+
       // Valid receipt - add to batch
       validReceipts.push({
         projectId: project.id,
-        receiptNumber: receipt.receiptNumber || null,
+        receiptNumber: receipt.receiptNumber,
+        company: receipt.company,
+        purchaseOrder: receipt.purchaseOrder,
         amount: receipt.amount.toString(), // Store as string for NUMERIC
         currency: receipt.currency,
         receiptDate: receipt.receiptDate,
@@ -326,7 +352,7 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
         if (error.code === '23505') {
           return reply.code(400).send({
             error: 'Duplicate receipt detected',
-            message: 'One or more receipts with the same projectId and receiptNumber already exist',
+            message: 'One or more receipts with the same company and receiptNumber already exist',
           });
         }
         throw error;

@@ -243,7 +243,9 @@ export const receipts = pgTable(
     projectId: integer('project_id')
       .notNull()
       .references(() => projects.id, { onDelete: 'cascade' }),
-    receiptNumber: varchar('receipt_number', { length: 100 }),
+    receiptNumber: varchar('receipt_number', { length: 100 }).notNull(),
+    company: varchar('company', { length: 100 }).notNull(),
+    purchaseOrder: varchar('purchase_order', { length: 100 }).notNull(),
     amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
     currency: varchar('currency', { length: 3 }).notNull(), // ISO 4217
     receiptDate: date('receipt_date').notNull(),
@@ -253,19 +255,22 @@ export const receipts = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [
-    unique('unique_receipt').on(table.projectId, table.receiptNumber).nullsNotDistinct(),
+    unique('unique_receipt').on(table.company, table.receiptNumber),
   ]
 );
 
 // Invoices table - Actuals tracking for invoices
+// invoiceId is derived as: company||-||invoiceNumber
+// Invoices are company-level, not project-level (projectId is nullable)
 export const invoices = pgTable(
   'invoices',
   {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     projectId: integer('project_id')
-      .notNull()
-      .references(() => projects.id, { onDelete: 'cascade' }),
+      .references(() => projects.id, { onDelete: 'set null' }),
+    company: varchar('company', { length: 100 }).notNull(),
     invoiceNumber: varchar('invoice_number', { length: 100 }).notNull(),
+    purchaseOrder: varchar('purchase_order', { length: 100 }).notNull(),
     amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
     currency: varchar('currency', { length: 3 }).notNull(), // ISO 4217
     invoiceDate: date('invoice_date').notNull(),
@@ -277,5 +282,5 @@ export const invoices = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
-  (table) => [unique().on(table.projectId, table.invoiceNumber, table.amount)]
+  (table) => [unique().on(table.company, table.invoiceNumber)]
 );

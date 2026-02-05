@@ -22,7 +22,9 @@ export type BudgetLineRow = z.infer<typeof budgetLineRowSchema>;
  */
 export const receiptRowSchema = z.object({
   ProjectId: z.string().regex(/^PRJ-\d{4}-\d{5}$/, 'Must be in format PRJ-YYYY-XXXXX'),
-  ReceiptNumber: z.string().optional(),
+  ReceiptNumber: z.string().min(1),
+  Company: z.string().min(1),
+  PurchaseOrder: z.string().min(1),
   Amount: z.number().positive(),
   Currency: z.string().length(3),
   Date: z.string().min(1), // Will be validated as date
@@ -33,15 +35,17 @@ export type ReceiptRow = z.infer<typeof receiptRowSchema>;
 
 /**
  * Schema for validating invoice rows from Excel import
+ * Key: Company + InvoiceNumber (no ProjectId - invoices are company-level)
  */
 export const invoiceRowSchema = z.object({
-  ProjectId: z.string().regex(/^PRJ-\d{4}-\d{5}$/, 'Must be in format PRJ-YYYY-XXXXX'),
+  Company: z.string().min(1),
   InvoiceNumber: z.string().min(1),
+  PurchaseOrder: z.string().min(1),
   Amount: z.number().positive(),
   Currency: z.string().length(3),
   Date: z.string().min(1), // Will be validated as date
-  Description: z.string().min(1),
-  Company: z.string().optional(),
+  CompetenceMonth: z.string().regex(/^\d{4}-\d{2}$/, 'Must be in format YYYY-MM').optional(),
+  Description: z.string().optional(),
 });
 
 export type InvoiceRow = z.infer<typeof invoiceRowSchema>;

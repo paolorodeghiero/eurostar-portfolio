@@ -62,12 +62,13 @@ export function ActualsTable({
   return (
     <div>
       {/* Table Header */}
-      <div className="grid grid-cols-[100px_100px_1fr_120px_60px_50px] gap-2 px-3 py-2 bg-gray-50 border-b text-xs font-medium text-muted-foreground">
+      <div className="grid grid-cols-[100px_80px_80px_100px_1fr_120px_50px] gap-2 px-3 py-2 bg-gray-50 border-b text-xs font-medium text-muted-foreground">
         <div>ID</div>
+        <div>Company</div>
+        <div>PO</div>
         <div>Date</div>
         <div>Description</div>
         <div className="text-right">Amount</div>
-        <div>Currency</div>
         <div className="text-right"></div>
       </div>
 
@@ -90,7 +91,7 @@ export function ActualsTable({
             return (
               <div
                 key={virtualItem.key}
-                className="grid grid-cols-[100px_100px_1fr_120px_60px_50px] gap-2 px-3 py-2 border-b text-sm hover:bg-gray-50"
+                className="grid grid-cols-[100px_80px_80px_100px_1fr_120px_50px] gap-2 px-3 py-2 border-b text-sm hover:bg-gray-50"
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -101,8 +102,18 @@ export function ActualsTable({
                 }}
               >
                 {/* ID */}
-                <div className="text-xs text-muted-foreground">
-                  {receipt.receiptNumber || 'No number'}
+                <div className="text-xs text-muted-foreground truncate">
+                  {receipt.receiptNumber}
+                </div>
+
+                {/* Company */}
+                <div className="text-xs text-muted-foreground truncate">
+                  {receipt.company}
+                </div>
+
+                {/* Purchase Order */}
+                <div className="text-xs text-muted-foreground truncate">
+                  {receipt.purchaseOrder}
                 </div>
 
                 {/* Date */}
@@ -118,11 +129,6 @@ export function ActualsTable({
                 {/* Amount */}
                 <div className="text-right text-xs font-medium">
                   {formatCurrency(receipt.amount, receipt.currency)}
-                </div>
-
-                {/* Currency */}
-                <div className="text-xs text-muted-foreground">
-                  {receipt.currency}
                 </div>
 
                 {/* Delete */}

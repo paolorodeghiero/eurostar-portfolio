@@ -122,10 +122,13 @@ Recent decisions affecting current work:
 - Always load receipts on mount (no toggle) for simpler UX (quick-004)
 - AlertDialog for delete all confirmation with explicit count (quick-004)
 - Progress bar color codes: green < 90%, orange 90-100%, red > 100% (quick-004)
+- Receipts require: projectId, receiptNumber, company, purchaseOrder, amount, currency, date (quick-005)
+- Invoices require: projectId, company, invoiceNumber, purchaseOrder, amount, currency, date (quick-005)
+- Invoice unique constraint on (company, invoiceNumber), receipt on (company, receiptNumber) (quick-005)
 
 ### Pending Todos
 
-5 pending — `/gsd:check-todos` to review
+4 pending — `/gsd:check-todos` to review
 
 ### Blockers/Concerns
 

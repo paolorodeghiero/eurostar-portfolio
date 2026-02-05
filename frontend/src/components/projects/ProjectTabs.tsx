@@ -27,8 +27,8 @@ const tabs = [
 
 export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTabsProps) {
   return (
-    <Tabs defaultValue="general" orientation="vertical" className="flex h-full">
-      <TabsList className="flex flex-col h-auto w-40 shrink-0 border-r bg-transparent p-2 space-y-1">
+    <Tabs defaultValue="general" orientation="vertical" className="flex items-start h-full">
+      <TabsList className="flex flex-col items-stretch justify-start h-auto w-40 shrink-0 border-r bg-transparent p-2 space-y-1">
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.id}

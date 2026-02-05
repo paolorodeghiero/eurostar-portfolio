@@ -18,7 +18,9 @@ export interface Receipt {
   id: number;
   projectId: string;
   projectName: string | null;
-  receiptNumber: string | null;
+  receiptNumber: string;
+  company: string;
+  purchaseOrder: string;
   amount: string;
   currency: string;
   convertedAmount?: string | null;
@@ -30,14 +32,16 @@ export interface Receipt {
 
 export interface Invoice {
   id: number;
-  projectId: string;
+  projectId: string | null;
   projectName: string | null;
+  company: string;
   invoiceNumber: string;
+  purchaseOrder: string;
   amount: string;
   currency: string;
   convertedAmount?: string | null;
   invoiceDate: string;
-  description: string;
+  description: string | null;
   competenceMonth: string | null;
   competenceMonthExtracted: boolean;
   competenceMonthOverride: string | null;
@@ -54,7 +58,9 @@ export interface ImportResult {
 
 export interface ReceiptInput {
   projectId: string;
-  receiptNumber?: string;
+  receiptNumber: string;
+  company: string;
+  purchaseOrder: string;
   amount: number;
   currency: string;
   receiptDate: string;
@@ -62,13 +68,14 @@ export interface ReceiptInput {
 }
 
 export interface InvoiceInput {
-  projectId: string;
+  company: string;
   invoiceNumber: string;
+  purchaseOrder: string;
   amount: number;
   currency: string;
   invoiceDate: string;
-  description: string;
-  company?: string;
+  competenceMonth?: string;
+  description?: string;
 }
 
 export async function fetchProjectActualsSummary(projectId: number, reportCurrency?: string | null): Promise<ProjectActualsSummary> {
@@ -159,7 +166,9 @@ export function exportActualsExcel(receipts: Receipt[], invoices: Invoice[], pro
   const receiptsData = receipts.map(r => ({
     'Project ID': r.projectId,
     'Project Name': r.projectName,
-    'Receipt Number': r.receiptNumber || '',
+    'Receipt Number': r.receiptNumber,
+    'Company': r.company,
+    'Purchase Order': r.purchaseOrder,
     'Amount': parseFloat(r.amount),
     'Currency': r.currency,
     'Date': r.receiptDate,
@@ -174,11 +183,13 @@ export function exportActualsExcel(receipts: Receipt[], invoices: Invoice[], pro
   const invoicesData = invoices.map(i => ({
     'Project ID': i.projectId,
     'Project Name': i.projectName,
+    'Company': i.company,
     'Invoice Number': i.invoiceNumber,
+    'Purchase Order': i.purchaseOrder,
     'Amount': parseFloat(i.amount),
     'Currency': i.currency,
     'Date': i.invoiceDate,
-    'Description': i.description,
+    'Description': i.description || '',
     'Competence Month': i.competenceMonthOverride || i.competenceMonth || '',
     'Month Extracted': i.competenceMonthExtracted ? 'Yes' : 'No',
     'Import Batch': i.importBatch || '',
@@ -205,7 +216,9 @@ export function exportReceiptsExcel(receipts: Receipt[], projectId: string): voi
   const receiptsData = receipts.map(r => ({
     'Project ID': r.projectId,
     'Project Name': r.projectName,
-    'Receipt Number': r.receiptNumber || '',
+    'Receipt Number': r.receiptNumber,
+    'Company': r.company,
+    'Purchase Order': r.purchaseOrder,
     'Amount': parseFloat(r.amount),
     'Currency': r.currency,
     'Date': r.receiptDate,

@@ -25,7 +25,7 @@ interface CurrencyRate {
   id: number;
   fromCurrency: string;
   toCurrency: string;
-  rate: number;
+  rate: string; // NUMERIC comes as string from DB
   validFrom: string;
   validTo: string | null;
   usageCount: number;
@@ -129,7 +129,7 @@ export function CurrencyRatesPage() {
     setEditingRate(rate);
     setFormFromCurrency(rate.fromCurrency);
     setFormToCurrency(rate.toCurrency);
-    setFormRate(rate.rate);
+    setFormRate(parseFloat(rate.rate));
     setFormValidFrom(rate.validFrom.split('T')[0]);
     setFormValidTo(rate.validTo?.split('T')[0] || '');
     setError(null);
@@ -153,7 +153,7 @@ export function CurrencyRatesPage() {
       header: 'Rate',
       cell: ({ row }) => (
         <span className="font-mono font-medium">
-          {row.original.rate.toFixed(4)}
+          {parseFloat(String(row.original.rate)).toFixed(4)}
         </span>
       ),
     },

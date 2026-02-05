@@ -52,17 +52,6 @@ export function GeneralTab({ project, formData, onChange, disabled }: GeneralTab
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Project Name</Label>
-        <Input
-          id="name"
-          value={formData.name || ''}
-          onChange={(e) => onChange({ ...formData, name: e.target.value })}
-          placeholder="Enter project name"
-          disabled={disabled}
-        />
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="status">Status</Label>
         <Select
           value={formData.statusId?.toString() || ''}

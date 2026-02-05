@@ -386,6 +386,8 @@ async function seed() {
     {
       projectId: project1.id,
       receiptNumber: 'RCP-2026-001',
+      company: 'THIF',
+      purchaseOrder: 'PO-2026-001',
       amount: '12500.00',
       currency: 'EUR',
       receiptDate: '2026-01-20',
@@ -394,6 +396,8 @@ async function seed() {
     {
       projectId: project1.id,
       receiptNumber: 'RCP-2026-002',
+      company: 'THIF',
+      purchaseOrder: 'PO-2026-002',
       amount: '8750.00',
       currency: 'EUR',
       receiptDate: '2026-02-01',
@@ -402,6 +406,8 @@ async function seed() {
     {
       projectId: project2.id,
       receiptNumber: 'RCP-2026-003',
+      company: 'EIL',
+      purchaseOrder: 'PO-2026-003',
       amount: '25000.00',
       currency: 'EUR',
       receiptDate: '2026-02-05',
@@ -414,7 +420,9 @@ async function seed() {
   await db.insert(invoices).values([
     {
       projectId: project1.id,
+      company: 'THIF',
       invoiceNumber: 'INV-2026-001',
+      purchaseOrder: 'PO-2026-001',
       amount: '15000.00',
       currency: 'EUR',
       invoiceDate: '2026-01-25',
@@ -424,7 +432,9 @@ async function seed() {
     },
     {
       projectId: project1.id,
+      company: 'THIF',
       invoiceNumber: 'INV-2026-002',
+      purchaseOrder: 'PO-2026-002',
       amount: '18500.00',
       currency: 'EUR',
       invoiceDate: '2026-02-03',
@@ -434,7 +444,9 @@ async function seed() {
     },
     {
       projectId: project2.id,
+      company: 'EIL',
       invoiceNumber: 'INV-2026-003',
+      purchaseOrder: 'PO-2026-003',
       amount: '32000.00',
       currency: 'EUR',
       invoiceDate: '2026-02-01',
@@ -444,7 +456,9 @@ async function seed() {
     },
     {
       projectId: project3.id,
+      company: 'THIF',
       invoiceNumber: 'INV-2026-004',
+      purchaseOrder: 'PO-2026-004',
       amount: '75000.00',
       currency: 'EUR',
       invoiceDate: '2026-01-31',

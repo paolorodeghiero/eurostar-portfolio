@@ -13,6 +13,11 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import {
@@ -149,22 +154,19 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
     }
   };
 
-  const formatCurrency = (value: string | null, currency: string | null) => {
-    if (!value || !currency) return '-';
+  const formatCurrency = (value: string | null, curr: string | null) => {
+    if (!value || !curr) return '-';
     const num = parseFloat(value);
     if (isNaN(num)) return value;
 
-    // Use Intl.NumberFormat to format with proper currency formatting
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency: currency,
+      currency: curr,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);
   };
 
-  // Get the effective display currency (reportCurrency if set, otherwise budgetCurrency)
-  // Use project.reportCurrency (set via header toggle) for all budget display
   const displayCurrency = currency;
 
   const selectedLine = availableLines.find(l => l.id === selectedLineId);
@@ -178,58 +180,66 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Budget Totals Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium">Budget Totals</h3>
-          {statusText && (
-            <span className="text-xs text-muted-foreground">{statusText}</span>
+      {/* Total Budget Header with Hover Edit */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="space-y-1">
+            <span className="text-sm text-muted-foreground">Project Budget</span>
+            <HoverCard openDelay={200}>
+              <HoverCardTrigger asChild>
+                <button
+                  className="block text-lg font-semibold hover:text-primary transition-colors cursor-pointer"
+                  disabled={disabled || !currency}
+                >
+                  {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
+                </button>
+              </HoverCardTrigger>
+            <HoverCardContent className="w-64" align="start">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="hover-opex" className="text-xs">OPEX</Label>
+                  <Input
+                    id="hover-opex"
+                    type="text"
+                    value={localOpex}
+                    onChange={(e) => setLocalOpex(e.target.value)}
+                    placeholder="0.00"
+                    disabled={disabled || !currency}
+                    className="h-8"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="hover-capex" className="text-xs">CAPEX</Label>
+                  <Input
+                    id="hover-capex"
+                    type="text"
+                    value={localCapex}
+                    onChange={(e) => setLocalCapex(e.target.value)}
+                    placeholder="0.00"
+                    disabled={disabled || !currency}
+                    className="h-8"
+                  />
+                </div>
+                {statusText && (
+                  <span className="text-xs text-muted-foreground">{statusText}</span>
+                )}
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+          </div>
+
+          {budget?.costTshirt && (
+            <Badge className={TSHIRT_COLORS[budget.costTshirt] || 'bg-gray-300'}>
+              {budget.costTshirt}
+            </Badge>
           )}
         </div>
 
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="opex">OPEX Budget {currency && `(${currency})`}</Label>
-            <Input
-              id="opex"
-              type="text"
-              value={localOpex}
-              onChange={(e) => setLocalOpex(e.target.value)}
-              placeholder="0.00"
-              disabled={disabled || !currency}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="capex">CAPEX Budget {currency && `(${currency})`}</Label>
-            <Input
-              id="capex"
-              type="text"
-              value={localCapex}
-              onChange={(e) => setLocalCapex(e.target.value)}
-              placeholder="0.00"
-              disabled={disabled || !currency}
-            />
-          </div>
-
-          <div className="border-t pt-4 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="font-medium">Total Budget {displayCurrency && `(${displayCurrency})`}</span>
-              <span className="font-semibold">
-                {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
-              </span>
-            </div>
-
-            {budget?.costTshirt && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Cost T-shirt Size</span>
-                <Badge className={TSHIRT_COLORS[budget.costTshirt] || 'bg-gray-300'}>
-                  {budget.costTshirt}
-                </Badge>
-              </div>
-            )}
-          </div>
-        </div>
+        {!currency && (
+          <span className="text-sm text-muted-foreground">
+            Set currency in header to edit budget
+          </span>
+        )}
       </div>
 
       {/* Allocation Match Alert */}
@@ -246,7 +256,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
       {/* Budget Allocations Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium">Budget Allocations</h3>
+          <h3 className="font-medium">Allocations</h3>
           <Popover open={addOpen} onOpenChange={setAddOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -255,7 +265,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
                 disabled={disabled || !currency}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Add Allocation
+                Add
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-0" align="end">
@@ -341,12 +351,8 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
               <thead className="bg-muted">
                 <tr>
                   <th className="text-left p-3 text-sm font-medium">Budget Line</th>
-                  <th className="text-right p-3 text-sm font-medium">
-                    Allocated {displayCurrency && `(${displayCurrency})`}
-                  </th>
-                  <th className="text-right p-3 text-sm font-medium">
-                    Available {displayCurrency && `(${displayCurrency})`}
-                  </th>
+                  <th className="text-right p-3 text-sm font-medium">Allocated</th>
+                  <th className="text-right p-3 text-sm font-medium">Available</th>
                   <th className="w-[50px]"></th>
                 </tr>
               </thead>

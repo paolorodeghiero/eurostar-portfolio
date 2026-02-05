@@ -27,8 +27,8 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
   fastify.get('/invoices/template', async (request, reply) => {
     const workbook = XLSX.utils.book_new();
     const data = [
-      ['ProjectId', 'InvoiceNumber', 'Amount', 'Currency', 'Date', 'Description', 'Company'],
-      ['PRJ-2026-00001', 'INV-001', 15000, 'EUR', '2026-01-20', 'Consulting services', 'Acme Corp']
+      ['Company', 'InvoiceNumber', 'PurchaseOrder', 'Amount', 'Currency', 'Date', 'CompetenceMonth', 'Description'],
+      ['THIF', 'INV-001', 'PO-2026-001', 15000, 'EUR', '2026-01-20', '2026-01', 'Consulting services']
     ];
     const sheet = XLSX.utils.aoa_to_sheet(data);
     XLSX.utils.book_append_sheet(workbook, sheet, 'Template');
@@ -57,7 +57,9 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
         id: invoices.id,
         projectId: projects.projectId,
         projectName: projects.name,
+        company: invoices.company,
         invoiceNumber: invoices.invoiceNumber,
+        purchaseOrder: invoices.purchaseOrder,
         amount: invoices.amount,
         currency: invoices.currency,
         invoiceDate: invoices.invoiceDate,
@@ -169,20 +171,6 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
         const row = valid[i];
         const rowNum = errors.length + i + 2;
 
-        // Validate project exists
-        const [project] = await db
-          .select({ id: projects.id })
-          .from(projects)
-          .where(eq(projects.projectId, row.ProjectId));
-
-        if (!project) {
-          processingErrors.push({
-            row: rowNum,
-            message: `Project ${row.ProjectId} not found`,
-          });
-          continue;
-        }
-
         // Validate currency exists
         const [currencyExists] = await db
           .select({ currency: currencyRates.fromCurrency })
@@ -198,11 +186,11 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
           continue;
         }
 
-        // Extract competence month if company provided
-        let competenceMonth = null;
+        // Use provided competence month or try to extract from description
+        let competenceMonth = row.CompetenceMonth || null;
         let competenceMonthExtracted = false;
 
-        if (row.Company && row.Description) {
+        if (!competenceMonth && row.Description) {
           const extraction = await extractCompetenceMonth(
             db,
             row.Description,
@@ -214,17 +202,18 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
           if (!competenceMonthExtracted) {
             extractionWarnings++;
           }
-        } else {
+        } else if (!competenceMonth) {
           extractionWarnings++;
         }
 
         invoicesToInsert.push({
-          projectId: project.id,
+          company: row.Company,
           invoiceNumber: row.InvoiceNumber,
+          purchaseOrder: row.PurchaseOrder,
           amount: row.Amount.toString(),
           currency: row.Currency,
           invoiceDate: row.Date,
-          description: row.Description,
+          description: row.Description || null,
           competenceMonth,
           competenceMonthExtracted,
           competenceMonthOverride: null,
@@ -242,7 +231,7 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
           if (error.code === '23505') {
             return reply.code(400).send({
               error: 'Duplicate invoice detected',
-              message: 'One or more invoices with the same projectId, invoiceNumber, and amount already exist',
+              message: 'One or more invoices with the same company and invoiceNumber already exist',
             });
           }
           throw error;
@@ -262,15 +251,17 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/actuals/invoices/import - Batch import invoices with competence month extraction
+  // Invoices are company-level (no projectId required)
   fastify.post<{
     Body: Array<{
-      projectId: string;
+      company: string;
       invoiceNumber: string;
+      purchaseOrder: string;
       amount: number;
       currency: string;
       invoiceDate: string;
-      description: string;
-      company?: string;
+      competenceMonth?: string;
+      description?: string;
     }>;
   }>('/invoices/import', async (request, reply) => {
     const invoicesData = request.body;
@@ -288,22 +279,6 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
     for (let i = 0; i < invoicesData.length; i++) {
       const invoice = invoicesData[i];
       const index = i;
-
-      // Validate projectId exists
-      if (!invoice.projectId) {
-        errors.push({ index, message: 'projectId is required' });
-        continue;
-      }
-
-      const [project] = await db
-        .select({ id: projects.id })
-        .from(projects)
-        .where(eq(projects.projectId, invoice.projectId));
-
-      if (!project) {
-        errors.push({ index, message: `Project ${invoice.projectId} not found` });
-        continue;
-      }
 
       // Validate currency exists
       if (!invoice.currency) {
@@ -339,16 +314,23 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
         continue;
       }
 
-      if (!invoice.description) {
-        errors.push({ index, message: 'description is required' });
+      // Validate company
+      if (!invoice.company) {
+        errors.push({ index, message: 'company is required' });
         continue;
       }
 
-      // Extract competence month if company provided
-      let competenceMonth = null;
+      // Validate purchaseOrder
+      if (!invoice.purchaseOrder) {
+        errors.push({ index, message: 'purchaseOrder is required' });
+        continue;
+      }
+
+      // Use provided competence month or try to extract from description
+      let competenceMonth = invoice.competenceMonth || null;
       let competenceMonthExtracted = false;
 
-      if (invoice.company && invoice.description) {
+      if (!competenceMonth && invoice.description) {
         const extraction = await extractCompetenceMonth(
           db,
           invoice.description,
@@ -360,19 +342,19 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
         if (!competenceMonthExtracted) {
           extractionWarnings++;
         }
-      } else {
-        // No company provided, can't extract
+      } else if (!competenceMonth) {
         extractionWarnings++;
       }
 
       // Valid invoice - add to batch
       validInvoices.push({
-        projectId: project.id,
+        company: invoice.company,
         invoiceNumber: invoice.invoiceNumber,
+        purchaseOrder: invoice.purchaseOrder,
         amount: invoice.amount.toString(), // Store as string for NUMERIC
         currency: invoice.currency,
         invoiceDate: invoice.invoiceDate,
-        description: invoice.description,
+        description: invoice.description || null,
         competenceMonth,
         competenceMonthExtracted,
         competenceMonthOverride: null,
@@ -391,7 +373,7 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
         if (error.code === '23505') {
           return reply.code(400).send({
             error: 'Duplicate invoice detected',
-            message: 'One or more invoices with the same projectId, invoiceNumber, and amount already exist',
+            message: 'One or more invoices with the same company and invoiceNumber already exist',
           });
         }
         throw error;

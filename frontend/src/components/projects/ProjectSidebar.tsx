@@ -169,11 +169,13 @@ export function ProjectSidebar({
           className={cn(
             "fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
             "inset-y-0 right-0 h-full border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
-            "w-[500px] sm:w-[540px] p-0 flex flex-col"
+            "w-[500px] md:w-[600px] lg:w-[700px] xl:w-[800px] p-0 flex flex-col"
           )}
         >
           <ProjectHeader
             project={project}
+            name={formData.name ?? project?.name ?? ''}
+            onNameChange={(name) => setFormData((prev) => ({ ...prev, name }))}
             onClose={handleClose}
             onProjectUpdated={() => {
               // Reload project data and notify parent
@@ -188,6 +190,7 @@ export function ProjectSidebar({
             }}
             onReportCurrencyChange={handleReportCurrencyChange}
             currencyUpdating={currencyUpdating}
+            disabled={isReadOnly}
           />
 
           <div className="flex-1 overflow-auto">
