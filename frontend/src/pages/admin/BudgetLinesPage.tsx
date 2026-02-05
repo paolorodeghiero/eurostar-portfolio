@@ -41,6 +41,7 @@ export function BudgetLinesPage() {
   const [error, setError] = useState<string | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDocsOpen, setIsDocsOpen] = useState(false);
 
   // Filter state
   const currentYear = new Date().getFullYear();
@@ -389,9 +390,9 @@ export function BudgetLinesPage() {
               </div>
             </div>
 
-            <Collapsible defaultOpen={false}>
+            <Collapsible open={isDocsOpen} onOpenChange={setIsDocsOpen}>
               <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-eurostar-teal">
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className={`h-4 w-4 transition-transform ${isDocsOpen ? '' : '-rotate-90'}`} />
                 Column Documentation
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">

@@ -34,6 +34,8 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
   const [invoicesLoading, setInvoicesLoading] = useState(false);
   const [receiptsError, setReceiptsError] = useState<string | null>(null);
   const [invoicesError, setInvoicesError] = useState<string | null>(null);
+  const [receiptsDocsOpen, setReceiptsDocsOpen] = useState(false);
+  const [invoicesDocsOpen, setInvoicesDocsOpen] = useState(false);
 
   const handleReceiptsUpload = async () => {
     if (!receiptsFile) return;
@@ -132,9 +134,9 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
               </div>
             </div>
 
-            <Collapsible defaultOpen={false}>
+            <Collapsible open={receiptsDocsOpen} onOpenChange={setReceiptsDocsOpen}>
               <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-eurostar-teal">
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className={`h-4 w-4 transition-transform ${receiptsDocsOpen ? '' : '-rotate-90'}`} />
                 Column Documentation
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
@@ -267,9 +269,9 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
               </div>
             </div>
 
-            <Collapsible defaultOpen={false}>
+            <Collapsible open={invoicesDocsOpen} onOpenChange={setInvoicesDocsOpen}>
               <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-eurostar-teal">
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className={`h-4 w-4 transition-transform ${invoicesDocsOpen ? '' : '-rotate-90'}`} />
                 Column Documentation
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
