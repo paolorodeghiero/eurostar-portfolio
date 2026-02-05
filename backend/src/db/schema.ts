@@ -188,3 +188,26 @@ export const projectChangeImpact = pgTable(
   },
   (table) => [unique().on(table.projectId, table.teamId)]
 );
+
+// Budget Lines table - Imported budget lines for projects
+export const budgetLines = pgTable(
+  'budget_lines',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    company: varchar('company', { length: 10 }).notNull(), // THIF, EIL
+    departmentId: integer('department_id')
+      .notNull()
+      .references(() => departments.id, { onDelete: 'restrict' }),
+    costCenterId: integer('cost_center_id')
+      .notNull()
+      .references(() => costCenters.id, { onDelete: 'restrict' }),
+    lineValue: varchar('line_value', { length: 255 }).notNull(),
+    lineAmount: numeric('line_amount', { precision: 15, scale: 2 }).notNull(),
+    currency: varchar('currency', { length: 3 }).notNull(), // ISO 4217
+    type: varchar('type', { length: 5 }).notNull(), // CAPEX or OPEX
+    fiscalYear: integer('fiscal_year').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.company, table.costCenterId, table.lineValue, table.fiscalYear)]
+);
