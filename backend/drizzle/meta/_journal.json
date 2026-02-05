@@ -15,6 +15,20 @@
       "when": 1770141757847,
       "tag": "0001_nosy_rogue",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770283565458,
+      "tag": "0002_thin_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1770300495510,
+      "tag": "0003_fair_the_executioner",
+      "breakpoints": true
     }
   ]
 }
