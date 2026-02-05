@@ -344,7 +344,11 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
   fastify.delete<{
     Params: { id: string };
   }>('/receipts/:id', async (request, reply) => {
-    const id = parseInt(request.params.id);
+    const id = parseInt(request.params.id, 10);
+
+    if (isNaN(id)) {
+      return reply.code(400).send({ error: `Invalid receipt ID: ${request.params.id}` });
+    }
 
     const [receipt] = await db
       .select()

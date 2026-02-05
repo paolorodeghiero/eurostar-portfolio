@@ -58,9 +58,13 @@ export async function apiClient<T>(
 ): Promise<T> {
   const token = await getAccessToken();
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
+  const headers: Record<string, string> = {};
+
+  // Only set Content-Type for methods with a body
+  const method = options.method?.toUpperCase() || 'GET';
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    headers['Content-Type'] = 'application/json';
+  }
 
   // Merge existing headers if present
   if (options.headers) {
@@ -82,5 +86,10 @@ export async function apiClient<T>(
     throw new Error(error.error || `HTTP ${response.status}`);
   }
 
-  return response.json();
+  // Handle empty responses (e.g., 204 No Content)
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text);
 }
