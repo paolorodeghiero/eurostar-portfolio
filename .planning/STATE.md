@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 3 of 6 (Financial Tracking)
-Plan: 1 of 8 in current phase
+Plan: 3 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed 03-01-PLAN.md (Financial Tracking Schema)
+Last activity: 2026-02-05 - Completed 03-03-PLAN.md (Project Budget API)
 
-Progress: [███████░░░░░░░░░] 41% (17/41 total plans)
+Progress: [████████░░░░░░░░] 44% (18/41 total plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 17
+- Total plans completed: 18
 - Average duration: 10 min
-- Total execution time: 2.9 hours
+- Total execution time: 3.1 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [███████░░░░░░░░░] 41% (17/41 total pl
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
-| 03 | 1 | 23m | 23m |
+| 03 | 2 | 33m | 17m |
 
 **Recent Trend:**
-- Last 5 plans: 02-07 (6m), 02-08 (7m), 02-09 (7m), 02-10 (10m), 03-01 (23m)
-- Trend: Phase 3 first plan longer (schema setup)
+- Last 5 plans: 02-08 (7m), 02-09 (7m), 02-10 (10m), 03-01 (23m), 03-03 (10m)
+- Trend: Phase 3 averaging 17m/plan
 
 *Updated after each plan completion*
 
@@ -90,6 +90,9 @@ Recent decisions affecting current work:
 - Store currency alongside amounts using ISO 4217 codes (03-01)
 - Competence month for invoices supports extraction flag and manual override (03-01)
 - Unique constraints prevent duplicate budget line and actuals imports (03-01)
+- Use SERIALIZABLE transactions with SELECT FOR UPDATE for allocation validation (03-03)
+- Auto-derive cost T-shirt on budget updates from total OPEX + CAPEX (03-03)
+- Return allocationMatch flag to warn when allocations don't match declared budget (03-03)
 
 ### Pending Todos
 
@@ -103,7 +106,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 03-01-PLAN.md (Financial Tracking Schema)
+Stopped at: Completed 03-03-PLAN.md (Project Budget API)
 Resume file: None
 
 ---
