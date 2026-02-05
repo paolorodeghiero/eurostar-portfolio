@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 3 of 6 (Financial Tracking)
-Plan: 2 of 8 in current phase
+Plan: 3 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed 03-02-PLAN.md (Budget Lines Admin API)
+Last activity: 2026-02-05 - Completed 03-05-PLAN.md (Budget Lines Admin GUI)
 
-Progress: [███████░░░░░░░░░] 44% (18/41 total plans)
+Progress: [███████░░░░░░░░░] 46% (19/41 total plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 10 min
-- Total execution time: 3.1 hours
+- Total execution time: 3.3 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [███████░░░░░░░░░] 44% (18/41 total pl
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
-| 03 | 2 | 43m | 22m |
+| 03 | 3 | 52m | 17m |
 
 **Recent Trend:**
-- Last 5 plans: 02-08 (7m), 02-09 (7m), 02-10 (10m), 03-01 (23m), 03-02 (20m)
-- Trend: Phase 3 longer (schema/import setup)
+- Last 5 plans: 02-09 (7m), 02-10 (10m), 03-01 (23m), 03-02 (20m), 03-05 (9m)
+- Trend: Phase 3 UI work faster (9m), schema/API setup longer (20-23m)
 
 *Updated after each plan completion*
 
@@ -95,6 +95,11 @@ Recent decisions affecting current work:
 - Bulk imports use transactions for all-or-nothing behavior (03-02)
 - DELETE blocked when budget line has allocations (409 conflict) (03-02)
 - No PUT/update endpoint for budget lines - import-only, delete and re-import to fix errors (03-02)
+- Currency formatting uses Intl.NumberFormat matching currency code from data (03-05)
+- Available amount highlighted red when zero or negative (03-05)
+- Delete button disabled with tooltip when allocatedAmount > 0 (03-05)
+- Import dialog stays open on errors to show validation results (03-05)
+- Fiscal year filter defaults to current year (03-05)
 
 ### Pending Todos
 
@@ -108,7 +113,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 03-02-PLAN.md (Budget Lines Admin API)
+Stopped at: Completed 03-05-PLAN.md (Budget Lines Admin GUI)
 Resume file: None
 
 ---
