@@ -205,7 +205,7 @@ export function ProjectSidebar({
                   disabled={isReadOnly}
                 />
                 {project.budgetCurrency && (
-                  <ActualsSummary projectId={project.id} />
+                  <ActualsSummary project={project} />
                 )}
               </>
             ) : null}
