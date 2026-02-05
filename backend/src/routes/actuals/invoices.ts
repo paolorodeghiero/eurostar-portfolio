@@ -1,11 +1,25 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
+import multipart from '@fastify/multipart';
 import { invoices, projects, currencyRates } from '../../db/schema.js';
 import { extractCompetenceMonth } from '../../lib/competence-month.js';
 import { randomUUID } from 'crypto';
+import {
+  validateExcelFile,
+  parseExcelBuffer,
+  validateInvoiceRows,
+  type InvoiceRow,
+} from '../../lib/excel-parser.js';
 
 export async function invoicesRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
+
+  // Register multipart plugin for file uploads
+  await fastify.register(multipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+  });
 
   // GET /api/actuals/invoices - List all invoices with filters
   fastify.get<{
@@ -71,6 +85,136 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
 
     const result = await query;
     return result;
+  });
+
+  // POST /api/actuals/invoices/upload - Upload Excel file with invoices
+  fastify.post('/invoices/upload', async (request, reply) => {
+    try {
+      const data = await request.file();
+      if (!data) {
+        return reply.code(400).send({ error: 'No file uploaded' });
+      }
+
+      // Read file buffer
+      const buffer = await data.toBuffer();
+
+      // Validate Excel format
+      const validation = validateExcelFile(buffer);
+      if (!validation.valid) {
+        return reply.code(400).send({ error: validation.error });
+      }
+
+      // Parse Excel
+      const rawData = parseExcelBuffer(buffer);
+      const { valid, errors } = validateInvoiceRows(rawData);
+
+      if (valid.length === 0) {
+        return reply.code(400).send({
+          error: 'No valid invoices found in file',
+          errors,
+        });
+      }
+
+      // Process valid invoices
+      const importBatch = randomUUID();
+      const invoicesToInsert = [];
+      const processingErrors: Array<{ row: number; message: string }> = [];
+      let extractionWarnings = 0;
+
+      for (let i = 0; i < valid.length; i++) {
+        const row = valid[i];
+        const rowNum = errors.length + i + 2;
+
+        // Validate project exists
+        const [project] = await db
+          .select({ id: projects.id })
+          .from(projects)
+          .where(eq(projects.projectId, row.ProjectId));
+
+        if (!project) {
+          processingErrors.push({
+            row: rowNum,
+            message: `Project ${row.ProjectId} not found`,
+          });
+          continue;
+        }
+
+        // Validate currency exists
+        const [currencyExists] = await db
+          .select({ currency: currencyRates.fromCurrency })
+          .from(currencyRates)
+          .where(eq(currencyRates.fromCurrency, row.Currency))
+          .limit(1);
+
+        if (!currencyExists) {
+          processingErrors.push({
+            row: rowNum,
+            message: `Currency ${row.Currency} not found in currency_rates`,
+          });
+          continue;
+        }
+
+        // Extract competence month if company provided
+        let competenceMonth = null;
+        let competenceMonthExtracted = false;
+
+        if (row.Company && row.Description) {
+          const extraction = await extractCompetenceMonth(
+            db,
+            row.Description,
+            row.Company
+          );
+          competenceMonth = extraction.month;
+          competenceMonthExtracted = extraction.extracted;
+
+          if (!competenceMonthExtracted) {
+            extractionWarnings++;
+          }
+        } else {
+          extractionWarnings++;
+        }
+
+        invoicesToInsert.push({
+          projectId: project.id,
+          invoiceNumber: row.InvoiceNumber,
+          amount: row.Amount.toString(),
+          currency: row.Currency,
+          invoiceDate: row.Date,
+          description: row.Description,
+          competenceMonth,
+          competenceMonthExtracted,
+          competenceMonthOverride: null,
+          importBatch,
+        });
+      }
+
+      // Insert invoices in transaction
+      let imported = 0;
+      if (invoicesToInsert.length > 0) {
+        try {
+          const result = await db.insert(invoices).values(invoicesToInsert).returning();
+          imported = result.length;
+        } catch (error: any) {
+          if (error.code === '23505') {
+            return reply.code(400).send({
+              error: 'Duplicate invoice detected',
+              message: 'One or more invoices with the same projectId, invoiceNumber, and amount already exist',
+            });
+          }
+          throw error;
+        }
+      }
+
+      return {
+        imported,
+        errors: [...errors, ...processingErrors],
+        extractionWarnings,
+        importBatch,
+      };
+    } catch (error) {
+      console.error('Invoice upload error:', error);
+      return reply.code(500).send({ error: 'Failed to process file upload' });
+    }
   });
 
   // POST /api/actuals/invoices/import - Batch import invoices with competence month extraction

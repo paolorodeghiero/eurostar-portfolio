@@ -9,6 +9,8 @@ import {
   statuses,
   outcomes,
   departments,
+  receipts,
+  invoices,
 } from '../../db/schema.js';
 import { generateProjectId } from '../../lib/project-id-generator.js';
 
@@ -512,6 +514,79 @@ export async function projectRoutes(fastify: FastifyInstance) {
       projectManagers: pmResults.map(r => r.value).filter(Boolean).sort(),
       isOwners: ownerResults.map(r => r.value).filter(Boolean).sort(),
       sponsors: sponsorResults.map(r => r.value).filter(Boolean).sort(),
+    };
+  });
+
+  // GET /api/projects/:id/actuals/summary - Get actuals summary for a project
+  fastify.get<{ Params: { id: string } }>('/:id/actuals/summary', async (request, reply) => {
+    const id = parseInt(request.params.id);
+
+    // Get project with budget info
+    const [project] = await db
+      .select({
+        id: projects.id,
+        opexBudget: projects.opexBudget,
+        capexBudget: projects.capexBudget,
+        budgetCurrency: projects.budgetCurrency,
+      })
+      .from(projects)
+      .where(eq(projects.id, id));
+
+    if (!project) {
+      return reply.code(404).send({ error: 'Project not found' });
+    }
+
+    if (!project.budgetCurrency) {
+      return reply.code(400).send({ error: 'Project has no budget set' });
+    }
+
+    // Calculate total receipts
+    const [receiptsTotal] = await db
+      .select({
+        total: sql<string>`COALESCE(SUM(${receipts.amount}), 0)`,
+      })
+      .from(receipts)
+      .where(eq(receipts.projectId, id));
+
+    // Calculate total invoices
+    const [invoicesTotal] = await db
+      .select({
+        total: sql<string>`COALESCE(SUM(${invoices.amount}), 0)`,
+      })
+      .from(invoices)
+      .where(eq(invoices.projectId, id));
+
+    // Count invoices needing attention (competenceMonthExtracted = false)
+    const [invoicesNeedingAttention] = await db
+      .select({
+        count: sql<number>`COUNT(*)::int`,
+      })
+      .from(invoices)
+      .where(and(
+        eq(invoices.projectId, id),
+        eq(invoices.competenceMonthExtracted, false)
+      ));
+
+    // Calculate totals
+    const totalReceipts = parseFloat(receiptsTotal?.total || '0');
+    const totalInvoices = parseFloat(invoicesTotal?.total || '0');
+    const totalActuals = totalReceipts + totalInvoices;
+
+    const opex = parseFloat(project.opexBudget || '0');
+    const capex = parseFloat(project.capexBudget || '0');
+    const budgetTotal = opex + capex;
+    const budgetRemaining = budgetTotal - totalActuals;
+    const percentUsed = budgetTotal > 0 ? (totalActuals / budgetTotal) * 100 : 0;
+
+    return {
+      totalReceipts: totalReceipts.toFixed(2),
+      totalInvoices: totalInvoices.toFixed(2),
+      totalActuals: totalActuals.toFixed(2),
+      currency: project.budgetCurrency,
+      budgetTotal: budgetTotal.toFixed(2),
+      budgetRemaining: budgetRemaining.toFixed(2),
+      percentUsed: percentUsed.toFixed(2),
+      invoicesNeedingAttention: invoicesNeedingAttention?.count || 0,
     };
   });
 }

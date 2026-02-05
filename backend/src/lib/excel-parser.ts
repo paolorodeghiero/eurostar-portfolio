@@ -18,6 +18,35 @@ export const budgetLineRowSchema = z.object({
 export type BudgetLineRow = z.infer<typeof budgetLineRowSchema>;
 
 /**
+ * Schema for validating receipt rows from Excel import
+ */
+export const receiptRowSchema = z.object({
+  ProjectId: z.string().regex(/^PRJ-\d{4}-\d{5}$/, 'Must be in format PRJ-YYYY-XXXXX'),
+  ReceiptNumber: z.string().optional(),
+  Amount: z.number().positive(),
+  Currency: z.string().length(3),
+  Date: z.string().min(1), // Will be validated as date
+  Description: z.string().optional(),
+});
+
+export type ReceiptRow = z.infer<typeof receiptRowSchema>;
+
+/**
+ * Schema for validating invoice rows from Excel import
+ */
+export const invoiceRowSchema = z.object({
+  ProjectId: z.string().regex(/^PRJ-\d{4}-\d{5}$/, 'Must be in format PRJ-YYYY-XXXXX'),
+  InvoiceNumber: z.string().min(1),
+  Amount: z.number().positive(),
+  Currency: z.string().length(3),
+  Date: z.string().min(1), // Will be validated as date
+  Description: z.string().min(1),
+  Company: z.string().optional(),
+});
+
+export type InvoiceRow = z.infer<typeof invoiceRowSchema>;
+
+/**
  * Validates Excel file format by checking magic bytes
  */
 export function validateExcelFile(buffer: Buffer): { valid: boolean; error?: string } {
@@ -67,6 +96,56 @@ export function validateBudgetLineRows(
       const errorMessages = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
       errors.push({
         row: index + 2, // +2 because Excel is 1-indexed and has header row
+        message: errorMessages,
+      });
+    }
+  });
+
+  return { valid, errors };
+}
+
+/**
+ * Validates receipt rows against schema
+ */
+export function validateReceiptRows(
+  data: any[]
+): { valid: ReceiptRow[]; errors: Array<{ row: number; message: string }> } {
+  const valid: ReceiptRow[] = [];
+  const errors: Array<{ row: number; message: string }> = [];
+
+  data.forEach((row, index) => {
+    const result = receiptRowSchema.safeParse(row);
+    if (result.success) {
+      valid.push(result.data);
+    } else {
+      const errorMessages = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      errors.push({
+        row: index + 2,
+        message: errorMessages,
+      });
+    }
+  });
+
+  return { valid, errors };
+}
+
+/**
+ * Validates invoice rows against schema
+ */
+export function validateInvoiceRows(
+  data: any[]
+): { valid: InvoiceRow[]; errors: Array<{ row: number; message: string }> } {
+  const valid: InvoiceRow[] = [];
+  const errors: Array<{ row: number; message: string }> = [];
+
+  data.forEach((row, index) => {
+    const result = invoiceRowSchema.safeParse(row);
+    if (result.success) {
+      valid.push(result.data);
+    } else {
+      const errorMessages = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      errors.push({
+        row: index + 2,
         message: errorMessages,
       });
     }

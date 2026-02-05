@@ -1,10 +1,24 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
+import multipart from '@fastify/multipart';
 import { receipts, projects, currencyRates } from '../../db/schema.js';
 import { randomUUID } from 'crypto';
+import {
+  validateExcelFile,
+  parseExcelBuffer,
+  validateReceiptRows,
+  type ReceiptRow,
+} from '../../lib/excel-parser.js';
 
 export async function receiptsRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
+
+  // Register multipart plugin for file uploads
+  await fastify.register(multipart, {
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+  });
 
   // GET /api/actuals/receipts - List all receipts with filters
   fastify.get<{
@@ -67,6 +81,111 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
 
     const result = await query;
     return result;
+  });
+
+  // POST /api/actuals/receipts/upload - Upload Excel file with receipts
+  fastify.post('/receipts/upload', async (request, reply) => {
+    try {
+      const data = await request.file();
+      if (!data) {
+        return reply.code(400).send({ error: 'No file uploaded' });
+      }
+
+      // Read file buffer
+      const buffer = await data.toBuffer();
+
+      // Validate Excel format
+      const validation = validateExcelFile(buffer);
+      if (!validation.valid) {
+        return reply.code(400).send({ error: validation.error });
+      }
+
+      // Parse Excel
+      const rawData = parseExcelBuffer(buffer);
+      const { valid, errors } = validateReceiptRows(rawData);
+
+      if (valid.length === 0) {
+        return reply.code(400).send({
+          error: 'No valid receipts found in file',
+          errors,
+        });
+      }
+
+      // Process valid receipts
+      const importBatch = randomUUID();
+      const receiptsToInsert = [];
+      const processingErrors: Array<{ row: number; message: string }> = [];
+
+      for (let i = 0; i < valid.length; i++) {
+        const row = valid[i];
+        const rowNum = errors.length + i + 2;
+
+        // Validate project exists
+        const [project] = await db
+          .select({ id: projects.id })
+          .from(projects)
+          .where(eq(projects.projectId, row.ProjectId));
+
+        if (!project) {
+          processingErrors.push({
+            row: rowNum,
+            message: `Project ${row.ProjectId} not found`,
+          });
+          continue;
+        }
+
+        // Validate currency exists
+        const [currencyExists] = await db
+          .select({ currency: currencyRates.fromCurrency })
+          .from(currencyRates)
+          .where(eq(currencyRates.fromCurrency, row.Currency))
+          .limit(1);
+
+        if (!currencyExists) {
+          processingErrors.push({
+            row: rowNum,
+            message: `Currency ${row.Currency} not found in currency_rates`,
+          });
+          continue;
+        }
+
+        receiptsToInsert.push({
+          projectId: project.id,
+          receiptNumber: row.ReceiptNumber || null,
+          amount: row.Amount.toString(),
+          currency: row.Currency,
+          receiptDate: row.Date,
+          description: row.Description || null,
+          importBatch,
+        });
+      }
+
+      // Insert receipts in transaction
+      let imported = 0;
+      if (receiptsToInsert.length > 0) {
+        try {
+          const result = await db.insert(receipts).values(receiptsToInsert).returning();
+          imported = result.length;
+        } catch (error: any) {
+          if (error.code === '23505') {
+            return reply.code(400).send({
+              error: 'Duplicate receipt detected',
+              message: 'One or more receipts with the same projectId and receiptNumber already exist',
+            });
+          }
+          throw error;
+        }
+      }
+
+      return {
+        imported,
+        errors: [...errors, ...processingErrors],
+        importBatch,
+      };
+    } catch (error) {
+      console.error('Receipt upload error:', error);
+      return reply.code(500).send({ error: 'Failed to process file upload' });
+    }
   });
 
   // POST /api/actuals/receipts/import - Batch import receipts
