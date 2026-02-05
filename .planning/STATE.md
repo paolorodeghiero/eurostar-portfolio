@@ -12,10 +12,10 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 3 of 6 (Financial Tracking)
 Plan: 5 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed quick task 003 (Actuals View with Table Export Delete)
+Last activity: 2026-02-05 - Completed quick task 004 (Redesign Actuals Tab)
 
 Progress: [████████░░░░░░░░] 51% (21/41 total plans)
-Quick tasks: 3 completed
+Quick tasks: 4 completed
 
 ## Performance Metrics
 
@@ -23,7 +23,7 @@ Quick tasks: 3 completed
 - Total plans completed: 21
 - Average duration: 11 min
 - Total execution time: 3.8 hours
-- Quick tasks: 3 completed (avg 11 min)
+- Quick tasks: 4 completed (avg 11 min)
 
 **By Phase:**
 
@@ -118,6 +118,10 @@ Recent decisions affecting current work:
 - Use Intl.NumberFormat for proper currency symbol formatting (quick-002)
 - Show original amount in small text when converted (quick-002)
 - Query currency rates with date-based validity check (validFrom/validTo) (quick-002)
+- Remove invoices from actuals tab visual - receipts-only focus (quick-004)
+- Always load receipts on mount (no toggle) for simpler UX (quick-004)
+- AlertDialog for delete all confirmation with explicit count (quick-004)
+- Progress bar color codes: green < 90%, orange 90-100%, red > 100% (quick-004)
 
 ### Pending Todos
 
@@ -136,11 +140,12 @@ Recent decisions affecting current work:
 | 001 | Import Excel template download and column docs | 2026-02-05 | b5be368 | [001-import-excel-template-and-column-docs](./quick/001-import-excel-template-and-column-docs/) |
 | 002 | Project currency conversion system | 2026-02-05 | 25bf585 | [002-project-currency-conversion-system](./quick/002-project-currency-conversion-system/) |
 | 003 | Actuals view with table export delete | 2026-02-05 | b8a02e2 | [003-actuals-view-with-table-export-delete](./quick/003-actuals-view-with-table-export-delete/) |
+| 004 | Redesign actuals tab | 2026-02-05 | 01592ab | [004-redesign-actuals-tab](./quick/004-redesign-actuals-tab/) |
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed quick task 003 (Actuals View with Table Export Delete)
+Stopped at: Completed quick task 004 (Redesign Actuals Tab)
 Resume file: None
 
 ---
