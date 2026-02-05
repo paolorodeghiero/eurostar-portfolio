@@ -11,7 +11,7 @@ import { costTshirtThresholds } from '../db/schema.js';
  * @returns T-shirt size (XS, S, M, L, XL, XXL) or null if no thresholds exist for currency
  */
 export async function deriveCostTshirt(
-  db: NodePgDatabase<Record<string, never>>,
+  db: any,
   totalBudget: string,
   currency: string
 ): Promise<string | null> {
