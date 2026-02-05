@@ -7,11 +7,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2, Upload } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Upload, Download, ChevronDown } from 'lucide-react';
 import { uploadReceiptsExcel, uploadInvoicesExcel, type ImportResult } from '@/lib/actuals-api';
 
 interface ActualsUploadDialogProps {
@@ -112,7 +117,79 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
                 }}
                 disabled={receiptsLoading}
               />
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground flex-1">
+                  Upload receipts data from Excel
+                </p>
+                <a
+                  href="/api/actuals/receipts/template"
+                  download
+                  className="inline-flex items-center gap-1 text-xs text-eurostar-teal hover:text-eurostar-teal/80 font-medium"
+                >
+                  <Download className="h-3 w-3" />
+                  Download Template
+                </a>
+              </div>
             </div>
+
+            <Collapsible defaultOpen={false}>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-eurostar-teal">
+                <ChevronDown className="h-4 w-4" />
+                Column Documentation
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="border rounded-md overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-medium">Column</th>
+                        <th className="text-left px-3 py-2 font-medium">Type</th>
+                        <th className="text-left px-3 py-2 font-medium">Required</th>
+                        <th className="text-left px-3 py-2 font-medium">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">ProjectId</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Format: PRJ-YYYY-XXXXX</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">ReceiptNumber</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">No</td>
+                        <td className="px-3 py-2">Optional reference number</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Amount</td>
+                        <td className="px-3 py-2">Number</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Positive number</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Currency</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">3-letter ISO code</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Date</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Format: YYYY-MM-DD</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Description</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">No</td>
+                        <td className="px-3 py-2">Optional description</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             <Button
               onClick={handleReceiptsUpload}
@@ -175,7 +252,85 @@ export function ActualsUploadDialog({ open, onOpenChange, onUploadComplete }: Ac
                 }}
                 disabled={invoicesLoading}
               />
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground flex-1">
+                  Upload invoices data from Excel
+                </p>
+                <a
+                  href="/api/actuals/invoices/template"
+                  download
+                  className="inline-flex items-center gap-1 text-xs text-eurostar-teal hover:text-eurostar-teal/80 font-medium"
+                >
+                  <Download className="h-3 w-3" />
+                  Download Template
+                </a>
+              </div>
             </div>
+
+            <Collapsible defaultOpen={false}>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-eurostar-teal">
+                <ChevronDown className="h-4 w-4" />
+                Column Documentation
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="border rounded-md overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-medium">Column</th>
+                        <th className="text-left px-3 py-2 font-medium">Type</th>
+                        <th className="text-left px-3 py-2 font-medium">Required</th>
+                        <th className="text-left px-3 py-2 font-medium">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">ProjectId</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Format: PRJ-YYYY-XXXXX</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">InvoiceNumber</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Unique invoice number</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Amount</td>
+                        <td className="px-3 py-2">Number</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Positive number</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Currency</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">3-letter ISO code</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Date</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Format: YYYY-MM-DD</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Description</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Invoice description</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Company</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">No</td>
+                        <td className="px-3 py-2">Vendor company name</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             <Button
               onClick={handleInvoicesUpload}

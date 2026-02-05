@@ -17,7 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Upload, Trash2 } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Upload, Trash2, Download, ChevronDown } from 'lucide-react';
 import {
   BudgetLine,
   fetchBudgetLines,
@@ -369,10 +374,91 @@ export function BudgetLinesPage() {
                   hover:file:bg-eurostar-teal/90
                   cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground">
-                Upload an Excel file (.xlsx or .xls) with budget line data.
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground flex-1">
+                  Upload an Excel file (.xlsx or .xls) with budget line data.
+                </p>
+                <a
+                  href="/api/admin/budget-lines/template"
+                  download
+                  className="inline-flex items-center gap-1 text-xs text-eurostar-teal hover:text-eurostar-teal/80 font-medium"
+                >
+                  <Download className="h-3 w-3" />
+                  Download Template
+                </a>
+              </div>
             </div>
+
+            <Collapsible defaultOpen={false}>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-eurostar-teal">
+                <ChevronDown className="h-4 w-4" />
+                Column Documentation
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="border rounded-md overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left px-3 py-2 font-medium">Column</th>
+                        <th className="text-left px-3 py-2 font-medium">Type</th>
+                        <th className="text-left px-3 py-2 font-medium">Required</th>
+                        <th className="text-left px-3 py-2 font-medium">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-muted-foreground">
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Company</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Company code (e.g., THIF, EIL)</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Department</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Must match existing department name</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">CostCenter</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Must match existing cost center code</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">LineValue</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Budget line identifier</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Amount</td>
+                        <td className="px-3 py-2">Number</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Positive number</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Currency</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">3-letter ISO code (EUR, GBP, USD)</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">Type</td>
+                        <td className="px-3 py-2">Text</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">CAPEX or OPEX</td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="px-3 py-2 font-mono">FiscalYear</td>
+                        <td className="px-3 py-2">Number</td>
+                        <td className="px-3 py-2">Yes</td>
+                        <td className="px-3 py-2">Year (2020-2100)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {importResult && (
               <div className="space-y-2">
