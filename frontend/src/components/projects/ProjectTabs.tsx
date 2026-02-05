@@ -4,6 +4,7 @@ import { PeopleTab } from './tabs/PeopleTab';
 import { TeamsTab } from './tabs/TeamsTab';
 import { ValueTab } from './tabs/ValueTab';
 import { ChangeImpactTab } from './tabs/ChangeImpactTab';
+import { BudgetTab } from './tabs/BudgetTab';
 import type { Project } from '@/lib/project-api';
 
 interface ProjectTabsProps {
@@ -19,6 +20,7 @@ const tabs = [
   { id: 'teams', label: 'Teams' },
   { id: 'value', label: 'Value' },
   { id: 'change-impact', label: 'Change Impact' },
+  { id: 'budget', label: 'Budget' },
 ];
 
 export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTabsProps) {
@@ -64,6 +66,10 @@ export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTa
 
         <TabsContent value="change-impact" className="mt-0 h-full">
           <ChangeImpactTab projectId={project.id} disabled={disabled} />
+        </TabsContent>
+
+        <TabsContent value="budget" className="mt-0 h-full">
+          <BudgetTab project={project} disabled={disabled} />
         </TabsContent>
       </div>
     </Tabs>
