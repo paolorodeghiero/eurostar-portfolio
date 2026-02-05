@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation & Authentication** - Database schema, auth, and referentials
 - [ ] **Phase 2: Core Projects** - Project CRUD with teams, scoring, and change impact
-- [ ] **Phase 3: Financial Tracking** - Budget lines, actuals import, and financial calculations
+- [x] **Phase 3: Financial Tracking** - Budget lines, actuals import, and financial calculations
 - [ ] **Phase 4: Governance & Workflow** - Engagement Committee workflow and audit trail
 - [ ] **Phase 5: Portfolio GUI** - Main user interface for portfolio operations
 - [ ] **Phase 6: Admin GUI & Reporting** - Admin interface, Power BI integration, and API documentation
@@ -163,7 +163,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Foundation & Authentication | 6/6 | Complete | 2026-02-03 |
 | 2. Core Projects | 10/10 | Complete | 2026-02-03 |
-| 3. Financial Tracking | 0/8 | Planned | - |
+| 3. Financial Tracking | 8/8 | Complete | 2026-02-06 |
 | 4. Governance & Workflow | 0/TBD | Not started | - |
 | 5. Portfolio GUI | 0/TBD | Not started | - |
 | 6. Admin GUI & Reporting | 0/TBD | Not started | - |
