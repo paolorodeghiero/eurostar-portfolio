@@ -123,6 +123,12 @@ Recent decisions affecting current work:
 - Migration file ready, can be applied with: `docker compose up -d && cd backend && npx drizzle-kit push`
 - Budget UI (03-06) requires backend API endpoints from 03-03 to be fully functional
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Import Excel template download and column docs | 2026-02-05 | b5be368 | [001-import-excel-template-and-column-docs](./quick/001-import-excel-template-and-column-docs/) |
+
 ## Session Continuity
 
 Last session: 2026-02-05
