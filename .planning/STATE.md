@@ -12,10 +12,10 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 3 of 6 (Financial Tracking)
 Plan: 5 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed quick task 001 (Import Excel Template and Column Docs)
+Last activity: 2026-02-05 - Completed quick task 002 (Project Currency Conversion System)
 
 Progress: [████████░░░░░░░░] 51% (21/41 total plans)
-Quick tasks: 1 completed
+Quick tasks: 2 completed
 
 ## Performance Metrics
 
@@ -23,6 +23,7 @@ Quick tasks: 1 completed
 - Total plans completed: 21
 - Average duration: 11 min
 - Total execution time: 3.8 hours
+- Quick tasks: 2 completed (avg 10 min)
 
 **By Phase:**
 
@@ -112,6 +113,11 @@ Recent decisions affecting current work:
 - Template download endpoints provide Excel files with headers and example data (quick-001)
 - Column documentation uses collapsible table pattern in import dialogs (quick-001)
 - Templates accessible via direct anchor links with download attribute (quick-001)
+- Store reportCurrency as nullable field for backward compatibility (quick-002)
+- Only GBP and EUR supported for reporting (business requirement) (quick-002)
+- Use Intl.NumberFormat for proper currency symbol formatting (quick-002)
+- Show original amount in small text when converted (quick-002)
+- Query currency rates with date-based validity check (validFrom/validTo) (quick-002)
 
 ### Pending Todos
 
@@ -128,11 +134,12 @@ Recent decisions affecting current work:
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 001 | Import Excel template download and column docs | 2026-02-05 | b5be368 | [001-import-excel-template-and-column-docs](./quick/001-import-excel-template-and-column-docs/) |
+| 002 | Project currency conversion system | 2026-02-05 | 25bf585 | [002-project-currency-conversion-system](./quick/002-project-currency-conversion-system/) |
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed quick task 001 (Import Excel Template and Column Docs)
+Stopped at: Completed quick task 002 (Project Currency Conversion System)
 Resume file: None
 
 ---
