@@ -77,7 +77,7 @@ export async function addBudgetAllocation(
   const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget/allocations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ budgetLineId, amount }),
+    body: JSON.stringify({ budgetLineId, allocationAmount: amount }),
   });
   if (!res.ok) {
     const error = await res.json();
@@ -97,7 +97,7 @@ export async function updateBudgetAllocation(
   const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget/allocations/${budgetLineId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ amount }),
+    body: JSON.stringify({ allocationAmount: amount }),
   });
   if (!res.ok) {
     const error = await res.json();
