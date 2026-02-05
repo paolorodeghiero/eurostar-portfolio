@@ -196,3 +196,32 @@ export function exportActualsExcel(receipts: Receipt[], invoices: Invoice[], pro
   link.click();
   URL.revokeObjectURL(url);
 }
+
+export function exportReceiptsExcel(receipts: Receipt[], projectId: string): void {
+  const workbook = XLSX.utils.book_new();
+
+  // Create Receipts sheet
+  const receiptsData = receipts.map(r => ({
+    'Project ID': r.projectId,
+    'Project Name': r.projectName,
+    'Receipt Number': r.receiptNumber || '',
+    'Amount': parseFloat(r.amount),
+    'Currency': r.currency,
+    'Date': r.receiptDate,
+    'Description': r.description || '',
+    'Import Batch': r.importBatch || '',
+    'Created': new Date(r.createdAt).toLocaleString()
+  }));
+  const receiptsSheet = XLSX.utils.json_to_sheet(receiptsData);
+  XLSX.utils.book_append_sheet(workbook, receiptsSheet, 'Receipts');
+
+  // Download file
+  const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${projectId}-receipts.xlsx`;
+  link.click();
+  URL.revokeObjectURL(url);
+}

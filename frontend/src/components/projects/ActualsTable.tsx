@@ -2,35 +2,27 @@ import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@/components/ui/button';
 import { Trash2, Download } from 'lucide-react';
-import { Receipt, Invoice, exportActualsExcel } from '@/lib/actuals-api';
+import { Receipt, exportReceiptsExcel } from '@/lib/actuals-api';
 
 interface ActualsTableProps {
   receipts: Receipt[];
-  invoices: Invoice[];
   projectId: string;
-  reportCurrency: string | null;
-  onDelete: (type: 'receipt' | 'invoice', id: number) => void;
+  onDelete: (id: number) => void;
+  onDeleteAll: () => void;
   disabled?: boolean;
 }
 
 export function ActualsTable({
   receipts,
-  invoices,
   projectId,
-  reportCurrency,
   onDelete,
+  onDeleteAll,
   disabled = false,
 }: ActualsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Combine receipts and invoices into single list for virtualization
-  const allItems = [
-    ...receipts.map(r => ({ type: 'receipt' as const, data: r })),
-    ...invoices.map(i => ({ type: 'invoice' as const, data: i }))
-  ];
-
   const rowVirtualizer = useVirtualizer({
-    count: allItems.length,
+    count: receipts.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 48,
     overscan: 5,
@@ -56,47 +48,33 @@ export function ActualsTable({
   };
 
   const handleExport = () => {
-    exportActualsExcel(receipts, invoices, projectId);
+    exportReceiptsExcel(receipts, projectId);
   };
 
-  if (allItems.length === 0) {
+  if (receipts.length === 0) {
     return (
-      <div className="border-t p-4 text-center text-sm text-muted-foreground">
-        No actuals recorded
+      <div className="p-4 text-center text-sm text-muted-foreground">
+        No receipts recorded
       </div>
     );
   }
 
   return (
-    <div className="border-t">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b bg-gray-50">
-        <h4 className="text-sm font-semibold">Detailed Actuals</h4>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleExport}
-          className="text-xs"
-        >
-          <Download className="h-3 w-3 mr-1" />
-          Export Excel
-        </Button>
-      </div>
-
+    <div>
       {/* Table Header */}
-      <div className="grid grid-cols-[80px_100px_1fr_120px_120px_60px] gap-2 px-3 py-2 bg-gray-50 border-b text-xs font-medium text-muted-foreground">
-        <div>Type</div>
+      <div className="grid grid-cols-[100px_100px_1fr_120px_60px_50px] gap-2 px-3 py-2 bg-gray-50 border-b text-xs font-medium text-muted-foreground">
+        <div>ID</div>
         <div>Date</div>
         <div>Description</div>
-        <div className="text-right">Original</div>
-        <div className="text-right">{reportCurrency ? `In ${reportCurrency}` : 'Converted'}</div>
+        <div className="text-right">Amount</div>
+        <div>Currency</div>
         <div className="text-right"></div>
       </div>
 
       {/* Virtualized List */}
       <div
         ref={parentRef}
-        className="overflow-auto"
+        className="overflow-auto border-b"
         style={{ height: '300px' }}
       >
         <div
@@ -107,15 +85,12 @@ export function ActualsTable({
           }}
         >
           {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-            const item = allItems[virtualItem.index];
-            const isReceipt = item.type === 'receipt';
-            const data = item.data as Receipt | Invoice;
-            const hasConversion = data.convertedAmount && data.currency !== reportCurrency;
+            const receipt = receipts[virtualItem.index];
 
             return (
               <div
                 key={virtualItem.key}
-                className="grid grid-cols-[80px_100px_1fr_120px_120px_60px] gap-2 px-3 py-2 border-b text-sm hover:bg-gray-50"
+                className="grid grid-cols-[100px_100px_1fr_120px_60px_50px] gap-2 px-3 py-2 border-b text-sm hover:bg-gray-50"
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -125,52 +100,37 @@ export function ActualsTable({
                   transform: `translateY(${virtualItem.start}px)`,
                 }}
               >
-                {/* Type */}
-                <div className="text-xs">
-                  <span className={`inline-block px-2 py-0.5 rounded ${
-                    isReceipt ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                  }`}>
-                    {isReceipt ? 'Receipt' : 'Invoice'}
-                  </span>
+                {/* ID */}
+                <div className="text-xs text-muted-foreground">
+                  {receipt.receiptNumber || 'No number'}
                 </div>
 
                 {/* Date */}
                 <div className="text-xs text-muted-foreground">
-                  {formatDate(isReceipt ? (data as Receipt).receiptDate : (data as Invoice).invoiceDate)}
+                  {formatDate(receipt.receiptDate)}
                 </div>
 
                 {/* Description */}
-                <div className="truncate text-xs">
-                  <div className="font-medium">
-                    {isReceipt
-                      ? ((data as Receipt).receiptNumber || 'No number')
-                      : (data as Invoice).invoiceNumber
-                    }
-                  </div>
-                  <div className="text-muted-foreground truncate">
-                    {data.description || 'No description'}
-                  </div>
+                <div className="text-xs truncate">
+                  {receipt.description || 'No description'}
                 </div>
 
-                {/* Original Amount */}
+                {/* Amount */}
                 <div className="text-right text-xs font-medium">
-                  {formatCurrency(data.amount, data.currency)}
+                  {formatCurrency(receipt.amount, receipt.currency)}
                 </div>
 
-                {/* Converted Amount */}
-                <div className="text-right text-xs font-medium">
-                  {hasConversion && data.convertedAmount
-                    ? formatCurrency(data.convertedAmount, reportCurrency!)
-                    : formatCurrency(data.amount, data.currency)
-                  }
+                {/* Currency */}
+                <div className="text-xs text-muted-foreground">
+                  {receipt.currency}
                 </div>
 
-                {/* Actions */}
+                {/* Delete */}
                 <div className="flex justify-end">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onDelete(item.type, data.id)}
+                    onClick={() => onDelete(receipt.id)}
                     disabled={disabled}
                     className="text-destructive hover:text-destructive h-7 w-7 p-0"
                   >
@@ -183,9 +143,27 @@ export function ActualsTable({
         </div>
       </div>
 
-      {/* Footer Summary */}
-      <div className="px-3 py-2 bg-gray-50 border-t text-xs text-muted-foreground">
-        Showing {receipts.length} receipt{receipts.length !== 1 ? 's' : ''} and {invoices.length} invoice{invoices.length !== 1 ? 's' : ''}
+      {/* Action Bar */}
+      <div className="flex items-center justify-between px-3 py-2 bg-gray-50">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          className="text-xs"
+        >
+          <Download className="h-3 w-3 mr-1" />
+          Download Excel
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onDeleteAll}
+          disabled={disabled || receipts.length === 0}
+          className="text-xs"
+        >
+          <Trash2 className="h-3 w-3 mr-1" />
+          Delete All Receipts
+        </Button>
       </div>
     </div>
   );
