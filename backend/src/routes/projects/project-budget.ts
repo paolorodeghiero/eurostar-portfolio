@@ -62,22 +62,27 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
         .leftJoin(costCenters, eq(budgetLines.costCenterId, costCenters.id))
         .where(eq(projectBudgetAllocations.projectId, projectId));
 
-      // Use project start date for exchange rate lookup
-      const conversionDate = project.startDate ? new Date(project.startDate) : undefined;
+      // Project start date for budget conversion
+      const projectStartDate = project.startDate ? new Date(project.startDate) : undefined;
 
       // Convert allocations to reportCurrency if set
+      // Each allocation uses the beginning of its fiscal year for exchange rate
       const allocations = await Promise.all(
         rawAllocations.map(async (alloc) => {
           let convertedAmount: string | undefined;
 
           if (project.reportCurrency && alloc.currency !== project.reportCurrency) {
             try {
+              // Use beginning of fiscal year for allocation conversion
+              const fiscalYearStart = alloc.fiscalYear
+                ? new Date(`${alloc.fiscalYear}-01-01`)
+                : undefined;
               convertedAmount = await convertCurrency(
                 db,
                 alloc.allocationAmount,
                 alloc.currency,
                 project.reportCurrency,
-                conversionDate
+                fiscalYearStart
               );
             } catch (err) {
               // If conversion fails, leave convertedAmount undefined
@@ -93,38 +98,35 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       );
 
       // Calculate totalBudget and totalAllocated
-      // If reportCurrency is set and differs from budgetCurrency, convert budget values
+      // Project budget is always stored in EUR, convert to reportCurrency using project start date
       const opex = project.opexBudget ? parseFloat(project.opexBudget) : 0;
       const capex = project.capexBudget ? parseFloat(project.capexBudget) : 0;
       const totalBudgetRaw = (opex + capex).toFixed(2);
+      const budgetSourceCurrency = 'EUR'; // Project budget is always stored in EUR
 
       // Convert budget values to reportCurrency if needed
       let convertedOpex: string | undefined;
       let convertedCapex: string | undefined;
       let totalBudget = totalBudgetRaw;
 
-      if (
-        project.reportCurrency &&
-        project.budgetCurrency &&
-        project.reportCurrency !== project.budgetCurrency
-      ) {
+      if (project.reportCurrency && project.reportCurrency !== budgetSourceCurrency) {
         try {
           if (project.opexBudget) {
             convertedOpex = await convertCurrency(
               db,
               project.opexBudget,
-              project.budgetCurrency,
+              budgetSourceCurrency,
               project.reportCurrency,
-              conversionDate
+              projectStartDate
             );
           }
           if (project.capexBudget) {
             convertedCapex = await convertCurrency(
               db,
               project.capexBudget,
-              project.budgetCurrency,
+              budgetSourceCurrency,
               project.reportCurrency,
-              conversionDate
+              projectStartDate
             );
           }
           // Calculate total in reportCurrency
@@ -132,7 +134,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
           const capexConverted = convertedCapex ? parseFloat(convertedCapex) : 0;
           totalBudget = (opexConverted + capexConverted).toFixed(2);
         } catch (err) {
-          console.error(`Failed to convert budget from ${project.budgetCurrency} to ${project.reportCurrency}:`, err);
+          console.error(`Failed to convert budget from ${budgetSourceCurrency} to ${project.reportCurrency}:`, err);
           // Fall back to raw values
         }
       }
