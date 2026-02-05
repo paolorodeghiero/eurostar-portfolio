@@ -12,9 +12,10 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 3 of 6 (Financial Tracking)
 Plan: 5 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed 03-07-PLAN.md (Actuals Summary & Upload)
+Last activity: 2026-02-05 - Completed quick task 001 (Import Excel Template and Column Docs)
 
 Progress: [████████░░░░░░░░] 51% (21/41 total plans)
+Quick tasks: 1 completed
 
 ## Performance Metrics
 
@@ -108,6 +109,9 @@ Recent decisions affecting current work:
 - Upload Actuals button in portfolio page toolbar as global action (03-07)
 - Excel upload endpoints separate from JSON import endpoints (03-07)
 - Summary endpoint calculates percentUsed and budgetRemaining server-side (03-07)
+- Template download endpoints provide Excel files with headers and example data (quick-001)
+- Column documentation uses collapsible table pattern in import dialogs (quick-001)
+- Templates accessible via direct anchor links with download attribute (quick-001)
 
 ### Pending Todos
 
@@ -122,7 +126,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 03-07-PLAN.md (Actuals Summary & Upload)
+Stopped at: Completed quick task 001 (Import Excel Template and Column Docs)
 Resume file: None
 
 ---
