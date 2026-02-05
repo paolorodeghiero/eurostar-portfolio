@@ -8,6 +8,7 @@ import {
   costCenters,
 } from '../../db/schema.js';
 import { deriveCostTshirt } from '../../lib/cost-tshirt.js';
+import { convertCurrency } from '../../lib/currency-converter.js';
 
 export async function projectBudgetRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -26,6 +27,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
           opexBudget: projects.opexBudget,
           capexBudget: projects.capexBudget,
           budgetCurrency: projects.budgetCurrency,
+          reportCurrency: projects.reportCurrency,
           costTshirt: projects.costTshirt,
         })
         .from(projects)
@@ -36,7 +38,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       }
 
       // Get allocations with budget line details
-      const allocations = await db
+      const rawAllocations = await db
         .select({
           id: projectBudgetAllocations.id,
           budgetLineId: projectBudgetAllocations.budgetLineId,
@@ -59,13 +61,44 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
         .leftJoin(costCenters, eq(budgetLines.costCenterId, costCenters.id))
         .where(eq(projectBudgetAllocations.projectId, projectId));
 
-      // Calculate totalBudget and totalAllocated using PostgreSQL to avoid precision issues
+      // Convert allocations to reportCurrency if set
+      const allocations = await Promise.all(
+        rawAllocations.map(async (alloc) => {
+          let convertedAmount: string | undefined;
+
+          if (project.reportCurrency && alloc.currency !== project.reportCurrency) {
+            try {
+              convertedAmount = await convertCurrency(
+                db,
+                alloc.allocationAmount,
+                alloc.currency,
+                project.reportCurrency
+              );
+            } catch (err) {
+              // If conversion fails, leave convertedAmount undefined
+              console.error(`Failed to convert ${alloc.currency} to ${project.reportCurrency}:`, err);
+            }
+          }
+
+          return {
+            ...alloc,
+            convertedAmount,
+          };
+        })
+      );
+
+      // Calculate totalBudget and totalAllocated
+      // If reportCurrency is set, use converted amounts for totalAllocated
       const opex = project.opexBudget ? parseFloat(project.opexBudget) : 0;
       const capex = project.capexBudget ? parseFloat(project.capexBudget) : 0;
       const totalBudget = (opex + capex).toFixed(2);
 
       const totalAllocated = allocations
-        .reduce((sum, alloc) => sum + parseFloat(alloc.allocationAmount), 0)
+        .reduce((sum, alloc) => {
+          // Use convertedAmount if available (reportCurrency set), otherwise use original
+          const amount = alloc.convertedAmount || alloc.allocationAmount;
+          return sum + parseFloat(amount);
+        }, 0)
         .toFixed(2);
 
       const allocationMatch = totalBudget === totalAllocated;
@@ -74,6 +107,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
         opexBudget: project.opexBudget,
         capexBudget: project.capexBudget,
         budgetCurrency: project.budgetCurrency,
+        reportCurrency: project.reportCurrency,
         costTshirt: project.costTshirt,
         totalBudget,
         totalAllocated,
@@ -88,17 +122,24 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
   fastify.put<{
     Params: { projectId: string };
     Body: {
-      opexBudget: string;
-      capexBudget: string;
-      budgetCurrency: string;
+      opexBudget?: string;
+      capexBudget?: string;
+      budgetCurrency?: string;
+      reportCurrency?: string;
     };
   }>('/:projectId/budget', async (request, reply) => {
     const projectId = parseInt(request.params.projectId);
-    const { opexBudget, capexBudget, budgetCurrency } = request.body;
+    const { opexBudget, capexBudget, budgetCurrency, reportCurrency } = request.body;
 
     // Verify project exists
     const [project] = await db
-      .select({ id: projects.id, version: projects.version })
+      .select({
+        id: projects.id,
+        version: projects.version,
+        opexBudget: projects.opexBudget,
+        capexBudget: projects.capexBudget,
+        budgetCurrency: projects.budgetCurrency,
+      })
       .from(projects)
       .where(eq(projects.id, projectId));
 
@@ -106,31 +147,52 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       return reply.code(404).send({ error: 'Project not found' });
     }
 
+    // Validate reportCurrency if provided
+    if (reportCurrency !== undefined && reportCurrency !== null) {
+      if (reportCurrency !== 'GBP' && reportCurrency !== 'EUR') {
+        return reply.code(400).send({ error: 'reportCurrency must be GBP or EUR' });
+      }
+    }
+
+    // Use existing values if not provided in request
+    const finalOpex = opexBudget !== undefined ? opexBudget : project.opexBudget;
+    const finalCapex = capexBudget !== undefined ? capexBudget : project.capexBudget;
+    const finalBudgetCurrency = budgetCurrency !== undefined ? budgetCurrency : project.budgetCurrency;
+
     // Calculate total budget (as string to avoid precision issues)
-    const opex = parseFloat(opexBudget || '0');
-    const capex = parseFloat(capexBudget || '0');
+    const opex = parseFloat(finalOpex || '0');
+    const capex = parseFloat(finalCapex || '0');
     const totalBudget = (opex + capex).toFixed(2);
 
-    // Derive cost T-shirt
-    const costTshirt = await deriveCostTshirt(db, totalBudget, budgetCurrency);
+    // Derive cost T-shirt if we have budget values
+    let costTshirt = null;
+    if (finalBudgetCurrency && (opex > 0 || capex > 0)) {
+      costTshirt = await deriveCostTshirt(db, totalBudget, finalBudgetCurrency);
+    }
+
+    // Build update object
+    const updateData: any = {
+      version: sql`${projects.version} + 1`,
+      updatedAt: new Date(),
+    };
+
+    if (opexBudget !== undefined) updateData.opexBudget = opexBudget;
+    if (capexBudget !== undefined) updateData.capexBudget = capexBudget;
+    if (budgetCurrency !== undefined) updateData.budgetCurrency = budgetCurrency;
+    if (reportCurrency !== undefined) updateData.reportCurrency = reportCurrency;
+    if (costTshirt !== null) updateData.costTshirt = costTshirt;
 
     // Update project with new budget and cost T-shirt
     const [updated] = await db
       .update(projects)
-      .set({
-        opexBudget,
-        capexBudget,
-        budgetCurrency,
-        costTshirt,
-        version: sql`${projects.version} + 1`,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(projects.id, projectId))
       .returning({
         id: projects.id,
         opexBudget: projects.opexBudget,
         capexBudget: projects.capexBudget,
         budgetCurrency: projects.budgetCurrency,
+        reportCurrency: projects.reportCurrency,
         costTshirt: projects.costTshirt,
         version: projects.version,
       });

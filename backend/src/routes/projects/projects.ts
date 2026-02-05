@@ -158,6 +158,7 @@ export async function projectRoutes(fastify: FastifyInstance) {
         opexBudget: projects.opexBudget,
         capexBudget: projects.capexBudget,
         budgetCurrency: projects.budgetCurrency,
+        reportCurrency: projects.reportCurrency,
         costTshirt: projects.costTshirt,
         version: projects.version,
         createdAt: projects.createdAt,

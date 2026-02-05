@@ -129,6 +129,7 @@ export const projects = pgTable('projects', {
   opexBudget: numeric('opex_budget', { precision: 15, scale: 2 }),
   capexBudget: numeric('capex_budget', { precision: 15, scale: 2 }),
   budgetCurrency: varchar('budget_currency', { length: 3 }), // ISO 4217
+  reportCurrency: varchar('report_currency', { length: 3 }), // ISO 4217 currency code for reporting display (GBP or EUR)
   costTshirt: varchar('cost_tshirt', { length: 5 }), // XS/S/M/L/XL/XXL - auto-derived
   version: integer('version').notNull().default(1), // For optimistic locking
   createdAt: timestamp('created_at').defaultNow().notNull(),
