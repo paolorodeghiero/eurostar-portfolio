@@ -1,16 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Command,
   CommandEmpty,
@@ -34,18 +27,6 @@ import {
 } from '@/lib/project-budget-api';
 import type { Project } from '@/lib/project-api';
 
-const BUDGET_CURRENCIES = [
-  { value: 'EUR', label: 'EUR - Euro' },
-  { value: 'GBP', label: 'GBP - British Pound' },
-  { value: 'USD', label: 'USD - US Dollar' },
-  { value: 'CHF', label: 'CHF - Swiss Franc' },
-];
-
-const REPORT_CURRENCIES = [
-  { value: 'EUR', label: 'EUR' },
-  { value: 'GBP', label: 'GBP' },
-];
-
 const TSHIRT_COLORS: Record<string, string> = {
   XS: 'bg-gray-300 text-gray-800',
   S: 'bg-blue-300 text-blue-800',
@@ -65,8 +46,9 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
   const [loading, setLoading] = useState(true);
   const [localOpex, setLocalOpex] = useState('');
   const [localCapex, setLocalCapex] = useState('');
-  const [localCurrency, setLocalCurrency] = useState('');
-  const [localReportCurrency, setLocalReportCurrency] = useState('');
+
+  // Use project.reportCurrency from header toggle as the single currency
+  const currency = project.reportCurrency;
 
   // Add allocation state
   const [addOpen, setAddOpen] = useState(false);
@@ -79,47 +61,44 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
   const [editingAllocation, setEditingAllocation] = useState<number | null>(null);
   const [editAmount, setEditAmount] = useState('');
 
-  const loadBudget = async () => {
+  const loadBudget = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchProjectBudget(project.id);
       setBudget(data);
-      setLocalOpex(data.opexBudget || '');
-      setLocalCapex(data.capexBudget || '');
-      setLocalCurrency(data.budgetCurrency || '');
-      setLocalReportCurrency(data.reportCurrency || '');
+      // Use converted values if available (when reportCurrency differs from budgetCurrency)
+      setLocalOpex(data.convertedOpex || data.opexBudget || '');
+      setLocalCapex(data.convertedCapex || data.capexBudget || '');
     } catch (err) {
       console.error('Failed to load budget:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [project.id]);
 
+  // Load budget on mount and when reportCurrency changes (set via header toggle)
   useEffect(() => {
     loadBudget();
-  }, [project.id]);
+  }, [loadBudget, project.reportCurrency]);
 
   // Load available budget lines when currency changes and add dialog opens
   useEffect(() => {
-    if (addOpen && localCurrency) {
-      fetchAvailableBudgetLines(localCurrency).then(setAvailableLines);
+    if (addOpen && currency) {
+      fetchAvailableBudgetLines(currency).then(setAvailableLines);
     }
-  }, [addOpen, localCurrency]);
+  }, [addOpen, currency]);
 
-  // Auto-save budget totals and report currency
+  // Auto-save budget totals
   const { statusText } = useAutoSave({
     data: {
       opexBudget: localOpex,
       capexBudget: localCapex,
-      budgetCurrency: localCurrency,
-      reportCurrency: localReportCurrency
     },
     onSave: async (data) => {
       const updated = await updateProjectBudget(project.id, {
         opexBudget: data.opexBudget || null,
         capexBudget: data.capexBudget || null,
-        budgetCurrency: data.budgetCurrency || null,
-        reportCurrency: data.reportCurrency || null,
+        budgetCurrency: currency || null,
       });
       // Preserve existing allocations since PUT response doesn't include them
       setBudget(prev => ({
@@ -130,26 +109,8 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
       }));
     },
     delay: 2500,
-    enabled: !disabled && !!localCurrency,
+    enabled: !disabled && !!currency,
   });
-
-  const handleCurrencyChange = async (currency: string) => {
-    setLocalCurrency(currency);
-    try {
-      const updated = await updateProjectBudget(project.id, {
-        budgetCurrency: currency,
-      });
-      // Preserve existing allocations since PUT response doesn't include them
-      setBudget(prev => ({
-        ...updated,
-        allocations: prev?.allocations || [],
-        totalAllocated: prev?.totalAllocated || '0.00',
-        allocationMatch: prev?.allocationMatch ?? true,
-      }));
-    } catch (err) {
-      console.error('Failed to update currency:', err);
-    }
-  };
 
   const handleAddAllocation = async () => {
     if (!selectedLineId || !allocationAmount) return;
@@ -203,7 +164,8 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
   };
 
   // Get the effective display currency (reportCurrency if set, otherwise budgetCurrency)
-  const displayCurrency = localReportCurrency || localCurrency;
+  // Use project.reportCurrency (set via header toggle) for all budget display
+  const displayCurrency = currency;
 
   const selectedLine = availableLines.find(l => l.id === selectedLineId);
   const canAddAllocation = selectedLineId && allocationAmount &&
@@ -227,69 +189,26 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
 
         <div className="grid gap-4">
           <div className="space-y-2">
-            <Label htmlFor="currency">Budget Input Currency</Label>
-            <Select
-              value={localCurrency}
-              onValueChange={handleCurrencyChange}
-              disabled={disabled}
-            >
-              <SelectTrigger id="currency">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent>
-                {BUDGET_CURRENCIES.map((curr) => (
-                  <SelectItem key={curr.value} value={curr.value}>
-                    {curr.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="report-currency">Report Currency</Label>
-            <p className="text-xs text-muted-foreground mb-1">
-              All amounts will be displayed in this currency
-            </p>
-            <Select
-              value={localReportCurrency}
-              onValueChange={setLocalReportCurrency}
-              disabled={disabled || !localCurrency}
-            >
-              <SelectTrigger id="report-currency">
-                <SelectValue placeholder="Select report currency" />
-              </SelectTrigger>
-              <SelectContent>
-                {REPORT_CURRENCIES.map((curr) => (
-                  <SelectItem key={curr.value} value={curr.value}>
-                    {curr.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="opex">OPEX Budget {localCurrency && `(${localCurrency})`}</Label>
+            <Label htmlFor="opex">OPEX Budget {currency && `(${currency})`}</Label>
             <Input
               id="opex"
               type="text"
               value={localOpex}
               onChange={(e) => setLocalOpex(e.target.value)}
               placeholder="0.00"
-              disabled={disabled || !localCurrency}
+              disabled={disabled || !currency}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="capex">CAPEX Budget {localCurrency && `(${localCurrency})`}</Label>
+            <Label htmlFor="capex">CAPEX Budget {currency && `(${currency})`}</Label>
             <Input
               id="capex"
               type="text"
               value={localCapex}
               onChange={(e) => setLocalCapex(e.target.value)}
               placeholder="0.00"
-              disabled={disabled || !localCurrency}
+              disabled={disabled || !currency}
             />
           </div>
 
@@ -333,7 +252,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={disabled || !localCurrency}
+                disabled={disabled || !currency}
               >
                 <Plus className="h-4 w-4 mr-1" />
                 Add Allocation

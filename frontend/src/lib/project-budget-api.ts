@@ -3,6 +3,8 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export interface ProjectBudget {
   opexBudget: string | null;
   capexBudget: string | null;
+  convertedOpex?: string;
+  convertedCapex?: string;
   budgetCurrency: string | null;
   reportCurrency: string | null;
   costTshirt: string | null;

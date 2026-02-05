@@ -8,6 +8,7 @@ import { ActualsSummary } from './ActualsSummary';
 import { ConflictDialog } from './ConflictDialog';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { fetchProject, updateProject, type Project, type ConflictError } from '@/lib/project-api';
+import { updateProjectBudget } from '@/lib/project-budget-api';
 
 interface ProjectSidebarProps {
   projectId: number | null;
@@ -35,6 +36,8 @@ export function ProjectSidebar({
   // Load project when ID changes
   useEffect(() => {
     if (projectId && open) {
+      // Clear previous project immediately to avoid showing stale data
+      setProject(null);
       setLoading(true);
       fetchProject(projectId)
         .then((p) => {
@@ -114,6 +117,28 @@ export function ProjectSidebar({
   // Read-only mode for stopped projects
   const isReadOnly = project?.isStopped ?? false;
 
+  // Track currency update in progress to prevent double-clicks
+  const [currencyUpdating, setCurrencyUpdating] = useState(false);
+
+  // Handle report currency change - updates project and reloads
+  const handleReportCurrencyChange = useCallback(async (currency: string) => {
+    // Skip if same currency already selected or update in progress
+    if (!projectId || currencyUpdating || currency === project?.reportCurrency) return;
+
+    setCurrencyUpdating(true);
+    try {
+      await updateProjectBudget(projectId, { reportCurrency: currency });
+      // Reload project to get updated reportCurrency
+      const updated = await fetchProject(projectId);
+      setProject(updated);
+      onProjectUpdated?.();
+    } catch (error) {
+      console.error('Failed to update report currency:', error);
+    } finally {
+      setCurrencyUpdating(false);
+    }
+  }, [projectId, project?.reportCurrency, currencyUpdating, onProjectUpdated]);
+
   const { status, statusText, saveNow } = useAutoSave({
     data: formData,
     onSave: handleSave,
@@ -162,6 +187,8 @@ export function ProjectSidebar({
               onOpenChange(false);
               onDeleted?.();
             }}
+            onReportCurrencyChange={handleReportCurrencyChange}
+            currencyUpdating={currencyUpdating}
           />
 
           <div className="flex-1 overflow-auto">

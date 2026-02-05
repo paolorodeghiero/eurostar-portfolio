@@ -88,10 +88,47 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       );
 
       // Calculate totalBudget and totalAllocated
-      // If reportCurrency is set, use converted amounts for totalAllocated
+      // If reportCurrency is set and differs from budgetCurrency, convert budget values
       const opex = project.opexBudget ? parseFloat(project.opexBudget) : 0;
       const capex = project.capexBudget ? parseFloat(project.capexBudget) : 0;
-      const totalBudget = (opex + capex).toFixed(2);
+      const totalBudgetRaw = (opex + capex).toFixed(2);
+
+      // Convert budget values to reportCurrency if needed
+      let convertedOpex: string | undefined;
+      let convertedCapex: string | undefined;
+      let totalBudget = totalBudgetRaw;
+
+      if (
+        project.reportCurrency &&
+        project.budgetCurrency &&
+        project.reportCurrency !== project.budgetCurrency
+      ) {
+        try {
+          if (project.opexBudget) {
+            convertedOpex = await convertCurrency(
+              db,
+              project.opexBudget,
+              project.budgetCurrency,
+              project.reportCurrency
+            );
+          }
+          if (project.capexBudget) {
+            convertedCapex = await convertCurrency(
+              db,
+              project.capexBudget,
+              project.budgetCurrency,
+              project.reportCurrency
+            );
+          }
+          // Calculate total in reportCurrency
+          const opexConverted = convertedOpex ? parseFloat(convertedOpex) : 0;
+          const capexConverted = convertedCapex ? parseFloat(convertedCapex) : 0;
+          totalBudget = (opexConverted + capexConverted).toFixed(2);
+        } catch (err) {
+          console.error(`Failed to convert budget from ${project.budgetCurrency} to ${project.reportCurrency}:`, err);
+          // Fall back to raw values
+        }
+      }
 
       const totalAllocated = allocations
         .reduce((sum, alloc) => {
@@ -106,6 +143,8 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       return {
         opexBudget: project.opexBudget,
         capexBudget: project.capexBudget,
+        convertedOpex,
+        convertedCapex,
         budgetCurrency: project.budgetCurrency,
         reportCurrency: project.reportCurrency,
         costTshirt: project.costTshirt,
