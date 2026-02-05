@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 3 of 6 (Financial Tracking)
-Plan: 3 of 8 in current phase
+Plan: 4 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed 03-05-PLAN.md (Budget Lines Admin GUI)
+Last activity: 2026-02-05 - Completed 03-06-PLAN.md (Budget Management UI)
 
-Progress: [███████░░░░░░░░░] 46% (19/41 total plans)
+Progress: [████████░░░░░░░░] 49% (20/41 total plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: 10 min
-- Total execution time: 3.3 hours
+- Total execution time: 3.5 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [███████░░░░░░░░░] 46% (19/41 total pl
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
-| 03 | 3 | 52m | 17m |
+| 03 | 4 | 65m | 16m |
 
 **Recent Trend:**
-- Last 5 plans: 02-09 (7m), 02-10 (10m), 03-01 (23m), 03-02 (20m), 03-05 (9m)
-- Trend: Phase 3 UI work faster (9m), schema/API setup longer (20-23m)
+- Last 5 plans: 02-10 (10m), 03-01 (23m), 03-02 (20m), 03-05 (9m), 03-06 (13m)
+- Trend: Phase 3 UI work faster (9-13m), schema/API setup longer (20-23m)
 
 *Updated after each plan completion*
 
@@ -100,6 +100,10 @@ Recent decisions affecting current work:
 - Delete button disabled with tooltip when allocatedAmount > 0 (03-05)
 - Import dialog stays open on errors to show validation results (03-05)
 - Fiscal year filter defaults to current year (03-05)
+- Inline editing for allocation amounts: click to edit, blur/Enter saves, Escape cancels (03-06)
+- Immediate save for allocations (no debounce) since discrete actions (03-06)
+- Filter available budget lines to only show those with available > 0 (03-06)
+- Color-coded T-shirt badges: XS=gray, S=blue, M=green, L=yellow, XL=orange, XXL=red (03-06)
 
 ### Pending Todos
 
@@ -109,11 +113,12 @@ Recent decisions affecting current work:
 
 - Database migration 0002 not applied - requires Docker/PostgreSQL running (03-01)
 - Migration file ready, can be applied with: `docker compose up -d && cd backend && npx drizzle-kit push`
+- Budget UI (03-06) requires backend API endpoints from 03-03 to be fully functional
 
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 03-05-PLAN.md (Budget Lines Admin GUI)
+Stopped at: Completed 03-06-PLAN.md (Budget Management UI)
 Resume file: None
 
 ---
