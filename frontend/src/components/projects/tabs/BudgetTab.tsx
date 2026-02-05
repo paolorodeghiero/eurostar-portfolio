@@ -30,7 +30,7 @@ import {
   updateBudgetAllocation,
   removeBudgetAllocation,
   type ProjectBudget,
-  type AvailableBudgetLine,
+  type AvailableBudgetLine
 } from '@/lib/project-budget-api';
 import type { Project } from '@/lib/project-api';
 

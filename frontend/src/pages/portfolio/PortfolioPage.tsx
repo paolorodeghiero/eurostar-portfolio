@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { ProjectSidebar } from '@/components/projects/ProjectSidebar';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
+import { ActualsUploadDialog } from '@/components/ActualsUploadDialog';
 import { fetchProjects, type Project } from '@/lib/project-api';
 
 export function PortfolioPage() {
@@ -13,6 +14,7 @@ export function PortfolioPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const loadProjects = async () => {
     setLoading(true);
@@ -37,10 +39,16 @@ export function PortfolioPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Portfolio</h1>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Project
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setUploadOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload Actuals
+          </Button>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -113,6 +121,19 @@ export function PortfolioPage() {
           loadProjects();
           setSelectedProjectId(project.id);
           setSidebarOpen(true);
+        }}
+      />
+
+      <ActualsUploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        onUploadComplete={() => {
+          loadProjects();
+          // Refresh sidebar if open
+          if (selectedProjectId && sidebarOpen) {
+            setSidebarOpen(false);
+            setTimeout(() => setSidebarOpen(true), 100);
+          }
         }}
       />
     </div>

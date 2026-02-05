@@ -12,6 +12,9 @@ export interface Project {
   isOwner: string | null;
   sponsor: string | null;
   isStopped: boolean;
+  opexBudget: string | null;
+  capexBudget: string | null;
+  budgetCurrency: string | null;
   version: number;
   createdAt: string;
   updatedAt: string;
