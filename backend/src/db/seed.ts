@@ -243,6 +243,7 @@ async function seed() {
         opexBudget: '75000.00',
         capexBudget: '25000.00',
         budgetCurrency: 'EUR',
+        reportCurrency: 'EUR',
         costTshirt: 'M',
       },
       {
@@ -258,6 +259,7 @@ async function seed() {
         opexBudget: '120000.00',
         capexBudget: '80000.00',
         budgetCurrency: 'EUR',
+        reportCurrency: 'EUR',
         costTshirt: 'L',
       },
       {
@@ -273,6 +275,7 @@ async function seed() {
         opexBudget: '300000.00',
         capexBudget: '500000.00',
         budgetCurrency: 'EUR',
+        reportCurrency: 'GBP',
         costTshirt: 'XL',
       },
     ])

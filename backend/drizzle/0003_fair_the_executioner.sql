@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "report_currency" varchar(3);
