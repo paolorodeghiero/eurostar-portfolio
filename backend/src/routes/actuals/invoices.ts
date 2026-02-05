@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import multipart from '@fastify/multipart';
+import * as XLSX from 'xlsx';
 import { invoices, projects, currencyRates } from '../../db/schema.js';
 import { extractCompetenceMonth } from '../../lib/competence-month.js';
 import { randomUUID } from 'crypto';
@@ -19,6 +20,22 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
     limits: {
       fileSize: 10 * 1024 * 1024, // 10MB limit
     },
+  });
+
+  // GET /api/actuals/invoices/template - Download Excel template for invoices import
+  fastify.get('/invoices/template', async (request, reply) => {
+    const workbook = XLSX.utils.book_new();
+    const data = [
+      ['ProjectId', 'InvoiceNumber', 'Amount', 'Currency', 'Date', 'Description', 'Company'],
+      ['PRJ-2026-00001', 'INV-001', 15000, 'EUR', '2026-01-20', 'Consulting services', 'Acme Corp']
+    ];
+    const sheet = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Template');
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    reply.header('Content-Disposition', 'attachment; filename="invoices-template.xlsx"');
+    return reply.send(buffer);
   });
 
   // GET /api/actuals/invoices - List all invoices with filters

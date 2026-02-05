@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import multipart from '@fastify/multipart';
+import * as XLSX from 'xlsx';
 import { receipts, projects, currencyRates } from '../../db/schema.js';
 import { randomUUID } from 'crypto';
 import {
@@ -18,6 +19,22 @@ export async function receiptsRoutes(fastify: FastifyInstance) {
     limits: {
       fileSize: 10 * 1024 * 1024, // 10MB limit
     },
+  });
+
+  // GET /api/actuals/receipts/template - Download Excel template for receipts import
+  fastify.get('/receipts/template', async (request, reply) => {
+    const workbook = XLSX.utils.book_new();
+    const data = [
+      ['ProjectId', 'ReceiptNumber', 'Amount', 'Currency', 'Date', 'Description'],
+      ['PRJ-2026-00001', 'REC-001', 5000, 'EUR', '2026-01-15', 'Office supplies']
+    ];
+    const sheet = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Template');
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    reply.header('Content-Disposition', 'attachment; filename="receipts-template.xlsx"');
+    return reply.send(buffer);
   });
 
   // GET /api/actuals/receipts - List all receipts with filters

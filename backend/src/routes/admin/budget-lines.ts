@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, sql, and, count as drizzleCount } from 'drizzle-orm';
 import multipart from '@fastify/multipart';
+import * as XLSX from 'xlsx';
 import {
   budgetLines,
   departments,
@@ -24,6 +25,22 @@ export async function budgetLinesRoutes(fastify: FastifyInstance) {
     limits: {
       fileSize: 10 * 1024 * 1024, // 10MB limit
     },
+  });
+
+  // GET /template - Download Excel template for budget lines import
+  fastify.get('/template', async (request, reply) => {
+    const workbook = XLSX.utils.book_new();
+    const data = [
+      ['Company', 'Department', 'CostCenter', 'LineValue', 'Amount', 'Currency', 'Type', 'FiscalYear'],
+      ['THIF', 'IT Department', 'CC001', 'Software', 10000, 'EUR', 'CAPEX', 2026]
+    ];
+    const sheet = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Template');
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    reply.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    reply.header('Content-Disposition', 'attachment; filename="budget-lines-template.xlsx"');
+    return reply.send(buffer);
   });
 
   // List all budget lines with joins and filters
