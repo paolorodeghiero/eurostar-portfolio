@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 3 of 6 (Financial Tracking)
-Plan: 4 of 8 in current phase
+Plan: 2 of 8 in current phase
 Status: In progress
-Last activity: 2026-02-05 - Completed 03-04-PLAN.md (Actuals Import APIs)
+Last activity: 2026-02-05 - Completed 03-02-PLAN.md (Budget Lines Admin API)
 
-Progress: [████████░░░░░░░░] 46% (19/41 total plans)
+Progress: [███████░░░░░░░░░] 44% (18/41 total plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 18
 - Average duration: 10 min
-- Total execution time: 3.3 hours
+- Total execution time: 3.1 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [████████░░░░░░░░] 46% (19/41 total pl
 |-------|-------|-------|----------|
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
-| 03 | 3 | 46m | 15m |
+| 03 | 2 | 43m | 22m |
 
 **Recent Trend:**
-- Last 5 plans: 02-09 (7m), 02-10 (10m), 03-01 (23m), 03-03 (10m), 03-04 (13m)
-- Trend: Phase 3 averaging 15m/plan
+- Last 5 plans: 02-08 (7m), 02-09 (7m), 02-10 (10m), 03-01 (23m), 03-02 (20m)
+- Trend: Phase 3 longer (schema/import setup)
 
 *Updated after each plan completion*
 
@@ -90,12 +90,11 @@ Recent decisions affecting current work:
 - Store currency alongside amounts using ISO 4217 codes (03-01)
 - Competence month for invoices supports extraction flag and manual override (03-01)
 - Unique constraints prevent duplicate budget line and actuals imports (03-01)
-- Use SERIALIZABLE transactions with SELECT FOR UPDATE for allocation validation (03-03)
-- Auto-derive cost T-shirt on budget updates from total OPEX + CAPEX (03-03)
-- Return allocationMatch flag to warn when allocations don't match declared budget (03-03)
-- Batch import returns partial success with error array per record (03-04)
-- Competence month extraction uses database-configured regex patterns (03-04)
-- Import batch UUID generated server-side for tracking (03-04)
+- Excel validation uses magic bytes (504b0304 for xlsx, d0cf11e0 for xls) (03-02)
+- Import validates referential data before insert (departments, cost centers, currencies must exist) (03-02)
+- Bulk imports use transactions for all-or-nothing behavior (03-02)
+- DELETE blocked when budget line has allocations (409 conflict) (03-02)
+- No PUT/update endpoint for budget lines - import-only, delete and re-import to fix errors (03-02)
 
 ### Pending Todos
 
@@ -109,7 +108,7 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: Completed 03-04-PLAN.md (Actuals Import APIs)
+Stopped at: Completed 03-02-PLAN.md (Budget Lines Admin API)
 Resume file: None
 
 ---
