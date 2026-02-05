@@ -10,6 +10,15 @@ import {
   committeeThresholds,
   costTshirtThresholds,
   competenceMonthPatterns,
+  projectIdCounters,
+  projects,
+  projectTeams,
+  projectValues,
+  projectChangeImpact,
+  budgetLines,
+  projectBudgetAllocations,
+  receipts,
+  invoices,
 } from './schema.js';
 
 async function seed() {
@@ -17,6 +26,18 @@ async function seed() {
 
   // Clear existing data (in reverse order of dependencies)
   console.log('Clearing existing data...');
+  // Phase 3 financial tables first
+  await db.delete(invoices);
+  await db.delete(receipts);
+  await db.delete(projectBudgetAllocations);
+  await db.delete(budgetLines);
+  // Phase 2 project tables
+  await db.delete(projectChangeImpact);
+  await db.delete(projectValues);
+  await db.delete(projectTeams);
+  await db.delete(projects);
+  await db.delete(projectIdCounters);
+  // Referential tables
   await db.delete(teams);
   await db.delete(departments);
   await db.delete(statuses);
@@ -178,6 +199,258 @@ async function seed() {
     { company: 'EIL', pattern: 'Q([1-4])\\s*(\\d{4})', description: 'Format: Q1 2024 (quarterly)' },
   ]);
 
+  // Project ID Counters
+  console.log('Creating project ID counters...');
+  await db.insert(projectIdCounters).values([{ year: 2026, lastId: 3 }]);
+
+  // Statuses query for ID lookup
+  const statusList = await db.select().from(statuses);
+  const draftStatus = statusList.find((s) => s.name === 'Draft');
+  const inProgressStatus = statusList.find((s) => s.name === 'In Progress');
+  const readyStatus = statusList.find((s) => s.name === 'Ready');
+
+  // Teams query for ID lookup
+  const teamList = await db.select().from(teams);
+  const digitalTeam = teamList.find((t) => t.name === 'Digital Platforms');
+  const dataTeam = teamList.find((t) => t.name === 'Data & Analytics');
+  const infraTeam = teamList.find((t) => t.name === 'Infrastructure');
+  const revenueTeam = teamList.find((t) => t.name === 'Revenue Management');
+
+  // Outcomes query for ID lookup
+  const outcomeList = await db.select().from(outcomes);
+
+  // Cost centers query for ID lookup
+  const costCenterList = await db.select().from(costCenters);
+  const itGeneralCC = costCenterList.find((c) => c.code === 'CC-ISE-001');
+  const itAppsCC = costCenterList.find((c) => c.code === 'CC-ISE-003');
+  const itDataCC = costCenterList.find((c) => c.code === 'CC-ISE-004');
+
+  // Projects
+  console.log('Creating projects...');
+  const [project1, project2, project3] = await db
+    .insert(projects)
+    .values([
+      {
+        projectId: 'PRJ-2026-00001',
+        name: 'Customer Portal Redesign',
+        statusId: inProgressStatus?.id,
+        startDate: '2026-01-15',
+        endDate: '2026-06-30',
+        leadTeamId: digitalTeam!.id,
+        projectManager: 'Alice Martin',
+        isOwner: 'Bob Wilson',
+        sponsor: 'Carol Davis',
+        opexBudget: '75000.00',
+        capexBudget: '25000.00',
+        budgetCurrency: 'EUR',
+        costTshirt: 'M',
+      },
+      {
+        projectId: 'PRJ-2026-00002',
+        name: 'Real-Time Analytics Dashboard',
+        statusId: readyStatus?.id,
+        startDate: '2026-02-01',
+        endDate: '2026-08-31',
+        leadTeamId: dataTeam!.id,
+        projectManager: 'David Chen',
+        isOwner: 'Emily Brown',
+        sponsor: 'Frank Miller',
+        opexBudget: '120000.00',
+        capexBudget: '80000.00',
+        budgetCurrency: 'EUR',
+        costTshirt: 'L',
+      },
+      {
+        projectId: 'PRJ-2026-00003',
+        name: 'Cloud Migration Phase 2',
+        statusId: draftStatus?.id,
+        startDate: '2026-03-01',
+        endDate: '2026-12-31',
+        leadTeamId: infraTeam!.id,
+        projectManager: 'Grace Lee',
+        isOwner: 'Henry Taylor',
+        sponsor: 'Isabel Garcia',
+        opexBudget: '300000.00',
+        capexBudget: '500000.00',
+        budgetCurrency: 'EUR',
+        costTshirt: 'XL',
+      },
+    ])
+    .returning();
+
+  // Project Teams
+  console.log('Creating project teams...');
+  await db.insert(projectTeams).values([
+    // Project 1: Customer Portal Redesign
+    { projectId: project1.id, teamId: digitalTeam!.id, effortSize: 'L', isLead: true },
+    { projectId: project1.id, teamId: dataTeam!.id, effortSize: 'S', isLead: false },
+    // Project 2: Real-Time Analytics Dashboard
+    { projectId: project2.id, teamId: dataTeam!.id, effortSize: 'XL', isLead: true },
+    { projectId: project2.id, teamId: digitalTeam!.id, effortSize: 'M', isLead: false },
+    { projectId: project2.id, teamId: infraTeam!.id, effortSize: 'S', isLead: false },
+    // Project 3: Cloud Migration Phase 2
+    { projectId: project3.id, teamId: infraTeam!.id, effortSize: 'XXL', isLead: true },
+    { projectId: project3.id, teamId: dataTeam!.id, effortSize: 'L', isLead: false },
+    { projectId: project3.id, teamId: digitalTeam!.id, effortSize: 'M', isLead: false },
+  ]);
+
+  // Project Values (scores for outcomes)
+  console.log('Creating project values...');
+  const projectValueData = [];
+  for (const project of [project1, project2, project3]) {
+    for (const outcome of outcomeList) {
+      projectValueData.push({
+        projectId: project.id,
+        outcomeId: outcome.id,
+        score: Math.floor(Math.random() * 5) + 1, // Random 1-5
+        justification: `Impact on ${outcome.name} for ${project.name}`,
+      });
+    }
+  }
+  await db.insert(projectValues).values(projectValueData);
+
+  // Project Change Impact
+  console.log('Creating project change impact...');
+  await db.insert(projectChangeImpact).values([
+    { projectId: project1.id, teamId: revenueTeam!.id, impactSize: 'M' },
+    { projectId: project2.id, teamId: revenueTeam!.id, impactSize: 'L' },
+    { projectId: project2.id, teamId: digitalTeam!.id, impactSize: 'S' },
+    { projectId: project3.id, teamId: dataTeam!.id, impactSize: 'XL' },
+  ]);
+
+  // Budget Lines
+  console.log('Creating budget lines...');
+  const [budgetLine1, budgetLine2, budgetLine3, budgetLine4] = await db
+    .insert(budgetLines)
+    .values([
+      {
+        company: 'THIF',
+        departmentId: iseDept.id,
+        costCenterId: itGeneralCC!.id,
+        lineValue: 'Digital Transformation 2026',
+        lineAmount: '250000.00',
+        currency: 'EUR',
+        type: 'OPEX',
+        fiscalYear: 2026,
+      },
+      {
+        company: 'THIF',
+        departmentId: iseDept.id,
+        costCenterId: itAppsCC!.id,
+        lineValue: 'Application Development',
+        lineAmount: '180000.00',
+        currency: 'EUR',
+        type: 'OPEX',
+        fiscalYear: 2026,
+      },
+      {
+        company: 'THIF',
+        departmentId: iseDept.id,
+        costCenterId: itDataCC!.id,
+        lineValue: 'Data Platform Investment',
+        lineAmount: '350000.00',
+        currency: 'EUR',
+        type: 'CAPEX',
+        fiscalYear: 2026,
+      },
+      {
+        company: 'EIL',
+        departmentId: iseDept.id,
+        costCenterId: itGeneralCC!.id,
+        lineValue: 'Infrastructure Modernization',
+        lineAmount: '500000.00',
+        currency: 'GBP',
+        type: 'CAPEX',
+        fiscalYear: 2026,
+      },
+    ])
+    .returning();
+
+  // Project Budget Allocations
+  console.log('Creating project budget allocations...');
+  await db.insert(projectBudgetAllocations).values([
+    { projectId: project1.id, budgetLineId: budgetLine1.id, allocationAmount: '50000.00' },
+    { projectId: project1.id, budgetLineId: budgetLine2.id, allocationAmount: '25000.00' },
+    { projectId: project2.id, budgetLineId: budgetLine1.id, allocationAmount: '80000.00' },
+    { projectId: project2.id, budgetLineId: budgetLine3.id, allocationAmount: '80000.00' },
+    { projectId: project3.id, budgetLineId: budgetLine3.id, allocationAmount: '200000.00' },
+    { projectId: project3.id, budgetLineId: budgetLine4.id, allocationAmount: '300000.00' },
+  ]);
+
+  // Receipts
+  console.log('Creating receipts...');
+  await db.insert(receipts).values([
+    {
+      projectId: project1.id,
+      receiptNumber: 'RCP-2026-001',
+      amount: '12500.00',
+      currency: 'EUR',
+      receiptDate: '2026-01-20',
+      description: 'Design consultation services',
+    },
+    {
+      projectId: project1.id,
+      receiptNumber: 'RCP-2026-002',
+      amount: '8750.00',
+      currency: 'EUR',
+      receiptDate: '2026-02-01',
+      description: 'UX research tools license',
+    },
+    {
+      projectId: project2.id,
+      receiptNumber: 'RCP-2026-003',
+      amount: '25000.00',
+      currency: 'EUR',
+      receiptDate: '2026-02-05',
+      description: 'Analytics platform setup',
+    },
+  ]);
+
+  // Invoices
+  console.log('Creating invoices...');
+  await db.insert(invoices).values([
+    {
+      projectId: project1.id,
+      invoiceNumber: 'INV-2026-001',
+      amount: '15000.00',
+      currency: 'EUR',
+      invoiceDate: '2026-01-25',
+      description: 'Development services 01/2026',
+      competenceMonth: '2026-01',
+      competenceMonthExtracted: true,
+    },
+    {
+      projectId: project1.id,
+      invoiceNumber: 'INV-2026-002',
+      amount: '18500.00',
+      currency: 'EUR',
+      invoiceDate: '2026-02-03',
+      description: 'Ongoing development February 2026',
+      competenceMonth: '2026-02',
+      competenceMonthExtracted: true,
+    },
+    {
+      projectId: project2.id,
+      invoiceNumber: 'INV-2026-003',
+      amount: '32000.00',
+      currency: 'EUR',
+      invoiceDate: '2026-02-01',
+      description: 'Data engineering contract',
+      competenceMonth: null,
+      competenceMonthExtracted: false,
+    },
+    {
+      projectId: project3.id,
+      invoiceNumber: 'INV-2026-004',
+      amount: '75000.00',
+      currency: 'EUR',
+      invoiceDate: '2026-01-31',
+      description: 'Cloud infrastructure Q1 2026',
+      competenceMonth: '2026-01',
+      competenceMonthExtracted: true,
+    },
+  ]);
+
   console.log('\n✅ Seed completed successfully!');
   console.log('\nCreated:');
   console.log('  - 5 departments');
@@ -189,6 +462,14 @@ async function seed() {
   console.log('  - 3 committee thresholds');
   console.log('  - 6 cost T-shirt thresholds');
   console.log('  - 4 competence month patterns');
+  console.log('  - 3 projects');
+  console.log('  - 8 project team assignments');
+  console.log('  - 18 project value scores');
+  console.log('  - 4 change impact entries');
+  console.log('  - 4 budget lines');
+  console.log('  - 6 budget allocations');
+  console.log('  - 3 receipts');
+  console.log('  - 4 invoices');
 
   await pool.end();
 }
