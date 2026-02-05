@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { invoices, projects, currencyRates } from '../../db/schema.js';
 import { extractCompetenceMonth } from '../../lib/competence-month.js';
 import { randomUUID } from 'crypto';
+import { convertCurrency } from '../../lib/currency-converter.js';
 import {
   validateExcelFile,
   parseExcelBuffer,
@@ -45,9 +46,10 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
       fromDate?: string;
       toDate?: string;
       extractionFailed?: string;
+      reportCurrency?: string;
     };
   }>('/invoices', async (request) => {
-    const { projectId, fromDate, toDate, extractionFailed } = request.query;
+    const { projectId, fromDate, toDate, extractionFailed, reportCurrency } = request.query;
 
     // Build base query with project details
     let query = db
@@ -101,6 +103,31 @@ export async function invoicesRoutes(fastify: FastifyInstance) {
     }
 
     const result = await query;
+
+    // If reportCurrency is provided, add converted amounts
+    if (reportCurrency) {
+      const resultsWithConversion = await Promise.all(
+        result.map(async (invoice) => {
+          if (invoice.currency === reportCurrency || !invoice.amount) {
+            return { ...invoice, convertedAmount: invoice.amount };
+          }
+          try {
+            const converted = await convertCurrency(
+              db,
+              invoice.amount,
+              invoice.currency,
+              reportCurrency
+            );
+            return { ...invoice, convertedAmount: converted };
+          } catch {
+            // If conversion fails, return null for converted amount
+            return { ...invoice, convertedAmount: null };
+          }
+        })
+      );
+      return resultsWithConversion;
+    }
+
     return result;
   });
 

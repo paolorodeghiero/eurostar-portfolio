@@ -57,8 +57,8 @@ export function ActualsTab({ project, disabled }: ActualsTabProps) {
       setDetailsLoading(true);
       try {
         const [fetchedReceipts, fetchedInvoices] = await Promise.all([
-          fetchProjectReceipts(project.projectId),
-          fetchProjectInvoices(project.projectId),
+          fetchProjectReceipts(project.projectId, displayCurrency),
+          fetchProjectInvoices(project.projectId, displayCurrency),
         ]);
         setReceipts(fetchedReceipts);
         setInvoices(fetchedInvoices);

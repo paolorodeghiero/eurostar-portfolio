@@ -21,6 +21,7 @@ export interface Receipt {
   receiptNumber: string | null;
   amount: string;
   currency: string;
+  convertedAmount?: string | null;
   receiptDate: string;
   description: string | null;
   importBatch: string | null;
@@ -34,6 +35,7 @@ export interface Invoice {
   invoiceNumber: string;
   amount: string;
   currency: string;
+  convertedAmount?: string | null;
   invoiceDate: string;
   description: string;
   competenceMonth: string | null;
@@ -121,12 +123,20 @@ export async function uploadInvoicesJson(data: Array<InvoiceInput>): Promise<Imp
   });
 }
 
-export async function fetchProjectReceipts(projectId: string): Promise<Receipt[]> {
-  return apiClient<Receipt[]>(`/api/actuals/receipts?projectId=${encodeURIComponent(projectId)}`);
+export async function fetchProjectReceipts(projectId: string, reportCurrency?: string | null): Promise<Receipt[]> {
+  const params = new URLSearchParams({ projectId });
+  if (reportCurrency) {
+    params.append('reportCurrency', reportCurrency);
+  }
+  return apiClient<Receipt[]>(`/api/actuals/receipts?${params}`);
 }
 
-export async function fetchProjectInvoices(projectId: string): Promise<Invoice[]> {
-  return apiClient<Invoice[]>(`/api/actuals/invoices?projectId=${encodeURIComponent(projectId)}`);
+export async function fetchProjectInvoices(projectId: string, reportCurrency?: string | null): Promise<Invoice[]> {
+  const params = new URLSearchParams({ projectId });
+  if (reportCurrency) {
+    params.append('reportCurrency', reportCurrency);
+  }
+  return apiClient<Invoice[]>(`/api/actuals/invoices?${params}`);
 }
 
 export async function deleteReceipt(id: number): Promise<void> {

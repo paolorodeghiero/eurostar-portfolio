@@ -84,12 +84,13 @@ export function ActualsTable({
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-[100px_120px_1fr_120px_80px] gap-2 px-3 py-2 bg-gray-50 border-b text-xs font-medium text-muted-foreground">
+      <div className="grid grid-cols-[80px_100px_1fr_120px_120px_60px] gap-2 px-3 py-2 bg-gray-50 border-b text-xs font-medium text-muted-foreground">
         <div>Type</div>
         <div>Date</div>
         <div>Description</div>
-        <div className="text-right">Amount</div>
-        <div className="text-right">Actions</div>
+        <div className="text-right">Original</div>
+        <div className="text-right">{reportCurrency ? `In ${reportCurrency}` : 'Converted'}</div>
+        <div className="text-right"></div>
       </div>
 
       {/* Virtualized List */}
@@ -109,11 +110,12 @@ export function ActualsTable({
             const item = allItems[virtualItem.index];
             const isReceipt = item.type === 'receipt';
             const data = item.data as Receipt | Invoice;
+            const hasConversion = data.convertedAmount && data.currency !== reportCurrency;
 
             return (
               <div
                 key={virtualItem.key}
-                className="grid grid-cols-[100px_120px_1fr_120px_80px] gap-2 px-3 py-2 border-b text-sm hover:bg-gray-50"
+                className="grid grid-cols-[80px_100px_1fr_120px_120px_60px] gap-2 px-3 py-2 border-b text-sm hover:bg-gray-50"
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -148,23 +150,19 @@ export function ActualsTable({
                   <div className="text-muted-foreground truncate">
                     {data.description || 'No description'}
                   </div>
-                  {!isReceipt && (data as Invoice).competenceMonth && (
-                    <div className="text-xs text-muted-foreground">
-                      Month: {(data as Invoice).competenceMonthOverride || (data as Invoice).competenceMonth}
-                    </div>
-                  )}
                 </div>
 
-                {/* Amount */}
-                <div className="text-right text-xs">
-                  <div className="font-medium">
-                    {formatCurrency(data.amount, data.currency)}
-                  </div>
-                  {reportCurrency && reportCurrency !== data.currency && (
-                    <div className="text-xs text-muted-foreground">
-                      (in {reportCurrency})
-                    </div>
-                  )}
+                {/* Original Amount */}
+                <div className="text-right text-xs font-medium">
+                  {formatCurrency(data.amount, data.currency)}
+                </div>
+
+                {/* Converted Amount */}
+                <div className="text-right text-xs font-medium">
+                  {hasConversion && data.convertedAmount
+                    ? formatCurrency(data.convertedAmount, reportCurrency!)
+                    : formatCurrency(data.amount, data.currency)
+                  }
                 </div>
 
                 {/* Actions */}
