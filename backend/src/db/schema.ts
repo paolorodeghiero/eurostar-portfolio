@@ -126,6 +126,10 @@ export const projects = pgTable('projects', {
   isOwner: varchar('is_owner', { length: 255 }),
   sponsor: varchar('sponsor', { length: 255 }),
   isStopped: boolean('is_stopped').notNull().default(false),
+  opexBudget: numeric('opex_budget', { precision: 15, scale: 2 }),
+  capexBudget: numeric('capex_budget', { precision: 15, scale: 2 }),
+  budgetCurrency: varchar('budget_currency', { length: 3 }), // ISO 4217
+  costTshirt: varchar('cost_tshirt', { length: 5 }), // XS/S/M/L/XL/XXL - auto-derived
   version: integer('version').notNull().default(1), // For optimistic locking
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -210,4 +214,22 @@ export const budgetLines = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [unique().on(table.company, table.costCenterId, table.lineValue, table.fiscalYear)]
+);
+
+// Project Budget Allocations table - Junction between projects and budget lines
+export const projectBudgetAllocations = pgTable(
+  'project_budget_allocations',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    projectId: integer('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    budgetLineId: integer('budget_line_id')
+      .notNull()
+      .references(() => budgetLines.id, { onDelete: 'restrict' }),
+    allocationAmount: numeric('allocation_amount', { precision: 15, scale: 2 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.projectId, table.budgetLineId)]
 );
