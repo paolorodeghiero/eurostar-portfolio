@@ -233,3 +233,48 @@ export const projectBudgetAllocations = pgTable(
   },
   (table) => [unique().on(table.projectId, table.budgetLineId)]
 );
+
+// Receipts table - Actuals tracking for receipts
+export const receipts = pgTable(
+  'receipts',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    projectId: integer('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    receiptNumber: varchar('receipt_number', { length: 100 }),
+    amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
+    currency: varchar('currency', { length: 3 }).notNull(), // ISO 4217
+    receiptDate: date('receipt_date').notNull(),
+    description: varchar('description', { length: 500 }),
+    importBatch: varchar('import_batch', { length: 50 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    unique('unique_receipt').on(table.projectId, table.receiptNumber).nullsNotDistinct(),
+  ]
+);
+
+// Invoices table - Actuals tracking for invoices
+export const invoices = pgTable(
+  'invoices',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    projectId: integer('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    invoiceNumber: varchar('invoice_number', { length: 100 }).notNull(),
+    amount: numeric('amount', { precision: 15, scale: 2 }).notNull(),
+    currency: varchar('currency', { length: 3 }).notNull(), // ISO 4217
+    invoiceDate: date('invoice_date').notNull(),
+    description: varchar('description', { length: 500 }),
+    competenceMonth: varchar('competence_month', { length: 7 }), // YYYY-MM format
+    competenceMonthExtracted: boolean('competence_month_extracted').notNull().default(false),
+    competenceMonthOverride: varchar('competence_month_override', { length: 7 }), // Manual override
+    importBatch: varchar('import_batch', { length: 50 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.projectId, table.invoiceNumber, table.amount)]
+);
