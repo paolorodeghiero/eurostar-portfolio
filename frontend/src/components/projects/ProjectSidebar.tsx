@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
 import { ProjectHeader } from './ProjectHeader';
 import { ProjectFooter } from './ProjectFooter';
 import { ProjectTabs } from './ProjectTabs';
-import { ActualsSummary } from './ActualsSummary';
 import { ConflictDialog } from './ConflictDialog';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { fetchProject, updateProject, type Project, type ConflictError } from '@/lib/project-api';
@@ -197,17 +196,12 @@ export function ProjectSidebar({
                 Loading...
               </div>
             ) : project ? (
-              <>
-                <ProjectTabs
-                  project={project}
-                  formData={formData}
-                  onChange={isReadOnly ? () => {} : setFormData}
-                  disabled={isReadOnly}
-                />
-                {project.budgetCurrency && (
-                  <ActualsSummary project={project} />
-                )}
-              </>
+              <ProjectTabs
+                project={project}
+                formData={formData}
+                onChange={isReadOnly ? () => {} : setFormData}
+                disabled={isReadOnly}
+              />
             ) : null}
           </div>
 
