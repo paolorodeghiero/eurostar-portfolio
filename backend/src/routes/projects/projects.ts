@@ -13,6 +13,7 @@ import {
   invoices,
 } from '../../db/schema.js';
 import { generateProjectId } from '../../lib/project-id-generator.js';
+import { convertCurrency } from '../../lib/currency-converter.js';
 
 export async function projectRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -528,16 +529,22 @@ export async function projectRoutes(fastify: FastifyInstance) {
   });
 
   // GET /api/projects/:id/actuals/summary - Get actuals summary for a project
-  fastify.get<{ Params: { id: string } }>('/:id/actuals/summary', async (request, reply) => {
+  fastify.get<{
+    Params: { id: string };
+    Querystring: { reportCurrency?: string };
+  }>('/:id/actuals/summary', async (request, reply) => {
     const id = parseInt(request.params.id);
+    const { reportCurrency } = request.query;
 
-    // Get project with budget info
+    // Get project with budget info and startDate for exchange rate lookup
     const [project] = await db
       .select({
         id: projects.id,
         opexBudget: projects.opexBudget,
         capexBudget: projects.capexBudget,
         budgetCurrency: projects.budgetCurrency,
+        reportCurrency: projects.reportCurrency,
+        startDate: projects.startDate,
       })
       .from(projects)
       .where(eq(projects.id, id));
@@ -550,15 +557,43 @@ export async function projectRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ error: 'Project has no budget set' });
     }
 
-    // Calculate total receipts
-    const [receiptsTotal] = await db
+    // Determine target currency for display (query param > project reportCurrency > budgetCurrency)
+    const targetCurrency = reportCurrency || project.reportCurrency || project.budgetCurrency;
+    const conversionDate = project.startDate ? new Date(project.startDate) : undefined;
+
+    // Get all receipts with their currencies for conversion
+    const allReceipts = await db
       .select({
-        total: sql<string>`COALESCE(SUM(${receipts.amount}), 0)`,
+        amount: receipts.amount,
+        currency: receipts.currency,
       })
       .from(receipts)
       .where(eq(receipts.projectId, id));
 
-    // Calculate total invoices
+    // Convert and sum receipts
+    let totalReceipts = 0;
+    for (const receipt of allReceipts) {
+      if (receipt.currency === targetCurrency) {
+        totalReceipts += parseFloat(receipt.amount);
+      } else {
+        try {
+          const converted = await convertCurrency(
+            db,
+            receipt.amount,
+            receipt.currency,
+            targetCurrency,
+            conversionDate
+          );
+          totalReceipts += parseFloat(converted);
+        } catch (err) {
+          // If conversion fails, use original amount
+          console.error(`Failed to convert receipt from ${receipt.currency} to ${targetCurrency}:`, err);
+          totalReceipts += parseFloat(receipt.amount);
+        }
+      }
+    }
+
+    // Calculate total invoices (not converted, just for info)
     const [invoicesTotal] = await db
       .select({
         total: sql<string>`COALESCE(SUM(${invoices.amount}), 0)`,
@@ -577,14 +612,45 @@ export async function projectRoutes(fastify: FastifyInstance) {
         eq(invoices.competenceMonthExtracted, false)
       ));
 
-    // Calculate totals
-    const totalReceipts = parseFloat(receiptsTotal?.total || '0');
+    // Convert budget totals to target currency
+    let budgetTotal = 0;
+    const opex = parseFloat(project.opexBudget || '0');
+    const capex = parseFloat(project.capexBudget || '0');
+    const rawBudget = opex + capex;
+
+    if (project.budgetCurrency === targetCurrency) {
+      budgetTotal = rawBudget;
+    } else {
+      try {
+        if (opex > 0) {
+          const convertedOpex = await convertCurrency(
+            db,
+            project.opexBudget!,
+            project.budgetCurrency,
+            targetCurrency,
+            conversionDate
+          );
+          budgetTotal += parseFloat(convertedOpex);
+        }
+        if (capex > 0) {
+          const convertedCapex = await convertCurrency(
+            db,
+            project.capexBudget!,
+            project.budgetCurrency,
+            targetCurrency,
+            conversionDate
+          );
+          budgetTotal += parseFloat(convertedCapex);
+        }
+      } catch (err) {
+        console.error(`Failed to convert budget from ${project.budgetCurrency} to ${targetCurrency}:`, err);
+        budgetTotal = rawBudget; // Fall back to raw values
+      }
+    }
+
     const totalInvoices = parseFloat(invoicesTotal?.total || '0');
     const totalActuals = totalReceipts + totalInvoices;
 
-    const opex = parseFloat(project.opexBudget || '0');
-    const capex = parseFloat(project.capexBudget || '0');
-    const budgetTotal = opex + capex;
     // Use receipts only for budget calculations (invoices tracked separately)
     const budgetRemaining = budgetTotal - totalReceipts;
     const percentUsed = budgetTotal > 0 ? (totalReceipts / budgetTotal) * 100 : 0;
@@ -593,7 +659,7 @@ export async function projectRoutes(fastify: FastifyInstance) {
       totalReceipts: totalReceipts.toFixed(2),
       totalInvoices: totalInvoices.toFixed(2),
       totalActuals: totalActuals.toFixed(2),
-      currency: project.budgetCurrency,
+      currency: targetCurrency,
       budgetTotal: budgetTotal.toFixed(2),
       budgetRemaining: budgetRemaining.toFixed(2),
       percentUsed: percentUsed.toFixed(2),

@@ -46,7 +46,7 @@ export function ActualsTab({ project, disabled }: ActualsTabProps) {
 
     // Fetch both summary and receipts on mount
     Promise.all([
-      fetchProjectActualsSummary(project.id),
+      fetchProjectActualsSummary(project.id, displayCurrency),
       fetchProjectReceipts(project.projectId, displayCurrency),
     ])
       .then(([summaryData, receiptsData]) => {
@@ -65,7 +65,7 @@ export function ActualsTab({ project, disabled }: ActualsTabProps) {
       await deleteReceipt(id);
       setReceipts(prev => prev.filter(r => r.id !== id));
       // Refresh summary to update totals
-      const updatedSummary = await fetchProjectActualsSummary(project.id);
+      const updatedSummary = await fetchProjectActualsSummary(project.id, displayCurrency);
       setSummary(updatedSummary);
     } catch (err) {
       console.error('Failed to delete receipt:', err);
@@ -79,7 +79,7 @@ export function ActualsTab({ project, disabled }: ActualsTabProps) {
       await Promise.all(receipts.map(r => deleteReceipt(r.id)));
       setReceipts([]);
       // Refresh summary
-      const updatedSummary = await fetchProjectActualsSummary(project.id);
+      const updatedSummary = await fetchProjectActualsSummary(project.id, displayCurrency);
       setSummary(updatedSummary);
       setDeleteAllOpen(false);
     } catch (err) {

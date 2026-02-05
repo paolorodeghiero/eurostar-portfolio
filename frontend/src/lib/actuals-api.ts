@@ -71,8 +71,9 @@ export interface InvoiceInput {
   company?: string;
 }
 
-export async function fetchProjectActualsSummary(projectId: number): Promise<ProjectActualsSummary> {
-  return apiClient<ProjectActualsSummary>(`/api/projects/${projectId}/actuals/summary`);
+export async function fetchProjectActualsSummary(projectId: number, reportCurrency?: string | null): Promise<ProjectActualsSummary> {
+  const params = reportCurrency ? `?reportCurrency=${reportCurrency}` : '';
+  return apiClient<ProjectActualsSummary>(`/api/projects/${projectId}/actuals/summary${params}`);
 }
 
 export async function uploadReceiptsExcel(file: File): Promise<ImportResult> {

@@ -20,7 +20,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const projectId = parseInt(request.params.projectId);
 
-      // Get project budget fields
+      // Get project budget fields including startDate for exchange rate lookup
       const [project] = await db
         .select({
           id: projects.id,
@@ -29,6 +29,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
           budgetCurrency: projects.budgetCurrency,
           reportCurrency: projects.reportCurrency,
           costTshirt: projects.costTshirt,
+          startDate: projects.startDate,
         })
         .from(projects)
         .where(eq(projects.id, projectId));
@@ -61,6 +62,9 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
         .leftJoin(costCenters, eq(budgetLines.costCenterId, costCenters.id))
         .where(eq(projectBudgetAllocations.projectId, projectId));
 
+      // Use project start date for exchange rate lookup
+      const conversionDate = project.startDate ? new Date(project.startDate) : undefined;
+
       // Convert allocations to reportCurrency if set
       const allocations = await Promise.all(
         rawAllocations.map(async (alloc) => {
@@ -72,7 +76,8 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
                 db,
                 alloc.allocationAmount,
                 alloc.currency,
-                project.reportCurrency
+                project.reportCurrency,
+                conversionDate
               );
             } catch (err) {
               // If conversion fails, leave convertedAmount undefined
@@ -109,7 +114,8 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
               db,
               project.opexBudget,
               project.budgetCurrency,
-              project.reportCurrency
+              project.reportCurrency,
+              conversionDate
             );
           }
           if (project.capexBudget) {
@@ -117,7 +123,8 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
               db,
               project.capexBudget,
               project.budgetCurrency,
-              project.reportCurrency
+              project.reportCurrency,
+              conversionDate
             );
           }
           // Calculate total in reportCurrency
