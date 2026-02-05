@@ -15,6 +15,7 @@ import { CurrencyRatesPage } from './pages/admin/CurrencyRatesPage';
 import { CommitteeThresholdsPage } from './pages/admin/CommitteeThresholdsPage';
 import { CostTshirtThresholdsPage } from './pages/admin/CostTshirtThresholdsPage';
 import { CompetenceMonthPatternsPage } from './pages/admin/CompetenceMonthPatternsPage';
+import { BudgetLinesPage } from './pages/admin/BudgetLinesPage';
 import { PortfolioPage } from './pages/portfolio/PortfolioPage';
 
 // Dev mode user menu (simpler than MSAL version)
@@ -50,6 +51,7 @@ function AppRoutes() {
         <Route path="statuses" element={<StatusesPage />} />
         <Route path="outcomes" element={<OutcomesPage />} />
         <Route path="cost-centers" element={<CostCentersPage />} />
+        <Route path="budget-lines" element={<BudgetLinesPage />} />
         <Route path="currency-rates" element={<CurrencyRatesPage />} />
         <Route path="committee-thresholds" element={<CommitteeThresholdsPage />} />
         <Route path="cost-tshirt-thresholds" element={<CostTshirtThresholdsPage />} />
