@@ -108,7 +108,13 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
         capexBudget: data.capexBudget || null,
         budgetCurrency: data.budgetCurrency || null,
       });
-      setBudget(updated);
+      // Preserve existing allocations since PUT response doesn't include them
+      setBudget(prev => ({
+        ...updated,
+        allocations: prev?.allocations || [],
+        totalAllocated: prev?.totalAllocated || '0.00',
+        allocationMatch: prev?.allocationMatch ?? true,
+      }));
     },
     delay: 2500,
     enabled: !disabled && !!localCurrency,
@@ -120,7 +126,13 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
       const updated = await updateProjectBudget(project.id, {
         budgetCurrency: currency,
       });
-      setBudget(updated);
+      // Preserve existing allocations since PUT response doesn't include them
+      setBudget(prev => ({
+        ...updated,
+        allocations: prev?.allocations || [],
+        totalAllocated: prev?.totalAllocated || '0.00',
+        allocationMatch: prev?.allocationMatch ?? true,
+      }));
     } catch (err) {
       console.error('Failed to update currency:', err);
     }
