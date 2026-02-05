@@ -4,6 +4,7 @@ export interface ProjectBudget {
   opexBudget: string | null;
   capexBudget: string | null;
   budgetCurrency: string | null;
+  reportCurrency: string | null;
   costTshirt: string | null;
   totalBudget: string;
   totalAllocated: string;
@@ -19,6 +20,7 @@ export interface BudgetAllocation {
   allocationAmount: string;
   availableAmount: string;
   currency: string;
+  convertedAmount?: string;
 }
 
 export interface AvailableBudgetLine {
@@ -41,6 +43,7 @@ export async function updateProjectBudget(
     opexBudget?: string | null;
     capexBudget?: string | null;
     budgetCurrency?: string | null;
+    reportCurrency?: string | null;
   }
 ): Promise<ProjectBudget> {
   const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget`, {

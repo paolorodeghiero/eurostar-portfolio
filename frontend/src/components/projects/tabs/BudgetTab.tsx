@@ -34,11 +34,16 @@ import {
 } from '@/lib/project-budget-api';
 import type { Project } from '@/lib/project-api';
 
-const CURRENCIES = [
+const BUDGET_CURRENCIES = [
   { value: 'EUR', label: 'EUR - Euro' },
   { value: 'GBP', label: 'GBP - British Pound' },
   { value: 'USD', label: 'USD - US Dollar' },
   { value: 'CHF', label: 'CHF - Swiss Franc' },
+];
+
+const REPORT_CURRENCIES = [
+  { value: 'EUR', label: 'EUR' },
+  { value: 'GBP', label: 'GBP' },
 ];
 
 const TSHIRT_COLORS: Record<string, string> = {
@@ -61,6 +66,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
   const [localOpex, setLocalOpex] = useState('');
   const [localCapex, setLocalCapex] = useState('');
   const [localCurrency, setLocalCurrency] = useState('');
+  const [localReportCurrency, setLocalReportCurrency] = useState('');
 
   // Add allocation state
   const [addOpen, setAddOpen] = useState(false);
@@ -81,6 +87,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
       setLocalOpex(data.opexBudget || '');
       setLocalCapex(data.capexBudget || '');
       setLocalCurrency(data.budgetCurrency || '');
+      setLocalReportCurrency(data.reportCurrency || '');
     } catch (err) {
       console.error('Failed to load budget:', err);
     } finally {
@@ -99,14 +106,20 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
     }
   }, [addOpen, localCurrency]);
 
-  // Auto-save budget totals
+  // Auto-save budget totals and report currency
   const { statusText } = useAutoSave({
-    data: { opexBudget: localOpex, capexBudget: localCapex, budgetCurrency: localCurrency },
+    data: {
+      opexBudget: localOpex,
+      capexBudget: localCapex,
+      budgetCurrency: localCurrency,
+      reportCurrency: localReportCurrency
+    },
     onSave: async (data) => {
       const updated = await updateProjectBudget(project.id, {
         opexBudget: data.opexBudget || null,
         capexBudget: data.capexBudget || null,
         budgetCurrency: data.budgetCurrency || null,
+        reportCurrency: data.reportCurrency || null,
       });
       // Preserve existing allocations since PUT response doesn't include them
       setBudget(prev => ({
@@ -176,11 +189,21 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
   };
 
   const formatCurrency = (value: string | null, currency: string | null) => {
-    if (!value) return '-';
+    if (!value || !currency) return '-';
     const num = parseFloat(value);
     if (isNaN(num)) return value;
-    return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency || ''}`;
+
+    // Use Intl.NumberFormat to format with proper currency formatting
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
   };
+
+  // Get the effective display currency (reportCurrency if set, otherwise budgetCurrency)
+  const displayCurrency = localReportCurrency || localCurrency;
 
   const selectedLine = availableLines.find(l => l.id === selectedLineId);
   const canAddAllocation = selectedLineId && allocationAmount &&
@@ -204,7 +227,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
 
         <div className="grid gap-4">
           <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
+            <Label htmlFor="currency">Budget Input Currency</Label>
             <Select
               value={localCurrency}
               onValueChange={handleCurrencyChange}
@@ -214,7 +237,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
-                {CURRENCIES.map((curr) => (
+                {BUDGET_CURRENCIES.map((curr) => (
                   <SelectItem key={curr.value} value={curr.value}>
                     {curr.label}
                   </SelectItem>
@@ -224,7 +247,30 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="opex">OPEX Budget</Label>
+            <Label htmlFor="report-currency">Report Currency</Label>
+            <p className="text-xs text-muted-foreground mb-1">
+              All amounts will be displayed in this currency
+            </p>
+            <Select
+              value={localReportCurrency}
+              onValueChange={setLocalReportCurrency}
+              disabled={disabled || !localCurrency}
+            >
+              <SelectTrigger id="report-currency">
+                <SelectValue placeholder="Select report currency" />
+              </SelectTrigger>
+              <SelectContent>
+                {REPORT_CURRENCIES.map((curr) => (
+                  <SelectItem key={curr.value} value={curr.value}>
+                    {curr.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="opex">OPEX Budget {localCurrency && `(${localCurrency})`}</Label>
             <Input
               id="opex"
               type="text"
@@ -236,7 +282,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="capex">CAPEX Budget</Label>
+            <Label htmlFor="capex">CAPEX Budget {localCurrency && `(${localCurrency})`}</Label>
             <Input
               id="capex"
               type="text"
@@ -249,9 +295,9 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
 
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between items-center">
-              <span className="font-medium">Total Budget</span>
+              <span className="font-medium">Total Budget {displayCurrency && `(${displayCurrency})`}</span>
               <span className="font-semibold">
-                {formatCurrency(budget?.totalBudget || '0', localCurrency)}
+                {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
               </span>
             </div>
 
@@ -272,8 +318,8 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
         <Alert className="border-yellow-500 bg-yellow-50">
           <AlertTriangle className="h-4 w-4 text-yellow-600" />
           <AlertDescription className="text-yellow-800">
-            Allocated amount ({formatCurrency(budget.totalAllocated, localCurrency)}) does not match
-            declared budget ({formatCurrency(budget.totalBudget, localCurrency)})
+            Allocated amount ({formatCurrency(budget.totalAllocated, displayCurrency)}) does not match
+            declared budget ({formatCurrency(budget.totalBudget, displayCurrency)})
           </AlertDescription>
         </Alert>
       )}
@@ -376,8 +422,12 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
               <thead className="bg-muted">
                 <tr>
                   <th className="text-left p-3 text-sm font-medium">Budget Line</th>
-                  <th className="text-right p-3 text-sm font-medium">Allocated</th>
-                  <th className="text-right p-3 text-sm font-medium">Available</th>
+                  <th className="text-right p-3 text-sm font-medium">
+                    Allocated {displayCurrency && `(${displayCurrency})`}
+                  </th>
+                  <th className="text-right p-3 text-sm font-medium">
+                    Available {displayCurrency && `(${displayCurrency})`}
+                  </th>
                   <th className="w-[50px]"></th>
                 </tr>
               </thead>
@@ -408,16 +458,25 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
                           autoFocus
                         />
                       ) : (
-                        <button
-                          onClick={() => {
-                            setEditingAllocation(allocation.budgetLineId);
-                            setEditAmount(allocation.allocationAmount);
-                          }}
-                          disabled={disabled}
-                          className="hover:underline"
-                        >
-                          {formatCurrency(allocation.allocationAmount, allocation.currency)}
-                        </button>
+                        <div>
+                          <button
+                            onClick={() => {
+                              setEditingAllocation(allocation.budgetLineId);
+                              setEditAmount(allocation.allocationAmount);
+                            }}
+                            disabled={disabled}
+                            className="hover:underline"
+                          >
+                            {allocation.convertedAmount
+                              ? formatCurrency(allocation.convertedAmount, displayCurrency)
+                              : formatCurrency(allocation.allocationAmount, allocation.currency)}
+                          </button>
+                          {allocation.convertedAmount && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              from {formatCurrency(allocation.allocationAmount, allocation.currency)}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="p-3 text-sm text-right text-muted-foreground">
@@ -440,7 +499,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
                 <tr>
                   <td className="p-3 text-sm font-medium">Total Allocated</td>
                   <td className="p-3 text-sm text-right font-semibold">
-                    {formatCurrency(budget.totalAllocated, localCurrency)}
+                    {formatCurrency(budget.totalAllocated, displayCurrency)}
                   </td>
                   <td colSpan={2}></td>
                 </tr>

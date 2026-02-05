@@ -15,6 +15,7 @@ export interface Project {
   opexBudget: string | null;
   capexBudget: string | null;
   budgetCurrency: string | null;
+  reportCurrency: string | null;
   version: number;
   createdAt: string;
   updatedAt: string;
