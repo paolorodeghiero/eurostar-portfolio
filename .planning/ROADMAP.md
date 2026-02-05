@@ -82,12 +82,17 @@ Plans:
   7. System validates receipt ProjectIds exist and derives invoice CompetenceMonth from description via regex
   8. User can manually override CompetenceMonth and system alerts when extraction fails
   9. Actuals summary appears in project sidebar showing totals vs budget
-**Plans**: TBD
+**Plans**: 8 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
-- [ ] 03-03: TBD
+- [ ] 03-01-PLAN.md - Database schema for financial tables (budget lines, allocations, receipts, invoices)
+- [ ] 03-02-PLAN.md - Budget lines API with Excel import and validation
+- [ ] 03-03-PLAN.md - Project budget API with allocation validation and cost T-shirt derivation
+- [ ] 03-04-PLAN.md - Actuals APIs for receipts and invoices with competence month extraction
+- [ ] 03-05-PLAN.md - Budget lines admin page with import dialog
+- [ ] 03-06-PLAN.md - Budget tab in project sidebar with allocations
+- [ ] 03-07-PLAN.md - Actuals summary and upload dialog
+- [ ] 03-08-PLAN.md - Integration verification checkpoint
 
 ### Phase 4: Governance & Workflow
 **Goal**: Enable Engagement Committee workflow and complete audit trail
@@ -156,9 +161,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Authentication | 0/6 | Planned | - |
-| 2. Core Projects | 0/10 | Planned | - |
-| 3. Financial Tracking | 0/TBD | Not started | - |
+| 1. Foundation & Authentication | 6/6 | Complete | 2026-02-03 |
+| 2. Core Projects | 10/10 | Complete | 2026-02-03 |
+| 3. Financial Tracking | 0/8 | Planned | - |
 | 4. Governance & Workflow | 0/TBD | Not started | - |
 | 5. Portfolio GUI | 0/TBD | Not started | - |
 | 6. Admin GUI & Reporting | 0/TBD | Not started | - |
