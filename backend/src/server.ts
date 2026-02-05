@@ -5,6 +5,7 @@ import { dbPlugin } from './plugins/db.js';
 import { authPlugin } from './plugins/auth.js';
 import { referentialsRoutes } from './routes/admin/referentials.js';
 import { projectsRouter } from './routes/projects/index.js';
+import { actualsRouter } from './routes/actuals/index.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -38,6 +39,9 @@ await fastify.register(referentialsRoutes, { prefix: '/api/admin' });
 
 // Register projects routes
 await fastify.register(projectsRouter, { prefix: '/api' });
+
+// Register actuals routes
+await fastify.register(actualsRouter, { prefix: '/api' });
 
 // Start server
 const start = async () => {
