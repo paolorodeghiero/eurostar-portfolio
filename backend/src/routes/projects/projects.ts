@@ -585,8 +585,9 @@ export async function projectRoutes(fastify: FastifyInstance) {
     const opex = parseFloat(project.opexBudget || '0');
     const capex = parseFloat(project.capexBudget || '0');
     const budgetTotal = opex + capex;
-    const budgetRemaining = budgetTotal - totalActuals;
-    const percentUsed = budgetTotal > 0 ? (totalActuals / budgetTotal) * 100 : 0;
+    // Use receipts only for budget calculations (invoices tracked separately)
+    const budgetRemaining = budgetTotal - totalReceipts;
+    const percentUsed = budgetTotal > 0 ? (totalReceipts / budgetTotal) * 100 : 0;
 
     return {
       totalReceipts: totalReceipts.toFixed(2),
