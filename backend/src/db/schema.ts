@@ -131,6 +131,12 @@ export const projects = pgTable('projects', {
   budgetCurrency: varchar('budget_currency', { length: 3 }), // ISO 4217
   reportCurrency: varchar('report_currency', { length: 3 }), // ISO 4217 currency code for reporting display (GBP or EUR)
   costTshirt: varchar('cost_tshirt', { length: 5 }), // XS/S/M/L/XL/XXL - auto-derived
+  committeeState: varchar('committee_state', { length: 20 }),
+  // Values: null | 'draft' | 'presented' | 'discussion' | 'approved' | 'rejected'
+  committeeLevel: varchar('committee_level', { length: 20 }),
+  // Values: null | 'mandatory' | 'optional' | 'not_necessary' (auto-derived from budget)
+  businessCaseFile: varchar('business_case_file', { length: 255 }),
+  // Stores filename reference, actual file on disk
   version: integer('version').notNull().default(1), // For optimistic locking
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

@@ -43,6 +43,13 @@
       "when": 1770330992798,
       "tag": "0005_puzzling_amazoness",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1770393624430,
+      "tag": "0006_previous_deadpool",
+      "breakpoints": true
     }
   ]
 }
