@@ -478,6 +478,21 @@ async function seed() {
     },
   ]);
 
+  // Alert Configuration
+  console.log('Creating alert configuration...');
+  await db.insert(alertConfig).values([
+    {
+      type: 'overdue',
+      enabled: true,
+      budgetThresholdPercent: null, // Not applicable for overdue
+    },
+    {
+      type: 'budget_limit',
+      enabled: true,
+      budgetThresholdPercent: 90, // Alert at 90% budget used
+    },
+  ]);
+
   console.log('\n✅ Seed completed successfully!');
   console.log('\nCreated:');
   console.log('  - 5 departments');
@@ -497,6 +512,7 @@ async function seed() {
   console.log('  - 6 budget allocations');
   console.log('  - 3 receipts');
   console.log('  - 4 invoices');
+  console.log('  - 2 alert configurations');
 
   await pool.end();
 }
