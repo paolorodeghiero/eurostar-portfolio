@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, sql, and, count as drizzleCount } from 'drizzle-orm';
-import multipart from '@fastify/multipart';
 import * as XLSX from 'xlsx';
 import {
   budgetLines,
@@ -19,13 +18,6 @@ import {
 
 export async function budgetLinesRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
-
-  // Register multipart plugin for file uploads
-  await fastify.register(multipart, {
-    limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB limit
-    },
-  });
 
   // GET /template - Download Excel template for budget lines import
   fastify.get('/template', async (request, reply) => {

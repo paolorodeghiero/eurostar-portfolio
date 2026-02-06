@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
-import multipart from '@fastify/multipart';
 import * as XLSX from 'xlsx';
 import { receipts, projects, currencyRates } from '../../db/schema.js';
 import { randomUUID } from 'crypto';
@@ -14,13 +13,6 @@ import {
 
 export async function receiptsRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
-
-  // Register multipart plugin for file uploads
-  await fastify.register(multipart, {
-    limits: {
-      fileSize: 10 * 1024 * 1024, // 10MB limit
-    },
-  });
 
   // GET /api/actuals/receipts/template - Download Excel template for receipts import
   fastify.get('/receipts/template', async (request, reply) => {
