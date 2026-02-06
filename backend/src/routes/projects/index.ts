@@ -6,6 +6,7 @@ import { projectChangeImpactRoutes } from './project-change-impact.js';
 import { projectBudgetRoutes } from './project-budget.js';
 import { projectCommitteeRoutes } from './project-committee.js';
 import { projectFilesRoutes } from './project-files.js';
+import { projectHistoryRoutes } from './project-history.js';
 
 export async function projectsRouter(fastify: FastifyInstance) {
   await fastify.register(projectRoutes, { prefix: '/projects' });
@@ -15,4 +16,5 @@ export async function projectsRouter(fastify: FastifyInstance) {
   await fastify.register(projectBudgetRoutes, { prefix: '/projects' });
   await fastify.register(projectCommitteeRoutes, { prefix: '/projects' });
   await fastify.register(projectFilesRoutes, { prefix: '/projects' });
+  await fastify.register(projectHistoryRoutes, { prefix: '/projects' });
 }
