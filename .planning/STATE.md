@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Enable clear visibility into the IT project portfolio with accurate budget tracking and governance
-**Current focus:** Phase 3 - Financial Tracking (Complete)
+**Current focus:** Phase 4 - Governance & Workflow
 
 ## Current Position
 
-Phase: 3 of 6 (Financial Tracking) - COMPLETE
-Plan: 8 of 8 in current phase
-Status: Phase complete
-Last activity: 2026-02-05 - Completed 03-08-PLAN.md (Integration Verification)
+Phase: 4 of 6 (Governance & Workflow)
+Plan: 1 of 10 in current phase
+Status: In progress
+Last activity: 2026-02-06 - Completed 04-01-PLAN.md (Governance Schema)
 
-Progress: [██████████░░░░░░] 61% (25/41 total plans)
+Progress: [██████████░░░░░░] 63% (26/41 total plans)
 Quick tasks: 4 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: 10 min
-- Total execution time: 4.2 hours
+- Total execution time: 4.3 hours
 - Quick tasks: 4 completed (avg 11 min)
 
 **By Phase:**
@@ -32,10 +32,11 @@ Quick tasks: 4 completed
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
 | 03 | 8 | 82m | 10m |
+| 04 | 1 | 8m | 8m |
 
 **Recent Trend:**
-- Last 5 plans: 03-05 (9m), 03-06 (13m), 03-07 (16m), 03-08 (1m)
-- Trend: Phase 3 complete with UI work (9-16m), verification checkpoint (1m)
+- Last 5 plans: 03-06 (13m), 03-07 (16m), 03-08 (1m), 04-01 (8m)
+- Trend: Phase 4 started with governance schema (8m)
 
 *Updated after each plan completion*
 
@@ -125,6 +126,10 @@ Recent decisions affecting current work:
 - Receipts require: projectId, receiptNumber, company, purchaseOrder, amount, currency, date (quick-005)
 - Invoices require: projectId, company, invoiceNumber, purchaseOrder, amount, currency, date (quick-005)
 - Invoice unique constraint on (company, invoiceNumber), receipt on (company, receiptNumber) (quick-005)
+- Committee columns added after costTshirt, before version in projects table (04-01)
+- Audit log uses JSONB for changes to support flexible field tracking (04-01)
+- GBP thresholds converted at ~0.85 rate from EUR (04-01)
+- auditLog and alertConfig added to seed imports for future seed runs (04-01)
 
 ### Pending Todos
 
@@ -145,11 +150,11 @@ None currently.
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Stopped at: Completed 03-08-PLAN.md (Phase 3 Financial Tracking Complete)
+Last session: 2026-02-06
+Stopped at: Completed 04-01-PLAN.md (Governance Schema)
 Resume file: None
-Next: Phase 4 - Governance & Workflow
+Next: 04-02-PLAN.md (Committee Level Calculation)
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-05*
+*Last updated: 2026-02-06*
