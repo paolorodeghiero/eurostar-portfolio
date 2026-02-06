@@ -1,11 +1,15 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 import { config } from './config/index.js';
 import { dbPlugin } from './plugins/db.js';
 import { authPlugin } from './plugins/auth.js';
 import { referentialsRoutes } from './routes/admin/referentials.js';
 import { projectsRouter } from './routes/projects/index.js';
 import { actualsRouter } from './routes/actuals/index.js';
+import { alertsPlugin } from './routes/alerts/index.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -13,6 +17,21 @@ const fastify = Fastify({ logger: true });
 await fastify.register(cors, {
   origin: config.frontend.url,
   credentials: true,
+});
+
+// Register multipart for file uploads
+await fastify.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max
+    files: 1, // Only one file at a time
+  },
+});
+
+// Register static file serving (for file downloads)
+await fastify.register(fastifyStatic, {
+  root: path.join(process.cwd(), 'uploads'),
+  prefix: '/uploads/',
+  serve: false, // We serve files via authenticated routes
 });
 
 // Register database plugin
@@ -42,6 +61,9 @@ await fastify.register(projectsRouter, { prefix: '/api' });
 
 // Register actuals routes
 await fastify.register(actualsRouter, { prefix: '/api' });
+
+// Register alerts routes
+await fastify.register(alertsPlugin, { prefix: '/api' });
 
 // Start server
 const start = async () => {
