@@ -6,6 +6,7 @@ import { Plus, Upload } from 'lucide-react';
 import { ProjectSidebar } from '@/components/projects/ProjectSidebar';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { ActualsUploadDialog } from '@/components/ActualsUploadDialog';
+import { AlertsDropdown } from '@/components/AlertsDropdown';
 import { fetchProjects, type Project } from '@/lib/project-api';
 
 export function PortfolioPage() {
@@ -39,7 +40,13 @@ export function PortfolioPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Portfolio</h1>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <AlertsDropdown
+            onAlertClick={(projectId) => {
+              setSelectedProjectId(projectId);
+              setSidebarOpen(true);
+            }}
+          />
           <Button variant="outline" onClick={() => setUploadOpen(true)}>
             <Upload className="h-4 w-4 mr-2" />
             Upload Actuals
