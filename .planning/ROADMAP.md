@@ -107,12 +107,19 @@ Plans:
   6. History is viewable in project sidebar showing all changes
   7. Alerts appear for projects overdue (end date passed, not completed) and approaching budget limits
   8. All workflow transitions and audit queries are available via REST API
-**Plans**: TBD
+**Plans**: 10 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01-PLAN.md - Database schema for governance (committee columns, audit_log, alert_config)
+- [ ] 04-02-PLAN.md - PostgreSQL audit trigger with user context
+- [ ] 04-03-PLAN.md - Committee workflow API with state machine
+- [ ] 04-04-PLAN.md - Business case file upload/download API
+- [ ] 04-05-PLAN.md - Alerts API with configuration
+- [ ] 04-06-PLAN.md - Audit history API endpoint
+- [ ] 04-07-PLAN.md - Committee tab UI with state transitions
+- [ ] 04-08-PLAN.md - History tab UI with timeline
+- [ ] 04-09-PLAN.md - Alerts dropdown in top bar
+- [ ] 04-10-PLAN.md - Integration verification checkpoint
 
 ### Phase 5: Portfolio GUI
 **Goal**: Deliver main user interface for all portfolio operations
@@ -164,7 +171,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation & Authentication | 6/6 | Complete | 2026-02-03 |
 | 2. Core Projects | 10/10 | Complete | 2026-02-03 |
 | 3. Financial Tracking | 8/8 | Complete | 2026-02-06 |
-| 4. Governance & Workflow | 0/TBD | Not started | - |
+| 4. Governance & Workflow | 0/10 | Not started | - |
 | 5. Portfolio GUI | 0/TBD | Not started | - |
 | 6. Admin GUI & Reporting | 0/TBD | Not started | - |
 
