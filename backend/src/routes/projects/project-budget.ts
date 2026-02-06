@@ -9,6 +9,7 @@ import {
 } from '../../db/schema.js';
 import { deriveCostTshirt } from '../../lib/cost-tshirt.js';
 import { convertCurrency } from '../../lib/currency-converter.js';
+import { determineCommitteeLevel } from '../../lib/committee.js';
 
 export async function projectBudgetRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -218,6 +219,16 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       costTshirt = await deriveCostTshirt(db, totalBudget, finalBudgetCurrency);
     }
 
+    // Auto-determine committee level based on budget
+    let committeeLevel = null;
+    if (finalBudgetCurrency) {
+      committeeLevel = await determineCommitteeLevel(
+        db,
+        opex + capex,
+        finalBudgetCurrency
+      );
+    }
+
     // Build update object
     const updateData: any = {
       version: sql`${projects.version} + 1`,
@@ -229,6 +240,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
     if (budgetCurrency !== undefined) updateData.budgetCurrency = budgetCurrency;
     if (reportCurrency !== undefined) updateData.reportCurrency = reportCurrency;
     if (costTshirt !== null) updateData.costTshirt = costTshirt;
+    if (committeeLevel !== null) updateData.committeeLevel = committeeLevel;
 
     // Update project with new budget and cost T-shirt
     const [updated] = await db

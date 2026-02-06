@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+
+# Uploads - ignore files but keep directory structure
+uploads/*
+!uploads/.gitkeep
+!uploads/**/.gitkeep
+
+# Logs
+*.log
