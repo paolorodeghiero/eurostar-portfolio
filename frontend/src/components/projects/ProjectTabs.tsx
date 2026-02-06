@@ -6,6 +6,7 @@ import { ValueTab } from './tabs/ValueTab';
 import { ChangeImpactTab } from './tabs/ChangeImpactTab';
 import { BudgetTab } from './tabs/BudgetTab';
 import { ActualsTab } from './tabs/ActualsTab';
+import { CommitteeTab } from './tabs/CommitteeTab';
 import { HistoryTab } from './tabs/HistoryTab';
 import type { Project } from '@/lib/project-api';
 
@@ -22,6 +23,7 @@ const tabs = [
   { id: 'teams', label: 'Teams' },
   { id: 'value', label: 'Value' },
   { id: 'change-impact', label: 'Change Impact' },
+  { id: 'committee', label: 'Committee' },
   { id: 'budget', label: 'Budget' },
   { id: 'actuals', label: 'Actuals' },
   { id: 'history', label: 'History' },
@@ -70,6 +72,10 @@ export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTa
 
         <TabsContent value="change-impact" className="mt-0 h-full">
           <ChangeImpactTab projectId={project.id} disabled={disabled} />
+        </TabsContent>
+
+        <TabsContent value="committee" className="mt-0 h-full">
+          <CommitteeTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="budget" className="mt-0 h-full">
