@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 4 of 6 (Governance & Workflow)
-Plan: 1 of 10 in current phase
+Plan: 3 of 10 in current phase
 Status: In progress
-Last activity: 2026-02-06 - Completed 04-01-PLAN.md (Governance Schema)
+Last activity: 2026-02-06 - Completed 04-03-PLAN.md (Committee Workflow State Machine)
 
-Progress: [██████████░░░░░░] 63% (26/41 total plans)
+Progress: [██████████░░░░░░] 66% (27/41 total plans)
 Quick tasks: 4 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
+- Total plans completed: 27
 - Average duration: 10 min
-- Total execution time: 4.3 hours
+- Total execution time: 4.45 hours
 - Quick tasks: 4 completed (avg 11 min)
 
 **By Phase:**
@@ -32,11 +32,11 @@ Quick tasks: 4 completed
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
 | 03 | 8 | 82m | 10m |
-| 04 | 1 | 8m | 8m |
+| 04 | 2 | 17m | 9m |
 
 **Recent Trend:**
-- Last 5 plans: 03-06 (13m), 03-07 (16m), 03-08 (1m), 04-01 (8m)
-- Trend: Phase 4 started with governance schema (8m)
+- Last 5 plans: 03-07 (16m), 03-08 (1m), 04-01 (8m), 04-03 (9m)
+- Trend: Phase 4 wave 2 parallel execution
 
 *Updated after each plan completion*
 
@@ -130,6 +130,10 @@ Recent decisions affecting current work:
 - Audit log uses JSONB for changes to support flexible field tracking (04-01)
 - GBP thresholds converted at ~0.85 rate from EUR (04-01)
 - auditLog and alertConfig added to seed imports for future seed runs (04-01)
+- State machine exports COMMITTEE_TRANSITIONS map for transparent transition rules (04-03)
+- canTransition allows null -> draft as initial state entry (04-03)
+- determineCommitteeLevel uses currency-specific thresholds from database (04-03)
+- Committee level auto-updates on any budget change (04-03)
 
 ### Pending Todos
 
@@ -151,9 +155,9 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-01-PLAN.md (Governance Schema)
+Stopped at: Completed 04-03-PLAN.md (Committee Workflow State Machine)
 Resume file: None
-Next: 04-02-PLAN.md (Committee Level Calculation)
+Next: Continue wave 2 parallel plans (04-02, 04-04, 04-05)
 
 ---
 *State initialized: 2026-02-03*
