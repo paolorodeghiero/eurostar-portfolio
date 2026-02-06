@@ -19,6 +19,8 @@ import {
   projectBudgetAllocations,
   receipts,
   invoices,
+  auditLog,
+  alertConfig,
 } from './schema.js';
 
 async function seed() {
@@ -26,7 +28,10 @@ async function seed() {
 
   // Clear existing data (in reverse order of dependencies)
   console.log('Clearing existing data...');
-  // Phase 3 financial tables first
+  // Phase 4 governance tables first
+  await db.delete(auditLog);
+  await db.delete(alertConfig);
+  // Phase 3 financial tables
   await db.delete(invoices);
   await db.delete(receipts);
   await db.delete(projectBudgetAllocations);
@@ -174,9 +179,14 @@ async function seed() {
   // Committee Thresholds (Engagement Committee activation)
   console.log('Creating committee thresholds...');
   await db.insert(committeeThresholds).values([
+    // EUR thresholds
     { minAmount: '0', maxAmount: '50000', level: 'not_necessary', currency: 'EUR' },
     { minAmount: '50000', maxAmount: '200000', level: 'optional', currency: 'EUR' },
     { minAmount: '200000', maxAmount: null, level: 'mandatory', currency: 'EUR' },
+    // GBP thresholds (converted from EUR at ~0.85 rate)
+    { minAmount: '0', maxAmount: '42500', level: 'not_necessary', currency: 'GBP' },
+    { minAmount: '42500', maxAmount: '170000', level: 'optional', currency: 'GBP' },
+    { minAmount: '170000', maxAmount: null, level: 'mandatory', currency: 'GBP' },
   ]);
 
   // Cost T-shirt Thresholds
@@ -476,7 +486,7 @@ async function seed() {
   console.log('  - 6 outcomes');
   console.log('  - 9 cost centers');
   console.log('  - 4 currency rates');
-  console.log('  - 3 committee thresholds');
+  console.log('  - 6 committee thresholds (EUR + GBP)');
   console.log('  - 6 cost T-shirt thresholds');
   console.log('  - 4 competence month patterns');
   console.log('  - 3 projects');
