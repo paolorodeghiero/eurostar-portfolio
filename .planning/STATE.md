@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 4 of 6 (Governance & Workflow)
-Plan: 4 of 10 in current phase (04-01, 04-02, 04-03, 04-04 done)
+Plan: 5 of 10 in current phase (04-01, 04-02, 04-03, 04-04, 04-05 done)
 Status: In progress
-Last activity: 2026-02-06 - Completed 04-04-PLAN.md (Business Case File Upload)
+Last activity: 2026-02-06 - Completed 04-05-PLAN.md (Alerts API)
 
-Progress: [███████████░░░░░] 71% (29/41 total plans)
+Progress: [███████████░░░░░] 73% (30/41 total plans)
 Quick tasks: 4 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29
+- Total plans completed: 30
 - Average duration: 10 min
-- Total execution time: 4.82 hours
+- Total execution time: 5.02 hours
 - Quick tasks: 4 completed (avg 11 min)
 
 **By Phase:**
@@ -32,10 +32,10 @@ Quick tasks: 4 completed
 | 01 | 6 | 82m | 14m |
 | 02 | 10 | 61m | 6m |
 | 03 | 8 | 82m | 10m |
-| 04 | 4 | 39m | 10m |
+| 04 | 5 | 51m | 10m |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (8m), 04-02 (6m), 04-03 (9m), 04-04 (16m)
+- Last 5 plans: 04-02 (6m), 04-03 (9m), 04-04 (16m), 04-05 (12m)
 - Trend: Phase 4 wave 2 parallel execution continues
 
 *Updated after each plan completion*
@@ -141,6 +141,9 @@ Recent decisions affecting current work:
 - UUID filenames prevent path traversal and filename collisions (04-04)
 - Stream-based upload avoids memory accumulation for large files (04-04)
 - MIME type validation alongside extension check for defense in depth (04-04)
+- Alert severity 'critical' for >30 days overdue or >100% budget used (04-05)
+- Exclude cancelled status along with completed/closed from overdue alerts (04-05)
+- Default budget threshold at 90% for budget_limit alerts (04-05)
 
 ### Pending Todos
 
@@ -162,9 +165,9 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 04-04-PLAN.md (Business Case File Upload)
+Stopped at: Completed 04-05-PLAN.md (Alerts API)
 Resume file: None
-Next: Continue wave 2 parallel plans (04-05 if needed)
+Next: Continue wave 2 parallel plans (04-06 through 04-10)
 
 ---
 *State initialized: 2026-02-03*
