@@ -307,7 +307,7 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.doc,.docx"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx"
                   onChange={handleFileSelect}
                   className="hidden"
                   id="business-case-upload"
@@ -321,7 +321,7 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
                   {uploading ? 'Uploading...' : 'Upload Document'}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Accepts PDF, DOC, or DOCX files
+                  Accepts PDF, Word, or PowerPoint files
                 </p>
               </>
             )}
@@ -334,7 +334,7 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.doc,.docx"
+              accept=".pdf,.doc,.docx,.ppt,.pptx"
               onChange={handleFileSelect}
               className="hidden"
               id="business-case-replace"

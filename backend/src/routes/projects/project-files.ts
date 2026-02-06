@@ -8,11 +8,13 @@ import path from 'path';
 import { projects } from '../../db/schema.js';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads', 'business-cases');
-const ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.doc'];
+const ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.pptx', '.ppt'];
 const ALLOWED_MIMETYPES = [
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/msword',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/vnd.ms-powerpoint',
 ];
 
 export async function projectFilesRoutes(fastify: FastifyInstance) {
@@ -166,11 +168,14 @@ export async function projectFilesRoutes(fastify: FastifyInstance) {
 
       // Determine content type from extension
       const ext = path.extname(project.businessCaseFile).toLowerCase();
-      const contentType = ext === '.pdf'
-        ? 'application/pdf'
-        : ext === '.docx'
-          ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-          : 'application/msword';
+      const contentTypeMap: Record<string, string> = {
+        '.pdf': 'application/pdf',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.doc': 'application/msword',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.ppt': 'application/vnd.ms-powerpoint',
+      };
+      const contentType = contentTypeMap[ext] || 'application/octet-stream';
 
       // Send file
       return reply
