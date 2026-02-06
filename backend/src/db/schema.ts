@@ -8,6 +8,7 @@ import {
   date,
   boolean,
   unique,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 
 // Departments table
@@ -290,3 +291,25 @@ export const invoices = pgTable(
   },
   (table) => [unique().on(table.company, table.invoiceNumber)]
 );
+
+// Audit trail table - tracks all project field changes
+export const auditLog = pgTable('audit_log', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  tableName: varchar('table_name', { length: 100 }).notNull(),
+  recordId: integer('record_id').notNull(), // The projects.id
+  changedBy: varchar('changed_by', { length: 255 }).notNull(), // User email
+  changedAt: timestamp('changed_at').defaultNow().notNull(),
+  operation: varchar('operation', { length: 10 }).notNull(), // INSERT, UPDATE, DELETE
+  changes: jsonb('changes'), // { field: { old: val, new: val } }
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Alert configuration table
+export const alertConfig = pgTable('alert_config', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  type: varchar('type', { length: 50 }).notNull().unique(), // 'overdue' | 'budget_limit'
+  enabled: boolean('enabled').notNull().default(true),
+  budgetThresholdPercent: integer('budget_threshold_percent'), // e.g., 90 for 90%
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
