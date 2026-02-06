@@ -6,6 +6,7 @@ import { ValueTab } from './tabs/ValueTab';
 import { ChangeImpactTab } from './tabs/ChangeImpactTab';
 import { BudgetTab } from './tabs/BudgetTab';
 import { ActualsTab } from './tabs/ActualsTab';
+import { HistoryTab } from './tabs/HistoryTab';
 import type { Project } from '@/lib/project-api';
 
 interface ProjectTabsProps {
@@ -23,6 +24,7 @@ const tabs = [
   { id: 'change-impact', label: 'Change Impact' },
   { id: 'budget', label: 'Budget' },
   { id: 'actuals', label: 'Actuals' },
+  { id: 'history', label: 'History' },
 ];
 
 export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTabsProps) {
@@ -76,6 +78,10 @@ export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTa
 
         <TabsContent value="actuals" className="mt-0 h-full">
           <ActualsTab project={project} disabled={disabled} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-0 h-full">
+          <HistoryTab projectId={project.id} />
         </TabsContent>
       </div>
     </Tabs>
