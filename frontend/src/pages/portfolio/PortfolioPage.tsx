@@ -237,6 +237,8 @@ export function PortfolioPage() {
           onNewProject={() => setCreateOpen(true)}
           statusOptions={statuses}
           teamOptions={teams}
+          columnOrder={columnOrder}
+          onResetColumnOrder={() => setColumnOrder(defaultColumnOrder)}
         />
 
         {/* Row count */}
