@@ -1,21 +1,14 @@
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { Project } from '@/lib/project-api';
+import type { PortfolioProject } from '@/lib/project-api';
 import { BudgetHealthCell } from './BudgetHealthCell';
 import { ValueScoreCell } from './ValueScoreCell';
 import { EffortCell } from './EffortCell';
 import { CommitteeCell } from './CommitteeCell';
 
-// Extend Project type for table display with computed fields
-export interface PortfolioProject extends Project {
-  // Computed fields that backend should return (or we calculate)
-  valueScoreAvg?: number;
-  budgetTotal?: number;
-  actualsTotal?: number;
-  committeeState?: string | null;
-  committeeLevel?: string | null;
-}
+// Re-export PortfolioProject for components that import from this file
+export type { PortfolioProject };
 
 const columnHelper = createColumnHelper<PortfolioProject>();
 
@@ -121,17 +114,15 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     size: 100,
   }),
 
-  // Value Score (aggregate dots)
-  columnHelper.accessor('valueScoreAvg', {
+  // Value Score (mini radar chart)
+  columnHelper.accessor('values', {
     id: 'valueScore',
     header: 'Value',
     cell: (info) => {
-      const score = info.getValue();
-      if (score === undefined || score === null) {
-        return <span className="text-muted-foreground">—</span>;
-      }
-      return <ValueScoreCell score={score} />;
+      const values = info.getValue();
+      return <ValueScoreCell values={values} />;
     },
+    enableSorting: false, // Can't meaningfully sort array
     size: 90,
   }),
 

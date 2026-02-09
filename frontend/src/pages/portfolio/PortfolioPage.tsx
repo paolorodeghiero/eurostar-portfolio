@@ -119,7 +119,7 @@ export function PortfolioPage() {
     enableSortingRemoval: false,
     getRowId: (row) => String(row.id),
     // Custom global filter to search text fields
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, _columnId, filterValue) => {
       const search = String(filterValue).toLowerCase();
       const project = row.original;
       const searchable = [
