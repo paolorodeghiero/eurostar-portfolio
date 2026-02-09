@@ -148,13 +148,16 @@ export async function projectRoutes(fastify: FastifyInstance) {
       .innerJoin(teams, eq(projectTeams.teamId, teams.id))
       .where(sql`${projectTeams.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`);
 
-    // Fetch value scores for all projects in one query
+    // Fetch value scores for all projects in one query (with outcome names for radar chart)
     const allValues = await db
       .select({
         projectId: projectValues.projectId,
+        outcomeId: projectValues.outcomeId,
+        outcomeName: outcomes.name,
         score: projectValues.score,
       })
       .from(projectValues)
+      .innerJoin(outcomes, eq(projectValues.outcomeId, outcomes.id))
       .where(sql`${projectValues.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`);
 
     // Fetch actuals totals for all projects (receipts only, in EUR)
@@ -175,11 +178,10 @@ export async function projectRoutes(fastify: FastifyInstance) {
       teamsByProject.set(t.projectId, arr);
     }
 
-    const valuesByProject = new Map<number, number[]>();
+    const valuesByProject = new Map<number, typeof allValues>();
     for (const v of allValues) {
-      if (v.score == null) continue;
       const arr = valuesByProject.get(v.projectId) || [];
-      arr.push(v.score);
+      arr.push(v);
       valuesByProject.set(v.projectId, arr);
     }
 
@@ -191,7 +193,10 @@ export async function projectRoutes(fastify: FastifyInstance) {
     // Convert currencies if needed
     return Promise.all(projectsList.map(async (p) => {
       const pTeams = teamsByProject.get(p.id) || [];
-      const scores = valuesByProject.get(p.id) || [];
+      const pValues = valuesByProject.get(p.id) || [];
+
+      // Calculate average from scores (excluding null scores)
+      const scores = pValues.filter(v => v.score != null).map(v => v.score!);
       const valueScoreAvg = scores.length > 0
         ? scores.reduce((sum, s) => sum + s, 0) / scores.length
         : null;
@@ -255,6 +260,11 @@ export async function projectRoutes(fastify: FastifyInstance) {
           teamName: t.teamName,
           effortSize: t.effortSize,
           isLead: t.isLead,
+        })),
+        values: pValues.map((v) => ({
+          outcomeId: v.outcomeId,
+          outcomeName: v.outcomeName,
+          score: v.score,
         })),
         valueScoreAvg,
         opexBudget,
