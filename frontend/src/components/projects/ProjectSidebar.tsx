@@ -167,9 +167,10 @@ export function ProjectSidebar({
         />
         <SheetPrimitive.Content
           className={cn(
-            "fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out",
             "inset-y-0 right-0 h-full border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
-            "w-[500px] md:w-[600px] lg:w-[700px] xl:w-[800px] p-0 flex flex-col"
+            "data-[state=closed]:duration-200 data-[state=open]:duration-300",
+            "w-[50vw] min-w-[400px] max-w-[800px] p-0 flex flex-col"
           )}
         >
           <ProjectHeader
