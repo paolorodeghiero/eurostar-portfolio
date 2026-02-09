@@ -13,11 +13,6 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
 import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import {
@@ -51,6 +46,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
   const [loading, setLoading] = useState(true);
   const [localOpex, setLocalOpex] = useState('');
   const [localCapex, setLocalCapex] = useState('');
+  const [editMode, setEditMode] = useState(false);
 
   // Use project.reportCurrency from header toggle as the single currency
   const currency = project.reportCurrency;
@@ -180,67 +176,88 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Total Budget Header with Hover Edit */}
+      {/* OPEX/CAPEX Cards */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* OPEX Card */}
+        <div className="border rounded-lg p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">OPEX</span>
+            <Badge variant="outline" className="text-xs">Operating</Badge>
+          </div>
+          {editMode ? (
+            <Input
+              type="text"
+              value={localOpex}
+              onChange={(e) => setLocalOpex(e.target.value)}
+              placeholder="0.00"
+              disabled={disabled || !currency}
+              className="text-lg font-semibold"
+            />
+          ) : (
+            <div className="text-2xl font-semibold">
+              {formatCurrency(budget?.convertedOpex || budget?.opexBudget || '0', displayCurrency)}
+            </div>
+          )}
+        </div>
+
+        {/* CAPEX Card */}
+        <div className="border rounded-lg p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">CAPEX</span>
+            <Badge variant="outline" className="text-xs">Capital</Badge>
+          </div>
+          {editMode ? (
+            <Input
+              type="text"
+              value={localCapex}
+              onChange={(e) => setLocalCapex(e.target.value)}
+              placeholder="0.00"
+              disabled={disabled || !currency}
+              className="text-lg font-semibold"
+            />
+          ) : (
+            <div className="text-2xl font-semibold">
+              {formatCurrency(budget?.convertedCapex || budget?.capexBudget || '0', displayCurrency)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit/Save Button and Total */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="space-y-1">
-            <span className="text-sm text-muted-foreground">Project Budget</span>
-            <HoverCard openDelay={200}>
-              <HoverCardTrigger asChild>
-                <button
-                  className="block text-lg font-semibold hover:text-primary transition-colors cursor-pointer"
-                  disabled={disabled || !currency}
-                >
-                  {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
-                </button>
-              </HoverCardTrigger>
-            <HoverCardContent className="w-64" align="start">
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label htmlFor="hover-opex" className="text-xs">OPEX</Label>
-                  <Input
-                    id="hover-opex"
-                    type="text"
-                    value={localOpex}
-                    onChange={(e) => setLocalOpex(e.target.value)}
-                    placeholder="0.00"
-                    disabled={disabled || !currency}
-                    className="h-8"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="hover-capex" className="text-xs">CAPEX</Label>
-                  <Input
-                    id="hover-capex"
-                    type="text"
-                    value={localCapex}
-                    onChange={(e) => setLocalCapex(e.target.value)}
-                    placeholder="0.00"
-                    disabled={disabled || !currency}
-                    className="h-8"
-                  />
-                </div>
-                {statusText && (
-                  <span className="text-xs text-muted-foreground">{statusText}</span>
-                )}
-              </div>
-            </HoverCardContent>
-          </HoverCard>
-          </div>
-
+          <span className="text-sm text-muted-foreground">Total:</span>
+          <span className="text-lg font-semibold">
+            {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
+          </span>
           {budget?.costTshirt && (
             <Badge className={TSHIRT_COLORS[budget.costTshirt] || 'bg-gray-300'}>
               {budget.costTshirt}
             </Badge>
           )}
         </div>
-
-        {!currency && (
-          <span className="text-sm text-muted-foreground">
-            Set currency in header to edit budget
-          </span>
-        )}
+        <Button
+          variant={editMode ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setEditMode(!editMode)}
+          disabled={disabled || !currency}
+        >
+          {editMode ? 'Done' : 'Edit Budget'}
+        </Button>
       </div>
+
+      {statusText && editMode && (
+        <span className="text-xs text-muted-foreground block">{statusText}</span>
+      )}
+
+      {!currency && (
+        <Alert className="border-yellow-500 bg-yellow-50">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800">
+            Set currency in header to edit budget
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Allocation Match Alert */}
       {budget && !budget.allocationMatch && parseFloat(budget.totalAllocated) > 0 && (
