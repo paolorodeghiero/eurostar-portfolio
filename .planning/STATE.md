@@ -178,6 +178,12 @@ Recent decisions affecting current work:
 - Sidebar animations: 300ms opening (smooth), 200ms closing (snappy) (05-06)
 - Bulk actions UI ready but backend endpoints deferred (export, status change, delete) (05-06)
 - Virtual scrolling row heights: 53px comfortable, 37px compact (05-06)
+- All monetary values (opex, capex, actuals) stored in EUR in database (07-01)
+- Currency conversion at API boundary using reportCurrency query param for display (07-01)
+- inputCurrency parameter in budget PUT endpoint converts to EUR before storing (07-01)
+- actualsTotal calculated from receipts table SUM in EUR (07-01)
+- convertCurrency helper returns null for null input amounts (07-01)
+- Project startDate used as reference date for budget currency conversion (07-01)
 - Recharts 3.7.0 for mini radar chart visualization in table cells (07-02)
 - Date-fns 4.1.0 for relative time formatting (tree-shakeable) (07-02)
 - Mini radar chart sized at 40x40px for compact table cell display (07-02)
@@ -213,10 +219,11 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 07-02-PLAN.md (Install visualization libraries and create cell components)
+Stopped at: Completed 07-01-PLAN.md (Database and API Foundation for Portfolio Refactor)
 Resume file: None
-Next: Continue Phase 7 - Plans 07-03, 07-04, 07-05, and 07-07 through 07-10
+Next: Continue Phase 7 - Plan 07-02 and onward
 
 ---
 *State initialized: 2026-02-03*
+*Last updated: 2026-02-09 (07-01 complete)*
 *Last updated: 2026-02-09 (07-02 complete, Phase 7 in progress)*
