@@ -1,13 +1,9 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertCircle,
-  Upload,
-  Download,
-  Trash2,
-  FileText,
   CheckCircle2,
   Circle,
   ArrowRight,
@@ -15,9 +11,6 @@ import {
 import {
   fetchCommitteeStatus,
   transitionCommitteeState,
-  uploadBusinessCase,
-  downloadBusinessCase,
-  deleteBusinessCase,
   STATE_LABELS,
   STATE_COLORS,
   LEVEL_LABELS,
@@ -37,9 +30,7 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
   const [status, setStatus] = useState<CommitteeStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadStatus = useCallback(async () => {
     setLoading(true);
@@ -74,47 +65,6 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
       setError(err instanceof Error ? err.message : 'Failed to transition state');
     } finally {
       setTransitioning(false);
-    }
-  };
-
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || disabled) return;
-
-    setUploading(true);
-    setError(null);
-    try {
-      await uploadBusinessCase(projectId, file);
-      await loadStatus();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload file');
-    } finally {
-      setUploading(false);
-      // Reset input so same file can be selected again
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleDownload = async () => {
-    setError(null);
-    try {
-      await downloadBusinessCase(projectId);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to download file');
-    }
-  };
-
-  const handleDelete = async () => {
-    if (disabled) return;
-
-    setError(null);
-    try {
-      await deleteBusinessCase(projectId);
-      await loadStatus();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete file');
     }
   };
 
@@ -260,95 +210,6 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
           <p className="text-sm text-muted-foreground">
             Project is stopped. Reactivate to change committee state.
           </p>
-        )}
-      </div>
-
-      {/* Business Case File */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground">Business Case Document</h3>
-
-        {status.businessCaseFile ? (
-          <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
-            <FileText className="h-8 w-8 text-muted-foreground" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">Business Case</p>
-              <p className="text-xs text-muted-foreground">
-                File uploaded
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownload}
-              >
-                <Download className="h-4 w-4 mr-1" />
-                Download
-              </Button>
-              {!disabled && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg bg-muted/10">
-            <FileText className="h-10 w-10 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground mb-3">
-              No business case document uploaded
-            </p>
-            {!disabled && (
-              <>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx,.ppt,.pptx"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="business-case-upload"
-                />
-                <Button
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? 'Uploading...' : 'Upload Document'}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Accepts PDF, Word, or PowerPoint files
-                </p>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Replace file button when file exists */}
-        {status.businessCaseFile && !disabled && (
-          <div className="flex items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.doc,.docx,.ppt,.pptx"
-              onChange={handleFileSelect}
-              className="hidden"
-              id="business-case-replace"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              <Upload className="h-4 w-4 mr-1" />
-              {uploading ? 'Uploading...' : 'Replace Document'}
-            </Button>
-          </div>
         )}
       </div>
     </div>
