@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 7 of 7 (Refactor and Reorganize)
 Plan: 10 of 10 (07-10)
 Status: Complete
-Last activity: 2026-02-09 - Completed quick-007: Reset column order button
+Last activity: 2026-02-09 - Completed quick-008: Value radar hover and click
 
 Progress: [████████████████████] 98% (51/52 total plans)
-Quick tasks: 7 completed
+Quick tasks: 8 completed
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 51
 - Average duration: 8 min
-- Total execution time: 6.60 hours
-- Quick tasks: 7 completed (avg 6 min)
+- Total execution time: 6.70 hours
+- Quick tasks: 8 completed (avg 6 min)
 
 **By Phase:**
 
@@ -216,6 +216,9 @@ Recent decisions affecting current work:
 - [Phase 07]: Remove People tab by merging into GeneralTab to reduce navigation complexity
 - [Phase 07]: First 3 columns pinned (checkbox, ID, name) for horizontal scroll navigation
 - [Phase 07]: Core 8 columns visible by default (ID, Name, Status, Lead, Dates, Value, Budget, Committee)
+- TanStack Table meta callbacks for custom cell interactions that bypass row click (quick-008)
+- Controlled tabs with value/onValueChange for programmatic tab switching (quick-008)
+- Event stopPropagation pattern prevents row click when clicking nested cell elements (quick-008)
 
 ### Pending Todos
 
@@ -240,14 +243,15 @@ None currently.
 | 005 | Create project-global Makefile | 2026-02-09 | f304e432 | [005-create-a-project-global-make-command-for](./quick/005-create-a-project-global-make-command-for/) |
 | 006 | Reorder columns - Effort, Impact, Costs | 2026-02-09 | 206d06a2 | [006-reorder-columns-effort-impact-costs](./quick/006-reorder-columns-effort-impact-costs/) |
 | 007 | Reset column order button | 2026-02-09 | 25272a77 | [007-reset-column-order-button](./quick/007-reset-column-order-button/) |
+| 008 | Value radar hover and click | 2026-02-09 | 3edd2dfb | [008-value-radar-hover-click](./quick/008-value-radar-hover-click/) |
 
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed quick-007: Reset column order button
+Stopped at: Completed quick-008: Value radar hover and click
 Resume file: None
 Next: Phase 6 (Admin GUI & Reporting) is the only remaining phase
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-09 (quick-007 complete)*
+*Last updated: 2026-02-09 (quick-008 complete)*
