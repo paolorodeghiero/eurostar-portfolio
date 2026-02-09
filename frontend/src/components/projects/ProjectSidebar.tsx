@@ -50,6 +50,10 @@ export function ProjectSidebar({
             projectManager: p.projectManager,
             isOwner: p.isOwner,
             sponsor: p.sponsor,
+            description: p.description,
+            budgetCurrency: p.budgetCurrency,
+            reportCurrency: p.reportCurrency,
+            businessCaseFile: p.businessCaseFile,
           });
         })
         .finally(() => setLoading(false));
@@ -109,6 +113,10 @@ export function ProjectSidebar({
       projectManager: conflictState.serverData.projectManager,
       isOwner: conflictState.serverData.isOwner,
       sponsor: conflictState.serverData.sponsor,
+      description: conflictState.serverData.description,
+      budgetCurrency: conflictState.serverData.budgetCurrency,
+      reportCurrency: conflictState.serverData.reportCurrency,
+      businessCaseFile: conflictState.serverData.businessCaseFile,
     });
     setConflictState(null);
   }, [conflictState]);
