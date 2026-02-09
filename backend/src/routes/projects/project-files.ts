@@ -177,11 +177,10 @@ export async function projectFilesRoutes(fastify: FastifyInstance) {
       };
       const contentType = contentTypeMap[ext] || 'application/octet-stream';
 
-      // Send file
+      // Send file using download() for proper Content-Disposition handling
       return reply
         .header('Content-Type', contentType)
-        .header('Content-Disposition', `attachment; filename="business-case${ext}"`)
-        .sendFile(project.businessCaseFile, UPLOAD_DIR);
+        .download(filepath, `business-case${ext}`);
     }
   );
 
