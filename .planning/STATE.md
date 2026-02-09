@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 5 of 6 (Portfolio GUI)
-Plan: 4 of 6 (05-04)
+Plan: 5 of 6 (05-05)
 Status: In Progress
-Last activity: 2026-02-09 - Completed 05-04: Column Customization Components
+Last activity: 2026-02-09 - Completed 05-05: Portfolio Filtering and Search
 
-Progress: [██████████████░░] 93% (38/41 total plans)
+Progress: [██████████████░░] 95% (39/41 total plans)
 Quick tasks: 5 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 38
+- Total plans completed: 39
 - Average duration: 8 min
-- Total execution time: 5.63 hours
+- Total execution time: 5.70 hours
 - Quick tasks: 5 completed (avg 9 min)
 
 **By Phase:**
@@ -33,14 +33,14 @@ Quick tasks: 5 completed
 | 02 | 10 | 61m | 6m |
 | 03 | 8 | 82m | 10m |
 | 04 | 10 | 73m | 7m |
-| 05 | 3 | 23m | 8m |
+| 05 | 4 | 27m | 7m |
 
 **Recent Trend:**
-- Last 5 plans: 04-09 (3m), 04-10 (3m), 05-01 (7m), 05-02 (5m), 05-04 (11m)
-- Trend: Phase 5 portfolio GUI - customization components
+- Last 5 plans: 04-10 (3m), 05-01 (7m), 05-02 (5m), 05-04 (11m), 05-05 (4m)
+- Trend: Phase 5 portfolio GUI - filtering and search components
 
 *Updated after each plan completion*
-| Phase 05 P04 | 11 | 3 tasks | 4 files |
+| Phase 05 P05 | 4 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -169,6 +169,10 @@ Recent decisions affecting current work:
 - 8px activation distance prevents accidental drags when clicking to sort (05-04)
 - Exclude 'select' column from hide options (always visible) (05-04)
 - Prefix unused state setters with underscore until toolbar integration (05-04)
+- 300ms debounce for global search balances responsiveness and performance (05-05)
+- Smart filter types: text for names/IDs, select for status/team, number for scores (05-05)
+- Filter chips truncate long values at 20 characters for readability (05-05)
+- Clear all button only shown when multiple filters active (05-05)
 
 ### Pending Todos
 
@@ -191,10 +195,10 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 05-04-PLAN.md (Column Customization Components)
+Stopped at: Completed 05-05-PLAN.md (Portfolio Filtering and Search)
 Resume file: None
-Next: Continue Phase 5 - Portfolio GUI (05-05 onwards)
+Next: Continue Phase 5 - Portfolio GUI (05-06 onwards)
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-09 (05-04 complete)*
+*Last updated: 2026-02-09 (05-05 complete)*
