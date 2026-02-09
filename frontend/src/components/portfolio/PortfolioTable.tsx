@@ -63,7 +63,7 @@ export function PortfolioTable({
     'portfolio-order',
     defaultColumnOrder
   );
-  const [density, setDensity] = useTableState<Density>(
+  const [density] = useTableState<Density>(
     'portfolio-density',
     'comfortable'
   );
