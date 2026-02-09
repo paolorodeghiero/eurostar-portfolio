@@ -12,10 +12,10 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 7 of 7 (Refactor and Reorganize)
 Plan: 10 of 10 (07-10)
 Status: Complete
-Last activity: 2026-02-09 - Completed 01-07: Phase 1 Human Verification
+Last activity: 2026-02-09 - Completed quick-006: Reorder columns
 
 Progress: [████████████████████] 98% (51/52 total plans)
-Quick tasks: 5 completed
+Quick tasks: 6 completed
 
 ## Performance Metrics
 
@@ -23,7 +23,7 @@ Quick tasks: 5 completed
 - Total plans completed: 51
 - Average duration: 8 min
 - Total execution time: 6.51 hours
-- Quick tasks: 5 completed (avg 9 min)
+- Quick tasks: 6 completed (avg 7 min)
 
 **By Phase:**
 
@@ -219,7 +219,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-4 pending — `/gsd:check-todos` to review
+5 pending — `/gsd:check-todos` to review
 
 ### Roadmap Evolution
 
@@ -238,14 +238,15 @@ None currently.
 | 003 | Actuals view with table export delete | 2026-02-05 | b8a02e2 | [003-actuals-view-with-table-export-delete](./quick/003-actuals-view-with-table-export-delete/) |
 | 004 | Redesign actuals tab | 2026-02-05 | 01592ab | [004-redesign-actuals-tab](./quick/004-redesign-actuals-tab/) |
 | 005 | Create project-global Makefile | 2026-02-09 | f304e432 | [005-create-a-project-global-make-command-for](./quick/005-create-a-project-global-make-command-for/) |
+| 006 | Reorder columns - Effort, Impact, Costs | 2026-02-09 | 206d06a2 | [006-reorder-columns-effort-impact-costs](./quick/006-reorder-columns-effort-impact-costs/) |
 
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 01-07-PLAN.md (Phase 1 Human Verification)
+Stopped at: Completed quick-006: Reorder columns - Effort, Impact, Costs
 Resume file: None
 Next: Phase 6 (Admin GUI & Reporting) is the only remaining phase
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-09 (07-09 complete, Phase 7 in progress)*
+*Last updated: 2026-02-09 (quick-006 complete)*
