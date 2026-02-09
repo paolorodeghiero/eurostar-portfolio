@@ -166,15 +166,26 @@ async function seed() {
     { code: 'CC-COR-001', description: 'Corporate & Shared' },
   ]);
 
-  // Currency Rates (EUR as base)
+  // Currency Rates (yearly from 2020 onwards)
   console.log('Creating currency rates...');
-  const today = new Date();
-  await db.insert(currencyRates).values([
-    { fromCurrency: 'GBP', toCurrency: 'EUR', rate: '1.170000', validFrom: today.toISOString().split('T')[0] },
-    { fromCurrency: 'EUR', toCurrency: 'GBP', rate: '0.854700', validFrom: today.toISOString().split('T')[0] },
-    { fromCurrency: 'USD', toCurrency: 'EUR', rate: '0.920000', validFrom: today.toISOString().split('T')[0] },
-    { fromCurrency: 'EUR', toCurrency: 'USD', rate: '1.086957', validFrom: today.toISOString().split('T')[0] },
-  ]);
+  const yearlyRates: Array<{ year: number; gbpToEur: string; eurToGbp: string }> = [
+    { year: 2020, gbpToEur: '1.125000', eurToGbp: '0.888889' },
+    { year: 2021, gbpToEur: '1.163000', eurToGbp: '0.859845' },
+    { year: 2022, gbpToEur: '1.173000', eurToGbp: '0.852515' },
+    { year: 2023, gbpToEur: '1.150000', eurToGbp: '0.869565' },
+    { year: 2024, gbpToEur: '1.160000', eurToGbp: '0.862069' },
+    { year: 2025, gbpToEur: '1.180000', eurToGbp: '0.847458' },
+    { year: 2026, gbpToEur: '1.170000', eurToGbp: '0.854700' },
+  ];
+  const currencyRateValues = yearlyRates.flatMap(({ year, gbpToEur, eurToGbp }) => {
+    const validFrom = `${year}-01-01`;
+    const validTo = `${year}-12-31`;
+    return [
+      { fromCurrency: 'GBP', toCurrency: 'EUR', rate: gbpToEur, validFrom, validTo },
+      { fromCurrency: 'EUR', toCurrency: 'GBP', rate: eurToGbp, validFrom, validTo },
+    ];
+  });
+  await db.insert(currencyRates).values(currencyRateValues);
 
   // Committee Thresholds (Engagement Committee activation)
   console.log('Creating committee thresholds...');
@@ -500,7 +511,7 @@ async function seed() {
   console.log('  - 6 statuses');
   console.log('  - 6 outcomes');
   console.log('  - 9 cost centers');
-  console.log('  - 4 currency rates');
+  console.log('  - 14 currency rates (2020-2026)');
   console.log('  - 6 committee thresholds (EUR + GBP)');
   console.log('  - 6 cost T-shirt thresholds');
   console.log('  - 4 competence month patterns');

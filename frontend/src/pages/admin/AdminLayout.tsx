@@ -1,5 +1,6 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { PortfolioHeader } from '@/components/portfolio/PortfolioHeader';
 import {
   Building2,
   Users,
@@ -30,6 +31,7 @@ const navItems = [
 
 export function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (item: typeof navItems[0]) => {
     if (item.exact) {
@@ -39,7 +41,11 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-73px)]">
+    <div className="min-h-screen">
+      <PortfolioHeader
+        onAlertClick={(projectId) => navigate(`/?project=${projectId}`)}
+      />
+      <div className="flex min-h-[calc(100vh-57px)]">
       <aside className="w-64 bg-white border-r border-border p-4 shrink-0">
         <h2 className="font-semibold text-lg mb-4 text-eurostar-teal">
           Referentials
@@ -70,6 +76,7 @@ export function AdminLayout() {
       <main className="flex-1 p-6 bg-eurostar-light">
         <Outlet />
       </main>
+      </div>
     </div>
   );
 }

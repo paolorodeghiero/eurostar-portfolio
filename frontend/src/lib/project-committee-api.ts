@@ -86,7 +86,7 @@ export async function downloadBusinessCase(projectId: number): Promise<void> {
   const blob = await response.blob();
   const contentDisposition = response.headers.get('Content-Disposition');
   const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-  const filename = filenameMatch?.[1] || 'business-case.pdf';
+  const filename = filenameMatch?.[1] || 'business-case';
 
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');

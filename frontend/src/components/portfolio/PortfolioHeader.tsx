@@ -1,12 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAccount } from '@azure/msal-react';
-import { Upload, Settings, Home } from 'lucide-react';
+import { Upload, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertsDropdown } from '@/components/AlertsDropdown';
 import { useDevAuth } from '@/components/DevAuthProvider';
 
 interface PortfolioHeaderProps {
-  onUploadActuals: () => void;
+  onUploadActuals?: () => void;
   onAlertClick?: (projectId: number) => void;
 }
 
@@ -38,36 +38,39 @@ export function PortfolioHeader({ onUploadActuals, onAlertClick }: PortfolioHead
   const isOnAdmin = location.pathname.startsWith('/admin');
 
   return (
-    <header className="sticky top-0 z-40 bg-[#006B6B] px-4 py-3 shadow-md">
+    <header className="sticky top-0 z-40 bg-[#086264] px-4 py-3 shadow-md">
       <div className="flex items-center justify-between max-w-full">
         {/* Left: Logo and brand */}
         <div className="flex items-center gap-4">
           <Link
             to="/"
-            className="flex items-center gap-2 text-white hover:text-eurostar-cream transition-colors"
+            className="flex items-center gap-3 hover:opacity-90 transition-opacity"
           >
-            {/* Eurostar logo placeholder - replace with actual logo if available */}
-            <div className="flex items-center gap-2">
-              <Home className="h-5 w-5" />
-              <span className="text-lg font-semibold tracking-tight">
-                Eurostar Portfolio
-              </span>
-            </div>
+            <img
+              src="/eurostar-logo.png"
+              alt="Eurostar"
+              className="h-8"
+            />
+            <span className="text-[#F5F0E8] text-lg font-semibold tracking-tight">
+              Project Portfolio
+            </span>
           </Link>
         </div>
 
         {/* Right: Actions and user */}
         <div className="flex items-center gap-3">
           {/* Upload Actuals button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-white hover:text-white hover:bg-white/10"
-            onClick={onUploadActuals}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Actuals
-          </Button>
+          {onUploadActuals && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white hover:text-white hover:bg-white/10"
+              onClick={onUploadActuals}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Actuals
+            </Button>
+          )}
 
           {/* Alerts dropdown */}
           <div className="text-white [&_button]:text-white [&_button]:hover:bg-white/10">
