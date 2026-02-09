@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 7 of 7 (Refactor and Reorganize)
-Plan: 2 of 10 (07-02)
+Plan: 7 of 10 (07-07)
 Status: In Progress
-Last activity: 2026-02-09 - Completed 07-01: Database and API Foundation for Portfolio Refactor
+Last activity: 2026-02-09 - Completed 07-07: Merge People Tab into GeneralTab
 
-Progress: [██████████████░░] 84% (42/50 total plans)
+Progress: [██████████████░░] 88% (44/50 total plans)
 Quick tasks: 5 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 41
+- Total plans completed: 44
 - Average duration: 8 min
-- Total execution time: 6.04 hours
+- Total execution time: 6.17 hours
 - Quick tasks: 5 completed (avg 9 min)
 
 **By Phase:**
@@ -34,7 +34,7 @@ Quick tasks: 5 completed
 | 03 | 8 | 82m | 10m |
 | 04 | 10 | 73m | 7m |
 | 05 | 5 | 37m | 7m |
-| 07 | 1 | 15m | 15m |
+| 07 | 4 | 28m | 7m |
 
 **Recent Trend:**
 - Last 5 plans: 05-04 (11m), 05-05 (4m), 05-06 (10m), 07-01 (15m)
@@ -42,6 +42,8 @@ Quick tasks: 5 completed
 
 *Updated after each plan completion*
 | Phase 07 P01 | 15 | 2 tasks | 5 files |
+| Phase 07 P04 | 4 | 2 tasks | 2 files |
+| Phase 07 P07 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -193,6 +195,11 @@ Recent decisions affecting current work:
 - Placeholder extension for empty editor state with native accessibility (07-06)
 - Editor headings limited to H2 and H3 to maintain semantic hierarchy (07-06)
 - DescriptionEditor outputs HTML via onChange for easy backend storage (07-06)
+- [Phase 07]: Use Intl.NumberFormat with compact notation for K/M amount formatting in table cells (07-04)
+- [Phase 07]: Use compact progression dots (1.5px) instead of large circles for committee workflow in table cells (07-04)
+- GeneralTab merged with People tab into four sections: Core Info, People, Description, Business Case (07-07)
+- SectionHeader and SectionDivider components for visual organization in tab layouts (07-07)
+- Business Case upload moved from CommitteeTab to GeneralTab for better discoverability (07-07)
 
 ### Pending Todos
 
@@ -219,11 +226,10 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 07-01-PLAN.md (Database and API Foundation for Portfolio Refactor)
+Stopped at: Completed 07-07-PLAN.md (Merge People Tab into GeneralTab)
 Resume file: None
-Next: Continue Phase 7 - Plan 07-02 and onward
+Next: Continue Phase 7 - Plan 07-08 and onward
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-09 (07-01 complete)*
-*Last updated: 2026-02-09 (07-02 complete, Phase 7 in progress)*
+*Last updated: 2026-02-09 (07-07 complete, Phase 7 in progress)*
