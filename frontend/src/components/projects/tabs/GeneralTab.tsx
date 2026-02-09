@@ -194,48 +194,6 @@ export function GeneralTab({ project, formData, onChange, disabled }: GeneralTab
 
       <SectionDivider />
 
-      {/* ===== PEOPLE SECTION ===== */}
-      <SectionHeader title="People" />
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="projectManager">Project Manager</Label>
-          <Input
-            id="projectManager"
-            type="text"
-            value={formData.projectManager || ''}
-            onChange={(e) => onChange({ ...formData, projectManager: e.target.value })}
-            placeholder="John Smith"
-            disabled={disabled}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="isOwner">IS Owner</Label>
-          <Input
-            id="isOwner"
-            type="text"
-            value={formData.isOwner || ''}
-            onChange={(e) => onChange({ ...formData, isOwner: e.target.value })}
-            placeholder="Jane Doe"
-            disabled={disabled}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="sponsor">Sponsor</Label>
-          <Input
-            id="sponsor"
-            type="text"
-            value={formData.sponsor || ''}
-            onChange={(e) => onChange({ ...formData, sponsor: e.target.value })}
-            placeholder="Executive Name"
-            disabled={disabled}
-          />
-        </div>
-      </div>
-
-      <SectionDivider />
-
       {/* ===== DESCRIPTION SECTION ===== */}
       <SectionHeader title="Description" />
       <DescriptionEditor
