@@ -160,6 +160,18 @@ export async function projectRoutes(fastify: FastifyInstance) {
       .innerJoin(outcomes, eq(projectValues.outcomeId, outcomes.id))
       .where(sql`${projectValues.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`);
 
+    // Fetch change impact teams for all projects in one query
+    const allChangeImpact = await db
+      .select({
+        projectId: projectChangeImpact.projectId,
+        teamId: projectChangeImpact.teamId,
+        teamName: teams.name,
+        impactSize: projectChangeImpact.impactSize,
+      })
+      .from(projectChangeImpact)
+      .innerJoin(teams, eq(projectChangeImpact.teamId, teams.id))
+      .where(sql`${projectChangeImpact.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`);
+
     // Fetch actuals totals for all projects (receipts only, in EUR)
     const allActuals = await db
       .select({
@@ -185,6 +197,13 @@ export async function projectRoutes(fastify: FastifyInstance) {
       valuesByProject.set(v.projectId, arr);
     }
 
+    const changeImpactByProject = new Map<number, typeof allChangeImpact>();
+    for (const c of allChangeImpact) {
+      const arr = changeImpactByProject.get(c.projectId) || [];
+      arr.push(c);
+      changeImpactByProject.set(c.projectId, arr);
+    }
+
     const actualsByProject = new Map<number, string>();
     for (const a of allActuals) {
       actualsByProject.set(a.projectId, a.total);
@@ -194,6 +213,7 @@ export async function projectRoutes(fastify: FastifyInstance) {
     return Promise.all(projectsList.map(async (p) => {
       const pTeams = teamsByProject.get(p.id) || [];
       const pValues = valuesByProject.get(p.id) || [];
+      const pChangeImpact = changeImpactByProject.get(p.id) || [];
 
       // Calculate average from scores (excluding null scores)
       const scores = pValues.filter(v => v.score != null).map(v => v.score!);
@@ -266,11 +286,17 @@ export async function projectRoutes(fastify: FastifyInstance) {
           outcomeName: v.outcomeName,
           score: v.score,
         })),
+        changeImpactTeams: pChangeImpact.map((c) => ({
+          teamId: c.teamId,
+          teamName: c.teamName,
+          impactSize: c.impactSize,
+        })),
         valueScoreAvg,
         opexBudget,
         capexBudget,
         budgetTotal,
         actualsTotal,
+        reportCurrency,
       };
     }));
   });
