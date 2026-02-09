@@ -216,6 +216,14 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     size: 100,
   }),
 
+  // Cost T-shirt
+  columnHelper.accessor('costTshirt', {
+    id: 'costTshirt',
+    header: 'Cost',
+    cell: (info) => <CostTshirtCell size={info.getValue()} />,
+    size: 70,
+  }),
+
   // Budget Health (progress bar with spent/total)
   columnHelper.accessor((row) => ({ spent: row.actualsTotal, budget: row.budgetTotal, currency: row.reportCurrency }), {
     id: 'budgetHealth',
@@ -249,14 +257,6 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
       return <CommitteeCell committeeState={state ?? null} committeeLevel={level ?? null} />;
     },
     size: 110,
-  }),
-
-  // Cost T-shirt
-  columnHelper.accessor('costTshirt', {
-    id: 'costTshirt',
-    header: 'Cost',
-    cell: (info) => <CostTshirtCell size={info.getValue()} />,
-    size: 70,
   }),
 
   // Last Activity
@@ -313,12 +313,12 @@ export const defaultColumnOrder = [
   'valueScore',
   'effort',
   'impact',
+  'costTshirt',
   'budgetHealth',
   'committee',
   'pm',
   'isOwner',
   'sponsor',
-  'costTshirt',
   'lastActivity',
   'stopped',
 ];
