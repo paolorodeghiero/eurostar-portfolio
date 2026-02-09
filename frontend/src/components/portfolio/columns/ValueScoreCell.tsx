@@ -53,12 +53,17 @@ export const ValueScoreCell = memo(function ValueScoreCell({ values, onClick }: 
               const fullName = props.payload.fullName || props.payload.dimension;
               return [`${value ?? 0}/5`, fullName];
             }}
+            position={{ x: 50, y: 0 }}
             contentStyle={{
               backgroundColor: 'hsl(var(--popover))',
               border: '1px solid hsl(var(--border))',
               borderRadius: '6px',
               boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
               padding: '8px 12px',
+              opacity: 1,
+            }}
+            wrapperStyle={{
+              zIndex: 1000,
             }}
             labelStyle={{
               display: 'none', // Hide default label
