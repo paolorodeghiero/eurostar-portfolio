@@ -266,6 +266,16 @@ export interface PortfolioProject extends Project {
   committeeState: string | null;
   committeeLevel: string | null;
   costTshirt: string | null;
+
+  // For expandable rows
+  changeImpactTeams?: Array<{
+    teamId: number;
+    teamName: string;
+    impactSize: string;
+  }>;
+
+  // Expansion state tracking (internal, set by table)
+  _expandType?: 'effort' | 'impact';
 }
 
 // Fetch projects with computed fields for portfolio table
