@@ -18,6 +18,8 @@ interface PortfolioToolbarProps<TData> {
   onNewProject: () => void;
   statusOptions?: { id: number; name: string }[];
   teamOptions?: { id: number; name: string }[];
+  columnOrder?: string[];
+  onResetColumnOrder?: () => void;
 }
 
 export function PortfolioToolbar<TData>({
@@ -30,6 +32,8 @@ export function PortfolioToolbar<TData>({
   onNewProject,
   statusOptions = [],
   teamOptions = [],
+  columnOrder,
+  onResetColumnOrder,
 }: PortfolioToolbarProps<TData>) {
   // Local state for input (immediate updates)
   const [searchInput, setSearchInput] = useState(globalFilter);
@@ -88,7 +92,11 @@ export function PortfolioToolbar<TData>({
         <DensityToggle density={density} onDensityChange={onDensityChange} />
 
         {/* Column picker */}
-        <ColumnPicker columns={table.getAllLeafColumns()} />
+        <ColumnPicker
+          columns={table.getAllLeafColumns()}
+          columnOrder={columnOrder}
+          onResetColumnOrder={onResetColumnOrder}
+        />
 
         {/* New Project button */}
         <Button onClick={onNewProject}>
