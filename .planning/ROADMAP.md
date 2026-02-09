@@ -12,10 +12,10 @@ This roadmap delivers a portfolio management tool for Eurostar IT projects from 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Authentication** - Database schema, auth, and referentials
-- [ ] **Phase 2: Core Projects** - Project CRUD with teams, scoring, and change impact
+- [x] **Phase 1: Foundation & Authentication** - Database schema, auth, and referentials
+- [x] **Phase 2: Core Projects** - Project CRUD with teams, scoring, and change impact
 - [x] **Phase 3: Financial Tracking** - Budget lines, actuals import, and financial calculations
-- [ ] **Phase 4: Governance & Workflow** - Engagement Committee workflow and audit trail
+- [x] **Phase 4: Governance & Workflow** - Engagement Committee workflow and audit trail
 - [ ] **Phase 5: Portfolio GUI** - Main user interface for portfolio operations
 - [ ] **Phase 6: Admin GUI & Reporting** - Admin interface, Power BI integration, and API documentation
 
@@ -35,12 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 6 plans
 
 Plans:
-- [ ] 01-01-PLAN.md - Project scaffolding + Database schema with all referential tables
-- [ ] 01-02-PLAN.md - Backend authentication plugin + dev mode bypass
-- [ ] 01-03-PLAN.md - Frontend MSAL authentication with session persistence
-- [ ] 01-04-PLAN.md - Referential CRUD API endpoints with usage tracking
-- [ ] 01-05-PLAN.md - Admin GUI with data tables and delete protection
-- [ ] 01-06-PLAN.md - Integration verification checkpoint
+- [x] 01-01-PLAN.md - Project scaffolding + Database schema with all referential tables
+- [x] 01-02-PLAN.md - Backend authentication plugin + dev mode bypass
+- [x] 01-03-PLAN.md - Frontend MSAL authentication with session persistence
+- [x] 01-04-PLAN.md - Referential CRUD API endpoints with usage tracking
+- [x] 01-05-PLAN.md - Admin GUI with data tables and delete protection
+- [x] 01-06-PLAN.md - Integration verification checkpoint
 
 ### Phase 2: Core Projects
 **Goal**: Enable complete project management with multi-dimensional scoring
@@ -57,16 +57,16 @@ Plans:
 **Plans**: 10 plans
 
 Plans:
-- [ ] 02-01-PLAN.md - Database schema for projects and related tables
-- [ ] 02-02-PLAN.md - Install shadcn/ui components for sidebar and forms
-- [ ] 02-03-PLAN.md - Project CRUD API with optimistic locking
-- [ ] 02-04-PLAN.md - Project teams, values, and change impact API
-- [ ] 02-05-PLAN.md - Portfolio page with sidebar shell and auto-save hook
-- [ ] 02-06-PLAN.md - General and People tabs with form fields
-- [ ] 02-07-PLAN.md - Teams tab with chip interface
-- [ ] 02-08-PLAN.md - Value tab with scoring cards and slider
-- [ ] 02-09-PLAN.md - Change Impact tab, menu actions, and create dialog
-- [ ] 02-10-PLAN.md - Conflict resolution and integration verification
+- [x] 02-01-PLAN.md - Database schema for projects and related tables
+- [x] 02-02-PLAN.md - Install shadcn/ui components for sidebar and forms
+- [x] 02-03-PLAN.md - Project CRUD API with optimistic locking
+- [x] 02-04-PLAN.md - Project teams, values, and change impact API
+- [x] 02-05-PLAN.md - Portfolio page with sidebar shell and auto-save hook
+- [x] 02-06-PLAN.md - General and People tabs with form fields
+- [x] 02-07-PLAN.md - Teams tab with chip interface
+- [x] 02-08-PLAN.md - Value tab with scoring cards and slider
+- [x] 02-09-PLAN.md - Change Impact tab, menu actions, and create dialog
+- [x] 02-10-PLAN.md - Conflict resolution and integration verification
 
 ### Phase 3: Financial Tracking
 **Goal**: Enable comprehensive budget management and actuals tracking
@@ -85,14 +85,14 @@ Plans:
 **Plans**: 8 plans
 
 Plans:
-- [ ] 03-01-PLAN.md - Database schema for financial tables (budget lines, allocations, receipts, invoices)
-- [ ] 03-02-PLAN.md - Budget lines API with Excel import and validation
-- [ ] 03-03-PLAN.md - Project budget API with allocation validation and cost T-shirt derivation
-- [ ] 03-04-PLAN.md - Actuals APIs for receipts and invoices with competence month extraction
-- [ ] 03-05-PLAN.md - Budget lines admin page with import dialog
-- [ ] 03-06-PLAN.md - Budget tab in project sidebar with allocations
-- [ ] 03-07-PLAN.md - Actuals summary and upload dialog
-- [ ] 03-08-PLAN.md - Integration verification checkpoint
+- [x] 03-01-PLAN.md - Database schema for financial tables (budget lines, allocations, receipts, invoices)
+- [x] 03-02-PLAN.md - Budget lines API with Excel import and validation
+- [x] 03-03-PLAN.md - Project budget API with allocation validation and cost T-shirt derivation
+- [x] 03-04-PLAN.md - Actuals APIs for receipts and invoices with competence month extraction
+- [x] 03-05-PLAN.md - Budget lines admin page with import dialog
+- [x] 03-06-PLAN.md - Budget tab in project sidebar with allocations
+- [x] 03-07-PLAN.md - Actuals summary and upload dialog
+- [x] 03-08-PLAN.md - Integration verification checkpoint
 
 ### Phase 4: Governance & Workflow
 **Goal**: Enable Engagement Committee workflow and complete audit trail
@@ -110,16 +110,16 @@ Plans:
 **Plans**: 10 plans
 
 Plans:
-- [ ] 04-01-PLAN.md - Database schema for governance (committee columns, audit_log, alert_config)
-- [ ] 04-02-PLAN.md - PostgreSQL audit trigger with user context
-- [ ] 04-03-PLAN.md - Committee workflow API with state machine
-- [ ] 04-04-PLAN.md - Business case file upload/download API
-- [ ] 04-05-PLAN.md - Alerts API with configuration
-- [ ] 04-06-PLAN.md - Audit history API endpoint
-- [ ] 04-07-PLAN.md - Committee tab UI with state transitions
-- [ ] 04-08-PLAN.md - History tab UI with timeline
-- [ ] 04-09-PLAN.md - Alerts dropdown in top bar
-- [ ] 04-10-PLAN.md - Integration verification checkpoint
+- [x] 04-01-PLAN.md - Database schema for governance (committee columns, audit_log, alert_config)
+- [x] 04-02-PLAN.md - PostgreSQL audit trigger with user context
+- [x] 04-03-PLAN.md - Committee workflow API with state machine
+- [x] 04-04-PLAN.md - Business case file upload/download API
+- [x] 04-05-PLAN.md - Alerts API with configuration
+- [x] 04-06-PLAN.md - Audit history API endpoint
+- [x] 04-07-PLAN.md - Committee tab UI with state transitions
+- [x] 04-08-PLAN.md - History tab UI with timeline
+- [x] 04-09-PLAN.md - Alerts dropdown in top bar
+- [x] 04-10-PLAN.md - Integration verification checkpoint
 
 ### Phase 5: Portfolio GUI
 **Goal**: Deliver main user interface for all portfolio operations
@@ -134,13 +134,15 @@ Plans:
   6. User can save, cancel, stop, and delete projects from sidebar
   7. UI uses Eurostar brand colors (teal toolbar, cream accents) with modern sleek design
   8. All interactions maintain clean typography and generous whitespace
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
-- [ ] 05-04: TBD
+- [ ] 05-01-PLAN.md - Install dnd-kit, useTableState hook, column definitions with mini-visualization cells
+- [ ] 05-02-PLAN.md - PortfolioHeader top bar with Eurostar branding
+- [ ] 05-03-PLAN.md - PortfolioTable with virtual scrolling and sorting
+- [ ] 05-04-PLAN.md - Column picker, density toggle, draggable column headers
+- [ ] 05-05-PLAN.md - Global search, column filters, filter chips
+- [ ] 05-06-PLAN.md - Full integration and verification checkpoint
 
 ### Phase 6: Admin GUI & Reporting
 **Goal**: Complete admin interface, Power BI integration, and API documentation
@@ -171,8 +173,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Foundation & Authentication | 6/6 | Complete | 2026-02-03 |
 | 2. Core Projects | 10/10 | Complete | 2026-02-03 |
 | 3. Financial Tracking | 8/8 | Complete | 2026-02-06 |
-| 4. Governance & Workflow | 0/10 | Not started | - |
-| 5. Portfolio GUI | 0/TBD | Not started | - |
+| 4. Governance & Workflow | 10/10 | Complete | 2026-02-09 |
+| 5. Portfolio GUI | 0/6 | Planned | - |
 | 6. Admin GUI & Reporting | 0/TBD | Not started | - |
 
 ---
