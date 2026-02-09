@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 import {
   fetchProjectChangeImpact,
@@ -18,6 +19,7 @@ import {
   removeProjectChangeImpact,
   type ProjectChangeImpact,
 } from '@/lib/project-api';
+import { deriveGlobalImpact, TSHIRT_COLORS } from '@/lib/effort-utils';
 
 interface Team {
   id: number;
@@ -78,10 +80,35 @@ export function ChangeImpactTab({ projectId, disabled }: ChangeImpactTabProps) {
     return <div className="text-muted-foreground">Loading change impact...</div>;
   }
 
+  const globalImpact = deriveGlobalImpact(impactTeams.map(t => ({ impactSize: t.impactSize })));
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Global Impact Summary */}
+      <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Change Impact
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Aggregate impact based on {impactTeams.length} team{impactTeams.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        {globalImpact ? (
+          <Badge className={`text-lg px-4 py-1 ${TSHIRT_COLORS[globalImpact] || 'bg-gray-300'}`}>
+            {globalImpact}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">No teams assigned</span>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="border-t" />
+
+      {/* Impacted Teams Section */}
       <div className="flex items-center justify-between">
-        <h3 className="font-medium">Change Impact Teams</h3>
+        <h3 className="font-medium">Impacted Teams</h3>
         <Popover open={addOpen} onOpenChange={setAddOpen}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" disabled={disabled}>
@@ -110,13 +137,9 @@ export function ChangeImpactTab({ projectId, disabled }: ChangeImpactTabProps) {
         </Popover>
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        Teams affected by this project's changes (who needs to adapt, not who builds).
-      </p>
-
       <div className="flex flex-wrap gap-2">
         {impactTeams.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No change impact teams defined.</p>
+          <p className="text-sm text-muted-foreground">No teams assigned yet.</p>
         ) : (
           impactTeams.map((team) => (
             <TeamChip
@@ -128,6 +151,14 @@ export function ChangeImpactTab({ projectId, disabled }: ChangeImpactTabProps) {
             />
           ))
         )}
+      </div>
+
+      <p className="text-sm text-muted-foreground mt-2">
+        Teams affected by this project's changes (who needs to adapt, not who builds).
+      </p>
+
+      <div className="mt-4 text-xs text-muted-foreground">
+        <strong>T-shirt sizes:</strong> XS (&lt;50md), S (50-150md), M (150-250md), L (250-500md), XL (500-1000md), XXL (&gt;1000md)
       </div>
     </div>
   );
