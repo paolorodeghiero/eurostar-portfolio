@@ -131,9 +131,8 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     id: 'effort',
     header: 'Effort',
     cell: (info) => {
-      const row = info.row.original;
       const teams = info.getValue();
-      return <EffortCell teams={teams || []} leadTeamId={row.leadTeamId} />;
+      return <EffortCell teams={teams || []} />;
     },
     enableSorting: false, // Can't meaningfully sort array
     size: 180,
