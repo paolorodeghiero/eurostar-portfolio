@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ProjectSidebar } from '@/components/projects/ProjectSidebar';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { ActualsUploadDialog } from '@/components/ActualsUploadDialog';
-import { AlertsDropdown } from '@/components/AlertsDropdown';
+import { PortfolioHeader } from '@/components/portfolio/PortfolioHeader';
 import { fetchProjects, type Project } from '@/lib/project-api';
 
 export function PortfolioPage() {
@@ -37,26 +37,23 @@ export function PortfolioPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Portfolio</h1>
-        <div className="flex items-center gap-2">
-          <AlertsDropdown
-            onAlertClick={(projectId) => {
-              setSelectedProjectId(projectId);
-              setSidebarOpen(true);
-            }}
-          />
-          <Button variant="outline" onClick={() => setUploadOpen(true)}>
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Actuals
-          </Button>
+    <div className="min-h-screen bg-eurostar-light">
+      <PortfolioHeader
+        onUploadActuals={() => setUploadOpen(true)}
+        onAlertClick={(projectId) => {
+          setSelectedProjectId(projectId);
+          setSidebarOpen(true);
+        }}
+      />
+
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold">Portfolio</h1>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Project
           </Button>
         </div>
-      </div>
 
       {loading ? (
         <div className="text-center py-8">Loading projects...</div>
@@ -109,6 +106,7 @@ export function PortfolioPage() {
           </Table>
         </div>
       )}
+      </div>
 
       <ProjectSidebar
         projectId={selectedProjectId}
