@@ -11,6 +11,8 @@ export interface Project {
   projectManager: string | null;
   isOwner: string | null;
   sponsor: string | null;
+  description: string | null;
+  businessCaseFile: string | null;
   isStopped: boolean;
   opexBudget: string | null;
   capexBudget: string | null;
@@ -267,37 +269,7 @@ export interface PortfolioProject extends Project {
 }
 
 // Fetch projects with computed fields for portfolio table
-// TODO: Backend should provide /api/projects/portfolio endpoint with pre-computed fields
 export async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
-  // Fetch base projects
-  const projects = await fetchProjects();
-
-  // Compute derived fields client-side (temporary until backend adds endpoint)
-  return projects.map((project) => {
-    // Calculate value score average
-    const values = project.values || [];
-    const valueScoreAvg = values.length > 0
-      ? values.reduce((sum, v) => sum + v.score, 0) / values.length
-      : null;
-
-    // Calculate budget total (OPEX + CAPEX as numbers)
-    const opex = project.opexBudget ? parseFloat(project.opexBudget) : 0;
-    const capex = project.capexBudget ? parseFloat(project.capexBudget) : 0;
-    const budgetTotal = opex + capex > 0 ? opex + capex : null;
-
-    // Actuals total would need a separate API call - leave null for now
-    // Backend should aggregate this
-    const actualsTotal = null;
-
-    return {
-      ...project,
-      valueScoreAvg,
-      budgetTotal,
-      actualsTotal,
-      // These fields may already be on Project or need backend support
-      committeeState: (project as any).committeeState ?? null,
-      committeeLevel: (project as any).committeeLevel ?? null,
-      costTshirt: (project as any).costTshirt ?? null,
-    };
-  });
+  // Backend now returns all portfolio fields (teams, valueScoreAvg, budgetTotal, committee)
+  return apiClient<PortfolioProject[]>('/api/projects');
 }
