@@ -180,14 +180,45 @@ export function BudgetTab({ project, onProjectUpdated, disabled }: BudgetTabProp
 
   return (
     <div className="space-y-6">
-      {/* OPEX/CAPEX Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Project Budget Summary */}
+      <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Project Budget
+          </h3>
+          <p className="text-lg font-semibold mt-1">
+            {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
+          </p>
+        </div>
+        {budget?.costTshirt ? (
+          <Badge className={`text-lg px-4 py-1 ${TSHIRT_COLORS[budget.costTshirt] || 'bg-gray-300'}`}>
+            {budget.costTshirt}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">No budget set</span>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="border-t" />
+
+      {/* OPEX/CAPEX Cards - Compact */}
+      <div className="flex items-center justify-between">
+        <h3 className="font-medium">Budget Breakdown</h3>
+        <Button
+          variant={editMode ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setEditMode(!editMode)}
+          disabled={disabled || !currency}
+        >
+          {editMode ? 'Done' : 'Edit'}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
         {/* OPEX Card */}
-        <div className="border rounded-lg p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">OPEX</span>
-            <Badge variant="outline" className="text-xs">Operating</Badge>
-          </div>
+        <div className="border rounded-lg p-3 space-y-1">
+          <span className="text-xs text-muted-foreground uppercase">OPEX</span>
           {editMode ? (
             <Input
               type="text"
@@ -195,21 +226,18 @@ export function BudgetTab({ project, onProjectUpdated, disabled }: BudgetTabProp
               onChange={(e) => setLocalOpex(e.target.value)}
               placeholder="0.00"
               disabled={disabled || !currency}
-              className="text-lg font-semibold"
+              className="h-8 text-sm font-medium"
             />
           ) : (
-            <div className="text-2xl font-semibold">
+            <div className="text-base font-medium">
               {formatCurrency(budget?.convertedOpex || budget?.opexBudget || '0', displayCurrency)}
             </div>
           )}
         </div>
 
         {/* CAPEX Card */}
-        <div className="border rounded-lg p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">CAPEX</span>
-            <Badge variant="outline" className="text-xs">Capital</Badge>
-          </div>
+        <div className="border rounded-lg p-3 space-y-1">
+          <span className="text-xs text-muted-foreground uppercase">CAPEX</span>
           {editMode ? (
             <Input
               type="text"
@@ -217,37 +245,14 @@ export function BudgetTab({ project, onProjectUpdated, disabled }: BudgetTabProp
               onChange={(e) => setLocalCapex(e.target.value)}
               placeholder="0.00"
               disabled={disabled || !currency}
-              className="text-lg font-semibold"
+              className="h-8 text-sm font-medium"
             />
           ) : (
-            <div className="text-2xl font-semibold">
+            <div className="text-base font-medium">
               {formatCurrency(budget?.convertedCapex || budget?.capexBudget || '0', displayCurrency)}
             </div>
           )}
         </div>
-      </div>
-
-      {/* Edit/Save Button and Total */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">Total:</span>
-          <span className="text-lg font-semibold">
-            {formatCurrency(budget?.totalBudget || '0', displayCurrency)}
-          </span>
-          {budget?.costTshirt && (
-            <Badge className={TSHIRT_COLORS[budget.costTshirt] || 'bg-gray-300'}>
-              {budget.costTshirt}
-            </Badge>
-          )}
-        </div>
-        <Button
-          variant={editMode ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setEditMode(!editMode)}
-          disabled={disabled || !currency}
-        >
-          {editMode ? 'Done' : 'Edit Budget'}
-        </Button>
       </div>
 
       {statusText && editMode && (
