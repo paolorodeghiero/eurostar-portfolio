@@ -3,7 +3,6 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-reac
 import { AuthProvider } from './components/AuthProvider';
 import { DevAuthProvider, useDevAuth } from './components/DevAuthProvider';
 import { LoginButton } from './components/LoginButton';
-import { UserMenu } from './components/UserMenu';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { ReferentialList } from './pages/admin/ReferentialList';
 import { DepartmentsPage } from './pages/admin/DepartmentsPage';
@@ -18,23 +17,6 @@ import { CompetenceMonthPatternsPage } from './pages/admin/CompetenceMonthPatter
 import { BudgetLinesPage } from './pages/admin/BudgetLinesPage';
 import { PortfolioPage } from './pages/portfolio/PortfolioPage';
 
-// Dev mode user menu (simpler than MSAL version)
-function DevUserMenu() {
-  const { devUser } = useDevAuth();
-
-  if (!devUser) return null;
-
-  return (
-    <div className="flex items-center gap-3">
-      <span className="text-eurostar-cream text-sm">
-        {devUser.name || devUser.email}
-      </span>
-      <span className="px-2 py-1 bg-yellow-500 text-black text-xs font-medium rounded">
-        DEV MODE
-      </span>
-    </div>
-  );
-}
 
 // App routes (shared between dev mode and production)
 function AppRoutes() {
@@ -86,12 +68,6 @@ function AppContent() {
   if (isDevMode) {
     return (
       <div className="min-h-screen bg-eurostar-light">
-        <header className="bg-eurostar-teal px-6 py-4 flex justify-between items-center">
-          <h1 className="text-eurostar-cream text-xl font-semibold">
-            Eurostar Portfolio
-          </h1>
-          <DevUserMenu />
-        </header>
         <AppRoutes />
       </div>
     );
@@ -101,15 +77,6 @@ function AppContent() {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-eurostar-light">
-        <header className="bg-eurostar-teal px-6 py-4 flex justify-between items-center">
-          <h1 className="text-eurostar-cream text-xl font-semibold">
-            Eurostar Portfolio
-          </h1>
-          <AuthenticatedTemplate>
-            <UserMenu />
-          </AuthenticatedTemplate>
-        </header>
-
         <UnauthenticatedTemplate>
           <main className="p-10 max-w-3xl mx-auto">
             <div className="text-center mt-20">
