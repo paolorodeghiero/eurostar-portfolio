@@ -149,12 +149,31 @@ export function PortfolioPage() {
   const loadProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchPortfolioProjects();
-      setProjects(data);
+      // Get user's preferred currency from localStorage or default to EUR
+      const reportCurrency = localStorage.getItem('reportCurrency') || 'EUR';
+
+      const data = await fetchPortfolioProjects(reportCurrency);
+
+      // Transform API response if needed to match PortfolioProject interface
+      const transformedProjects = data.map(project => ({
+        ...project,
+        // Ensure teams array is present
+        teams: project.teams || [],
+        // Ensure changeImpactTeams array is present
+        changeImpactTeams: project.changeImpactTeams || [],
+        // Ensure values array is present for radar chart
+        values: project.values || [],
+        // Parse numeric strings if needed
+        budgetTotal: project.budgetTotal ? parseFloat(String(project.budgetTotal)) : null,
+        actualsTotal: project.actualsTotal ? parseFloat(String(project.actualsTotal)) : null,
+      }));
+
+      setProjects(transformedProjects);
+
       // Extract unique statuses and teams for filter dropdowns
       const uniqueStatuses = new Map<number, { id: number; name: string; color: string }>();
       const uniqueTeams = new Map<number, { id: number; name: string }>();
-      data.forEach((p) => {
+      transformedProjects.forEach((p) => {
         if (p.status) uniqueStatuses.set(p.status.id, p.status);
         if (p.leadTeam) uniqueTeams.set(p.leadTeam.id, p.leadTeam);
       });

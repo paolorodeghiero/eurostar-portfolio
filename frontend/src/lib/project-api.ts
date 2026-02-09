@@ -279,7 +279,8 @@ export interface PortfolioProject extends Project {
 }
 
 // Fetch projects with computed fields for portfolio table
-export async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
+export async function fetchPortfolioProjects(reportCurrency: string = 'EUR'): Promise<PortfolioProject[]> {
   // Backend now returns all portfolio fields (teams, valueScoreAvg, budgetTotal, committee)
-  return apiClient<PortfolioProject[]>('/api/projects');
+  // Pass reportCurrency as query param for currency conversion
+  return apiClient<PortfolioProject[]>(`/api/projects?reportCurrency=${reportCurrency}`);
 }
