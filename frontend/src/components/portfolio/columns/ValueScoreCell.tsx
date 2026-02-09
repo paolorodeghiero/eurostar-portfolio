@@ -64,7 +64,10 @@ export const ValueScoreCell = memo(function ValueScoreCell({ values, onClick }: 
             }}
             wrapperStyle={{
               zIndex: 1000,
+              backgroundColor: 'white',
+              opacity: 1,
             }}
+            allowEscapeViewBox={{ x: true, y: true }}
             labelStyle={{
               display: 'none', // Hide default label
             }}
