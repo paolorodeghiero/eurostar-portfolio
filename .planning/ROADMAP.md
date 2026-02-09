@@ -177,6 +177,15 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 5. Portfolio GUI | 0/6 | Planned | - |
 | 6. Admin GUI & Reporting | 0/TBD | Not started | - |
 
+### Phase 7: Refactor and reorganize information between main table and sidebar
+
+**Goal:** [To be planned]
+**Depends on:** Phase 6
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 7 to break down)
+
 ---
 *Roadmap created: 2026-02-03*
 *Depth: standard (6 phases derived from 72 requirements)*

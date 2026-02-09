@@ -182,6 +182,10 @@ Recent decisions affecting current work:
 
 4 pending — `/gsd:check-todos` to review
 
+### Roadmap Evolution
+
+- Phase 7 added: Refactor and reorganize information between main table and sidebar
+
 ### Blockers/Concerns
 
 None currently.
