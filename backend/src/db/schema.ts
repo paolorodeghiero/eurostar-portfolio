@@ -126,6 +126,7 @@ export const projects = pgTable('projects', {
   projectManager: varchar('project_manager', { length: 255 }),
   isOwner: varchar('is_owner', { length: 255 }),
   sponsor: varchar('sponsor', { length: 255 }),
+  description: text('description'),
   isStopped: boolean('is_stopped').notNull().default(false),
   opexBudget: numeric('opex_budget', { precision: 15, scale: 2 }),
   capexBudget: numeric('capex_budget', { precision: 15, scale: 2 }),
