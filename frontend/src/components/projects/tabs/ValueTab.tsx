@@ -8,6 +8,14 @@ import {
   type ProjectValue,
 } from '@/lib/project-api';
 import { useDebouncedCallback } from 'use-debounce';
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+} from 'recharts';
 
 interface ValueTabProps {
   projectId: number;
@@ -76,10 +84,68 @@ export function ValueTab({ projectId, disabled }: ValueTabProps) {
     return <div className="text-muted-foreground">Loading value scores...</div>;
   }
 
+  // Transform scores for radar chart
+  const values = Array.from(scores.values());
+  const chartData = outcomes.map(o => {
+    const scoreState = scores.get(o.id);
+    return {
+      dimension: o.name,
+      score: scoreState?.score ?? 3,
+      fullMark: 5,
+    };
+  });
+
+  const averageScore = values.length > 0
+    ? values.reduce((sum, v) => sum + (v.score ?? 3), 0) / values.length
+    : 0;
+
   return (
-    <div className="space-y-3">
-      <h3 className="font-medium mb-4">Value Scoring</h3>
-      <p className="text-sm text-muted-foreground mb-4">
+    <div className="space-y-6">
+      {/* Large Radar Chart */}
+      {outcomes.length > 0 && (
+        <div className="p-4 bg-muted/30 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Value Score Overview
+            </h3>
+            <span className="text-lg font-semibold">
+              Avg: {averageScore.toFixed(1)} / 5
+            </span>
+          </div>
+          <div className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={chartData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                <PolarGrid stroke="#e5e7eb" />
+                <PolarAngleAxis
+                  dataKey="dimension"
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                />
+                <PolarRadiusAxis
+                  angle={90}
+                  domain={[0, 5]}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+                />
+                <Radar
+                  name="Score"
+                  dataKey="score"
+                  stroke="hsl(var(--primary))"
+                  fill="hsl(var(--primary))"
+                  fillOpacity={0.5}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Divider */}
+      <div className="border-t" />
+
+      {/* Individual Scores */}
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        Individual Scores
+      </h3>
+      <p className="text-sm text-muted-foreground">
         Rate the project's impact on each outcome dimension (1 = Minimal, 5 = Transformational).
       </p>
 
