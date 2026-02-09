@@ -255,3 +255,49 @@ export async function deleteProject(id: number): Promise<void> {
     throw new Error(error.message || 'Failed to delete project');
   }
 }
+
+// Portfolio table with computed fields
+export interface PortfolioProject extends Project {
+  valueScoreAvg: number | null;
+  budgetTotal: number | null;
+  actualsTotal: number | null;
+  committeeState: string | null;
+  committeeLevel: string | null;
+  costTshirt: string | null;
+}
+
+// Fetch projects with computed fields for portfolio table
+// TODO: Backend should provide /api/projects/portfolio endpoint with pre-computed fields
+export async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
+  // Fetch base projects
+  const projects = await fetchProjects();
+
+  // Compute derived fields client-side (temporary until backend adds endpoint)
+  return projects.map((project) => {
+    // Calculate value score average
+    const values = project.values || [];
+    const valueScoreAvg = values.length > 0
+      ? values.reduce((sum, v) => sum + v.score, 0) / values.length
+      : null;
+
+    // Calculate budget total (OPEX + CAPEX as numbers)
+    const opex = project.opexBudget ? parseFloat(project.opexBudget) : 0;
+    const capex = project.capexBudget ? parseFloat(project.capexBudget) : 0;
+    const budgetTotal = opex + capex > 0 ? opex + capex : null;
+
+    // Actuals total would need a separate API call - leave null for now
+    // Backend should aggregate this
+    const actualsTotal = null;
+
+    return {
+      ...project,
+      valueScoreAvg,
+      budgetTotal,
+      actualsTotal,
+      // These fields may already be on Project or need backend support
+      committeeState: (project as any).committeeState ?? null,
+      committeeLevel: (project as any).committeeLevel ?? null,
+      costTshirt: (project as any).costTshirt ?? null,
+    };
+  });
+}
