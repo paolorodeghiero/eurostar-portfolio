@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 5 of 6 (Portfolio GUI)
-Plan: 2 of 6 (05-02)
+Plan: 4 of 6 (05-04)
 Status: In Progress
-Last activity: 2026-02-09 - Completed 05-01: Portfolio Table Columns and State
+Last activity: 2026-02-09 - Completed 05-04: Column Customization Components
 
-Progress: [█████████████░░░] 88% (36/41 total plans)
+Progress: [██████████████░░] 93% (38/41 total plans)
 Quick tasks: 5 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 36
-- Average duration: 9 min
-- Total execution time: 5.48 hours
+- Total plans completed: 38
+- Average duration: 8 min
+- Total execution time: 5.63 hours
 - Quick tasks: 5 completed (avg 9 min)
 
 **By Phase:**
@@ -33,14 +33,14 @@ Quick tasks: 5 completed
 | 02 | 10 | 61m | 6m |
 | 03 | 8 | 82m | 10m |
 | 04 | 10 | 73m | 7m |
-| 05 | 2 | 12m | 6m |
+| 05 | 3 | 23m | 8m |
 
 **Recent Trend:**
-- Last 5 plans: 04-08 (4m), 04-09 (3m), 04-10 (3m), 05-01 (7m), 05-02 (5m)
-- Trend: Phase 5 started - portfolio GUI components
+- Last 5 plans: 04-09 (3m), 04-10 (3m), 05-01 (7m), 05-02 (5m), 05-04 (11m)
+- Trend: Phase 5 portfolio GUI - customization components
 
 *Updated after each plan completion*
-| Phase 05 P01 | 7 | 4 tasks | 7 files |
+| Phase 05 P04 | 11 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -165,6 +165,10 @@ Recent decisions affecting current work:
 - Responsive design hides user name on small screens, shows only initials circle (05-02)
 - [Phase 05]: Use @dnd-kit for column reordering instead of deprecated react-beautiful-dnd
 - [Phase 05]: Mini-visualization cells (progress bars, dots, chips) for Linear/Notion-style data-dense table
+- Use @dnd-kit instead of deprecated react-beautiful-dnd for column reordering (05-04)
+- 8px activation distance prevents accidental drags when clicking to sort (05-04)
+- Exclude 'select' column from hide options (always visible) (05-04)
+- Prefix unused state setters with underscore until toolbar integration (05-04)
 
 ### Pending Todos
 
@@ -187,10 +191,10 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 05-01-PLAN.md (Portfolio Table Columns and State)
+Stopped at: Completed 05-04-PLAN.md (Column Customization Components)
 Resume file: None
-Next: Continue Phase 5 - Portfolio GUI (05-03 onwards)
+Next: Continue Phase 5 - Portfolio GUI (05-05 onwards)
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-09*
+*Last updated: 2026-02-09 (05-04 complete)*
