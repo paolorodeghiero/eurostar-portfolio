@@ -16,8 +16,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Core Projects** - Project CRUD with teams, scoring, and change impact
 - [x] **Phase 3: Financial Tracking** - Budget lines, actuals import, and financial calculations
 - [x] **Phase 4: Governance & Workflow** - Engagement Committee workflow and audit trail
-- [ ] **Phase 5: Portfolio GUI** - Main user interface for portfolio operations
+- [x] **Phase 5: Portfolio GUI** - Main user interface for portfolio operations
 - [ ] **Phase 6: Admin GUI & Reporting** - Admin interface, Power BI integration, and API documentation
+- [ ] **Phase 7: Refactor & Reorganize** - Table redesign, sidebar reorganization, currency model fix
 
 ## Phase Details
 
@@ -137,12 +138,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 05-01-PLAN.md - Install dnd-kit, useTableState hook, column definitions with mini-visualization cells
-- [ ] 05-02-PLAN.md - PortfolioHeader top bar with Eurostar branding
-- [ ] 05-03-PLAN.md - PortfolioTable with virtual scrolling and sorting
-- [ ] 05-04-PLAN.md - Column picker, density toggle, draggable column headers
-- [ ] 05-05-PLAN.md - Global search, column filters, filter chips
-- [ ] 05-06-PLAN.md - Full integration and verification checkpoint
+- [x] 05-01-PLAN.md - Install dnd-kit, useTableState hook, column definitions with mini-visualization cells
+- [x] 05-02-PLAN.md - PortfolioHeader top bar with Eurostar branding
+- [x] 05-03-PLAN.md - PortfolioTable with virtual scrolling and sorting
+- [x] 05-04-PLAN.md - Column picker, density toggle, draggable column headers
+- [x] 05-05-PLAN.md - Global search, column filters, filter chips
+- [x] 05-06-PLAN.md - Full integration and verification checkpoint
 
 ### Phase 6: Admin GUI & Reporting
 **Goal**: Complete admin interface, Power BI integration, and API documentation
@@ -163,10 +164,39 @@ Plans:
 - [ ] 06-02: TBD
 - [ ] 06-03: TBD
 
+### Phase 7: Refactor and Reorganize Information Between Main Table and Sidebar
+**Goal**: Refactor portfolio table with new visualizations (radar charts, expandable rows, column pinning) and reorganize sidebar tabs (merge People into General, rename Teams to Effort, add Description field, fix currency model)
+**Depends on**: Phase 6
+**Success Criteria** (what must be TRUE):
+  1. Value column shows mini radar chart instead of dots
+  2. Effort and Impact columns show aggregate T-shirt with expandable sub-rows
+  3. Budget column shows progress bar plus spent/total text
+  4. Committee column shows level badge, progression dots, and state text
+  5. First 3 columns (checkbox, ID, name) are frozen on horizontal scroll
+  6. New columns available: Dates, IS Owner, Sponsor, Cost T-shirt, Last Activity
+  7. GeneralTab contains merged sections: Core Info, People, Description (rich text), Business Case
+  8. Teams tab renamed to Effort with global T-shirt at top
+  9. Value tab shows large radar chart with dimension labels
+  10. Budget tab shows OPEX/CAPEX as side-by-side cards
+  11. All monetary values stored in EUR, converted at API boundary for display
+**Plans**: 10 plans
+
+Plans:
+- [ ] 07-01-PLAN.md - Add description field and fix currency model (backend)
+- [ ] 07-02-PLAN.md - Install recharts/date-fns and create ValueScoreCell, LastActivityCell, DateRangeCell, CostTshirtCell
+- [ ] 07-03-PLAN.md - Create expandable EffortCell/ImpactCell with sub-rows
+- [ ] 07-04-PLAN.md - Update BudgetHealthCell and CommitteeCell visualizations
+- [ ] 07-05-PLAN.md - Integrate columns, add column pinning and expandable rows to table
+- [ ] 07-06-PLAN.md - Install Tiptap and create DescriptionEditor
+- [ ] 07-07-PLAN.md - Merge People into GeneralTab with sections
+- [ ] 07-08-PLAN.md - Update TeamsTab, ValueTab, BudgetTab with new layouts
+- [ ] 07-09-PLAN.md - Update CommitteeTab and ProjectTabs configuration
+- [ ] 07-10-PLAN.md - Integration and verification checkpoint
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -174,17 +204,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Core Projects | 10/10 | Complete | 2026-02-03 |
 | 3. Financial Tracking | 8/8 | Complete | 2026-02-06 |
 | 4. Governance & Workflow | 10/10 | Complete | 2026-02-09 |
-| 5. Portfolio GUI | 0/6 | Planned | - |
+| 5. Portfolio GUI | 6/6 | Complete | 2026-02-09 |
 | 6. Admin GUI & Reporting | 0/TBD | Not started | - |
-
-### Phase 7: Refactor and reorganize information between main table and sidebar
-
-**Goal:** [To be planned]
-**Depends on:** Phase 6
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 7 to break down)
+| 7. Refactor & Reorganize | 0/10 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-03*
