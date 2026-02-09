@@ -1,3 +1,10 @@
+/**
+ * @deprecated This tab has been merged into GeneralTab as of Phase 7.
+ * People fields (PM, IS Owner, Sponsor) are now in GeneralTab's "People" section.
+ * This file is kept for reference during transition and will be removed when
+ * ProjectTabs is updated to remove the People tab.
+ */
+
 import { useEffect, useState, useId } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
