@@ -15,6 +15,7 @@ interface ProjectSidebarProps {
   onOpenChange: (open: boolean) => void;
   onProjectUpdated?: () => void;
   onDeleted?: () => void;
+  defaultTab?: string;
 }
 
 export function ProjectSidebar({
@@ -22,7 +23,8 @@ export function ProjectSidebar({
   open,
   onOpenChange,
   onProjectUpdated,
-  onDeleted
+  onDeleted,
+  defaultTab
 }: ProjectSidebarProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState<Partial<Project>>({});
@@ -213,6 +215,7 @@ export function ProjectSidebar({
                 formData={formData}
                 onChange={isReadOnly ? () => {} : setFormData}
                 disabled={isReadOnly}
+                defaultTab={defaultTab}
               />
             ) : null}
           </div>

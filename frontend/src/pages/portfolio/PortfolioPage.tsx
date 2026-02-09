@@ -10,6 +10,13 @@ import {
   RowSelectionState,
   flexRender,
 } from '@tanstack/react-table';
+
+// Extend TanStack Table meta for custom callbacks
+declare module '@tanstack/react-table' {
+  interface TableMeta<TData> {
+    onValueClick?: (projectId: number) => void;
+  }
+}
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useRef } from 'react';
 
@@ -59,6 +66,7 @@ export function PortfolioPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [defaultTab, setDefaultTab] = useState<string>('general');
 
   // Reference data for filters (would come from API)
   const [statuses, setStatuses] = useState<{ id: number; name: string; color: string }[]>([]);
@@ -90,6 +98,25 @@ export function PortfolioPage() {
   const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
+  // Handlers (defined before table to use in meta)
+  const handleRowClick = useCallback((project: PortfolioProject) => {
+    setSelectedProjectId(project.id);
+    setDefaultTab('general'); // Normal row click opens to General tab
+    setSidebarOpen(true);
+  }, []);
+
+  const handleValueClick = useCallback((projectId: number) => {
+    setSelectedProjectId(projectId);
+    setDefaultTab('value'); // Value click opens to Value tab
+    setSidebarOpen(true);
+  }, []);
+
+  const handleAlertClick = useCallback((projectId: number) => {
+    setSelectedProjectId(projectId);
+    setDefaultTab('general');
+    setSidebarOpen(true);
+  }, []);
+
   // Memoize for TanStack Table
   const columns = useMemo(() => portfolioColumns, []);
   const data = useMemo(() => projects, [projects]);
@@ -118,6 +145,9 @@ export function PortfolioPage() {
     enableMultiSort: true,
     enableSortingRemoval: false,
     getRowId: (row) => String(row.id),
+    meta: {
+      onValueClick: handleValueClick,
+    },
     // Custom global filter to search text fields
     globalFilterFn: (row, _columnId, filterValue) => {
       const search = String(filterValue).toLowerCase();
@@ -187,17 +217,6 @@ export function PortfolioPage() {
   useEffect(() => {
     loadProjects();
   }, [loadProjects]);
-
-  // Handlers
-  const handleRowClick = useCallback((project: PortfolioProject) => {
-    setSelectedProjectId(project.id);
-    setSidebarOpen(true);
-  }, []);
-
-  const handleAlertClick = useCallback((projectId: number) => {
-    setSelectedProjectId(projectId);
-    setSidebarOpen(true);
-  }, []);
 
   const handleProjectCreated = useCallback((project: { id: number }) => {
     loadProjects();
@@ -385,12 +404,18 @@ export function PortfolioPage() {
       <ProjectSidebar
         projectId={selectedProjectId}
         open={sidebarOpen}
-        onOpenChange={setSidebarOpen}
+        onOpenChange={(open) => {
+          setSidebarOpen(open);
+          if (!open) {
+            setDefaultTab('general'); // Reset to general when closing
+          }
+        }}
         onProjectUpdated={loadProjects}
         onDeleted={() => {
           loadProjects();
           setSelectedProjectId(null);
         }}
+        defaultTab={defaultTab}
       />
 
       {/* Create dialog */}

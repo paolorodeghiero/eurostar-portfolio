@@ -166,7 +166,13 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     header: 'Value',
     cell: (info) => {
       const values = info.getValue();
-      return <ValueScoreCell values={values} />;
+      const { row, table } = info;
+      return (
+        <ValueScoreCell
+          values={values}
+          onClick={() => table.options.meta?.onValueClick?.(row.original.id)}
+        />
+      );
     },
     enableSorting: false, // Can't meaningfully sort array
     size: 90,

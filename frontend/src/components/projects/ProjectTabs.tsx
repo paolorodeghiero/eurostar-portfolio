@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GeneralTab } from './tabs/GeneralTab';
 import { TeamsTab } from './tabs/TeamsTab';
@@ -14,6 +15,7 @@ interface ProjectTabsProps {
   formData: Partial<Project>;
   onChange: (updates: Partial<Project>) => void;
   disabled?: boolean;
+  defaultTab?: string;
 }
 
 const tabs = [
@@ -27,9 +29,18 @@ const tabs = [
   { id: 'history', label: 'History' },
 ];
 
-export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTabsProps) {
+export function ProjectTabs({ project, formData, onChange, disabled, defaultTab }: ProjectTabsProps) {
+  const [activeTab, setActiveTab] = useState(defaultTab || 'general');
+
+  // Update active tab when defaultTab prop changes
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
+
   return (
-    <Tabs defaultValue="general" orientation="vertical" className="flex items-start h-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} orientation="vertical" className="flex items-start h-full">
       <TabsList className="flex flex-col items-stretch justify-start h-auto w-40 shrink-0 border-r bg-transparent p-2 space-y-1">
         {tabs.map((tab) => (
           <TabsTrigger
