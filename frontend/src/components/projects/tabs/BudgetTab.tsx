@@ -38,10 +38,11 @@ const TSHIRT_COLORS: Record<string, string> = {
 
 interface BudgetTabProps {
   project: Project;
+  onProjectUpdated?: () => void;
   disabled?: boolean;
 }
 
-export function BudgetTab({ project, disabled }: BudgetTabProps) {
+export function BudgetTab({ project, onProjectUpdated, disabled }: BudgetTabProps) {
   const [budget, setBudget] = useState<ProjectBudget | null>(null);
   const [loading, setLoading] = useState(true);
   const [localOpex, setLocalOpex] = useState('');
@@ -123,6 +124,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
       setAddOpen(false);
       setSelectedLineId(null);
       setAllocationAmount('');
+      onProjectUpdated?.();
     } catch (err) {
       setAllocationError(err instanceof Error ? err.message : 'Failed to add allocation');
     }
@@ -136,6 +138,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
       await loadBudget();
       setEditingAllocation(null);
       setEditAmount('');
+      onProjectUpdated?.();
     } catch (err) {
       console.error('Failed to update allocation:', err);
     }
@@ -145,6 +148,7 @@ export function BudgetTab({ project, disabled }: BudgetTabProps) {
     try {
       await removeBudgetAllocation(project.id, budgetLineId);
       await loadBudget();
+      onProjectUpdated?.();
     } catch (err) {
       console.error('Failed to remove allocation:', err);
     }

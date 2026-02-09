@@ -28,10 +28,11 @@ interface Team {
 
 interface ChangeImpactTabProps {
   projectId: number;
+  onProjectUpdated?: () => void;
   disabled?: boolean;
 }
 
-export function ChangeImpactTab({ projectId, disabled }: ChangeImpactTabProps) {
+export function ChangeImpactTab({ projectId, onProjectUpdated, disabled }: ChangeImpactTabProps) {
   const [impactTeams, setImpactTeams] = useState<ProjectChangeImpact[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,17 +61,20 @@ export function ChangeImpactTab({ projectId, disabled }: ChangeImpactTabProps) {
     setImpactTeams(prev =>
       prev.map(t => t.teamId === teamId ? { ...t, impactSize: size } : t)
     );
+    onProjectUpdated?.();
   };
 
   const handleRemove = async (teamId: number) => {
     await removeProjectChangeImpact(projectId, teamId);
     setImpactTeams(prev => prev.filter(t => t.teamId !== teamId));
+    onProjectUpdated?.();
   };
 
   const handleAdd = async (teamId: number) => {
     await addProjectChangeImpact(projectId, teamId, 'M');
     setAddOpen(false);
     loadData();
+    onProjectUpdated?.();
   };
 
   const assignedIds = new Set(impactTeams.map(t => t.teamId));

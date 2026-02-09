@@ -20,13 +20,14 @@ import {
 
 interface CommitteeTabProps {
   projectId: number;
+  onProjectUpdated?: () => void;
   disabled?: boolean;
 }
 
 // Workflow states in order
 const WORKFLOW_STATES = ['draft', 'presented', 'discussion', 'approved'];
 
-export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
+export function CommitteeTab({ projectId, onProjectUpdated, disabled }: CommitteeTabProps) {
   const [status, setStatus] = useState<CommitteeStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +62,7 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
         committeeState: result.committeeState,
         allowedTransitions: result.allowedTransitions,
       } : null);
+      onProjectUpdated?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to transition state');
     } finally {

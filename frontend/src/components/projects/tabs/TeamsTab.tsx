@@ -29,10 +29,11 @@ interface Team {
 
 interface TeamsTabProps {
   projectId: number;
+  onProjectUpdated?: () => void;
   disabled?: boolean;
 }
 
-export function TeamsTab({ projectId, disabled }: TeamsTabProps) {
+export function TeamsTab({ projectId, onProjectUpdated, disabled }: TeamsTabProps) {
   const [projectTeams, setProjectTeams] = useState<ProjectTeam[]>([]);
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,17 +62,20 @@ export function TeamsTab({ projectId, disabled }: TeamsTabProps) {
     setProjectTeams(prev =>
       prev.map(t => t.teamId === teamId ? { ...t, effortSize: size } : t)
     );
+    onProjectUpdated?.();
   };
 
   const handleRemove = async (teamId: number) => {
     await removeProjectTeam(projectId, teamId);
     setProjectTeams(prev => prev.filter(t => t.teamId !== teamId));
+    onProjectUpdated?.();
   };
 
   const handleAdd = async (teamId: number) => {
     await addProjectTeam(projectId, teamId, 'M'); // Default to M
     setAddOpen(false);
     loadTeams(); // Refresh to get team name
+    onProjectUpdated?.();
   };
 
   // Teams not yet assigned

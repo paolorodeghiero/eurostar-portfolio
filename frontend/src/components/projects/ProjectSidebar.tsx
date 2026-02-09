@@ -214,6 +214,7 @@ export function ProjectSidebar({
                 project={project}
                 formData={formData}
                 onChange={isReadOnly ? () => {} : setFormData}
+                onProjectUpdated={onProjectUpdated}
                 disabled={isReadOnly}
                 defaultTab={defaultTab}
               />

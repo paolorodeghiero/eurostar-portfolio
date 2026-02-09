@@ -14,6 +14,7 @@ interface ProjectTabsProps {
   project: Project;
   formData: Partial<Project>;
   onChange: (updates: Partial<Project>) => void;
+  onProjectUpdated?: () => void;
   disabled?: boolean;
   defaultTab?: string;
 }
@@ -29,7 +30,7 @@ const tabs = [
   { id: 'history', label: 'History' },
 ];
 
-export function ProjectTabs({ project, formData, onChange, disabled, defaultTab }: ProjectTabsProps) {
+export function ProjectTabs({ project, formData, onChange, onProjectUpdated, disabled, defaultTab }: ProjectTabsProps) {
   const [activeTab, setActiveTab] = useState(defaultTab || 'general');
 
   // Update active tab when defaultTab prop changes
@@ -64,23 +65,23 @@ export function ProjectTabs({ project, formData, onChange, disabled, defaultTab 
         </TabsContent>
 
         <TabsContent value="effort" className="mt-0 h-full">
-          <TeamsTab projectId={project.id} disabled={disabled} />
+          <TeamsTab projectId={project.id} onProjectUpdated={onProjectUpdated} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="change-impact" className="mt-0 h-full">
-          <ChangeImpactTab projectId={project.id} disabled={disabled} />
+          <ChangeImpactTab projectId={project.id} onProjectUpdated={onProjectUpdated} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="value" className="mt-0 h-full">
-          <ValueTab projectId={project.id} disabled={disabled} />
+          <ValueTab projectId={project.id} onProjectUpdated={onProjectUpdated} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="budget" className="mt-0 h-full">
-          <BudgetTab project={project} disabled={disabled} />
+          <BudgetTab project={project} onProjectUpdated={onProjectUpdated} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="committee" className="mt-0 h-full">
-          <CommitteeTab projectId={project.id} disabled={disabled} />
+          <CommitteeTab projectId={project.id} onProjectUpdated={onProjectUpdated} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="actuals" className="mt-0 h-full">

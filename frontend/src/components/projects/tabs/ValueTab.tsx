@@ -19,6 +19,7 @@ import {
 
 interface ValueTabProps {
   projectId: number;
+  onProjectUpdated?: () => void;
   disabled?: boolean;
 }
 
@@ -28,7 +29,7 @@ interface ScoreState {
   justification: string | null;
 }
 
-export function ValueTab({ projectId, disabled }: ValueTabProps) {
+export function ValueTab({ projectId, onProjectUpdated, disabled }: ValueTabProps) {
   const [outcomes, setOutcomes] = useState<Outcome[]>([]);
   const [scores, setScores] = useState<Map<number, ScoreState>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -67,6 +68,7 @@ export function ValueTab({ projectId, disabled }: ValueTabProps) {
   const debouncedSave = useDebouncedCallback(
     async (outcomeId: number, score: number, justification: string | null) => {
       await updateProjectValue(projectId, outcomeId, score, justification);
+      onProjectUpdated?.();
     },
     1000
   );
