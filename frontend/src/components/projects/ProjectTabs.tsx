@@ -1,6 +1,5 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GeneralTab } from './tabs/GeneralTab';
-import { PeopleTab } from './tabs/PeopleTab';
 import { TeamsTab } from './tabs/TeamsTab';
 import { ValueTab } from './tabs/ValueTab';
 import { ChangeImpactTab } from './tabs/ChangeImpactTab';
@@ -19,8 +18,7 @@ interface ProjectTabsProps {
 
 const tabs = [
   { id: 'general', label: 'General' },
-  { id: 'people', label: 'People' },
-  { id: 'teams', label: 'Teams' },
+  { id: 'effort', label: 'Effort' },
   { id: 'value', label: 'Value' },
   { id: 'change-impact', label: 'Change Impact' },
   { id: 'committee', label: 'Committee' },
@@ -54,15 +52,7 @@ export function ProjectTabs({ project, formData, onChange, disabled }: ProjectTa
           />
         </TabsContent>
 
-        <TabsContent value="people" className="mt-0 h-full">
-          <PeopleTab
-            formData={formData}
-            onChange={onChange}
-            disabled={disabled}
-          />
-        </TabsContent>
-
-        <TabsContent value="teams" className="mt-0 h-full">
+        <TabsContent value="effort" className="mt-0 h-full">
           <TeamsTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
