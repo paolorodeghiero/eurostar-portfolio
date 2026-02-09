@@ -5,7 +5,11 @@ import type { PortfolioProject } from '@/lib/project-api';
 import { BudgetHealthCell } from './BudgetHealthCell';
 import { ValueScoreCell } from './ValueScoreCell';
 import { EffortCell } from './EffortCell';
+import { ImpactCell } from './ImpactCell';
 import { CommitteeCell } from './CommitteeCell';
+import { LastActivityCell } from './LastActivityCell';
+import { DateRangeCell } from './DateRangeCell';
+import { CostTshirtCell } from './CostTshirtCell';
 
 // Re-export PortfolioProject for components that import from this file
 export type { PortfolioProject };
@@ -99,6 +103,18 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     size: 120,
   }),
 
+  // Dates (start - end)
+  columnHelper.accessor((row) => ({ startDate: row.startDate, endDate: row.endDate }), {
+    id: 'dates',
+    header: 'Dates',
+    cell: (info) => {
+      const { startDate, endDate } = info.getValue();
+      return <DateRangeCell startDate={startDate} endDate={endDate} />;
+    },
+    enableSorting: false,
+    size: 130,
+  }),
+
   // Project Manager
   columnHelper.accessor('projectManager', {
     id: 'pm',
@@ -107,6 +123,36 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
       const pm = info.getValue();
       return pm ? (
         <span className="truncate max-w-[100px] block text-sm">{pm}</span>
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      );
+    },
+    size: 100,
+  }),
+
+  // IS Owner
+  columnHelper.accessor('isOwner', {
+    id: 'isOwner',
+    header: 'IS Owner',
+    cell: (info) => {
+      const owner = info.getValue();
+      return owner ? (
+        <span className="truncate max-w-[100px] block text-sm">{owner}</span>
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      );
+    },
+    size: 100,
+  }),
+
+  // Sponsor
+  columnHelper.accessor('sponsor', {
+    id: 'sponsor',
+    header: 'Sponsor',
+    cell: (info) => {
+      const sponsor = info.getValue();
+      return sponsor ? (
+        <span className="truncate max-w-[100px] block text-sm">{sponsor}</span>
       ) : (
         <span className="text-muted-foreground">—</span>
       );
@@ -126,25 +172,63 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     size: 90,
   }),
 
-  // Effort (team chips with T-shirts)
+  // Effort (expandable)
   columnHelper.accessor('teams', {
     id: 'effort',
     header: 'Effort',
-    cell: (info) => {
-      const teams = info.getValue();
-      return <EffortCell teams={teams || []} />;
-    },
-    enableSorting: false, // Can't meaningfully sort array
-    size: 180,
+    cell: ({ row }) => (
+      <EffortCell
+        teams={row.original.teams || []}
+        isExpanded={row.getIsExpanded() && row.original._expandType === 'effort'}
+        onToggleExpand={() => {
+          if (row.getIsExpanded() && row.original._expandType === 'effort') {
+            row.toggleExpanded(false);
+          } else {
+            row.original._expandType = 'effort';
+            row.toggleExpanded(true);
+          }
+        }}
+      />
+    ),
+    enableSorting: false,
+    size: 100,
   }),
 
-  // Budget Health (progress bar)
-  columnHelper.accessor((row) => ({ spent: row.actualsTotal, budget: row.budgetTotal }), {
+  // Impact (expandable)
+  columnHelper.accessor('changeImpactTeams', {
+    id: 'impact',
+    header: 'Impact',
+    cell: ({ row }) => (
+      <ImpactCell
+        impactTeams={row.original.changeImpactTeams || []}
+        isExpanded={row.getIsExpanded() && row.original._expandType === 'impact'}
+        onToggleExpand={() => {
+          if (row.getIsExpanded() && row.original._expandType === 'impact') {
+            row.toggleExpanded(false);
+          } else {
+            row.original._expandType = 'impact';
+            row.toggleExpanded(true);
+          }
+        }}
+      />
+    ),
+    enableSorting: false,
+    size: 100,
+  }),
+
+  // Budget Health (progress bar with spent/total)
+  columnHelper.accessor((row) => ({ spent: row.actualsTotal, budget: row.budgetTotal, currency: row.reportCurrency }), {
     id: 'budgetHealth',
     header: 'Budget',
     cell: (info) => {
-      const { spent, budget } = info.getValue();
-      return <BudgetHealthCell spent={spent ?? 0} budget={budget ?? 0} />;
+      const { spent, budget, currency } = info.getValue();
+      return (
+        <BudgetHealthCell
+          spent={parseFloat(String(spent ?? 0))}
+          budget={parseFloat(String(budget ?? 0))}
+          currency={currency || 'EUR'}
+        />
+      );
     },
     sortingFn: (rowA, rowB) => {
       const a = rowA.original;
@@ -153,7 +237,7 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
       const pctB = b.budgetTotal ? (b.actualsTotal ?? 0) / b.budgetTotal : 0;
       return pctA - pctB;
     },
-    size: 120,
+    size: 140,
   }),
 
   // Committee step indicator
@@ -165,6 +249,22 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
       return <CommitteeCell committeeState={state ?? null} committeeLevel={level ?? null} />;
     },
     size: 110,
+  }),
+
+  // Cost T-shirt
+  columnHelper.accessor('costTshirt', {
+    id: 'costTshirt',
+    header: 'Cost',
+    cell: (info) => <CostTshirtCell size={info.getValue()} />,
+    size: 70,
+  }),
+
+  // Last Activity
+  columnHelper.accessor('updatedAt', {
+    id: 'lastActivity',
+    header: 'Last Activity',
+    cell: (info) => <LastActivityCell updatedAt={info.getValue()} />,
+    size: 120,
   }),
 
   // Stopped indicator (hidden by default)
@@ -180,18 +280,25 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
   }),
 ];
 
-// Default column visibility - all visible except 'stopped' column
+// Default column visibility - Core 8 visible by default
 export const defaultColumnVisibility: Record<string, boolean> = {
   select: true,
   projectId: true,
   name: true,
   status: true,
   leadTeam: true,
-  pm: true,
+  dates: true,
   valueScore: true,
-  effort: true,
   budgetHealth: true,
   committee: true,
+  // Hidden by default:
+  pm: false,
+  isOwner: false,
+  sponsor: false,
+  effort: false,
+  impact: false,
+  costTshirt: false,
+  lastActivity: false,
   stopped: false,
 };
 
@@ -202,10 +309,16 @@ export const defaultColumnOrder = [
   'name',
   'status',
   'leadTeam',
-  'pm',
+  'dates',
   'valueScore',
   'effort',
+  'impact',
   'budgetHealth',
   'committee',
+  'pm',
+  'isOwner',
+  'sponsor',
+  'costTshirt',
+  'lastActivity',
   'stopped',
 ];
