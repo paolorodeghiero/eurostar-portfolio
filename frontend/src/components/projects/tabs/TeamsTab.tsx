@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 import {
   fetchProjectTeams,
@@ -19,6 +20,7 @@ import {
   type ProjectTeam,
 } from '@/lib/project-api';
 import { apiClient } from '@/lib/api-client';
+import { deriveGlobalEffort, TSHIRT_COLORS } from '@/lib/effort-utils';
 
 interface Team {
   id: number;
@@ -87,8 +89,33 @@ export function TeamsTab({ projectId, disabled }: TeamsTabProps) {
     return a.teamName.localeCompare(b.teamName);
   });
 
+  const globalEffort = deriveGlobalEffort(projectTeams.map(t => ({ effortSize: t.effortSize })));
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Global Effort Summary */}
+      <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Project Effort
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Aggregate effort based on {projectTeams.length} team{projectTeams.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        {globalEffort ? (
+          <Badge className={`text-lg px-4 py-1 ${TSHIRT_COLORS[globalEffort] || 'bg-gray-300'}`}>
+            {globalEffort}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">No teams assigned</span>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="border-t" />
+
+      {/* Involved Teams Section */}
       <div className="flex items-center justify-between">
         <h3 className="font-medium">Involved Teams</h3>
         <Popover open={addOpen} onOpenChange={setAddOpen}>
