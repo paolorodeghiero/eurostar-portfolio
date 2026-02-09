@@ -53,16 +53,21 @@ export async function getExchangeRate(
  * @param fromCurrency - Source currency code (ISO 4217)
  * @param toCurrency - Target currency code (ISO 4217)
  * @param date - Date for which to fetch the rate (defaults to today)
- * @returns Converted amount as string with 2 decimal places
+ * @returns Converted amount as string with 2 decimal places, or null if amount is null
  * @throws Error if exchange rate is not found
  */
 export async function convertCurrency(
   db: NodePgDatabase<any>,
-  amount: string,
+  amount: string | null,
   fromCurrency: string,
   toCurrency: string,
   date?: Date
-): Promise<string> {
+): Promise<string | null> {
+  // Handle null amount
+  if (amount === null || amount === undefined) {
+    return null;
+  }
+
   // If currencies are the same, return amount unchanged
   if (fromCurrency === toCurrency) {
     const num = parseFloat(amount);
@@ -84,4 +89,44 @@ export async function convertCurrency(
   const converted = amountNum * rateNum;
 
   return converted.toFixed(2);
+}
+
+/**
+ * Convert multiple amounts efficiently (batch conversion)
+ * @param db - Database connection
+ * @param amounts - Array of amounts with their source currencies
+ * @param targetCurrency - Target currency code
+ * @param referenceDate - Date for rate lookup (optional)
+ * @returns Array of converted amounts
+ */
+export async function convertBatchCurrency(
+  db: NodePgDatabase<any>,
+  amounts: { amount: string | null; currency: string }[],
+  targetCurrency: string,
+  referenceDate?: Date
+): Promise<(string | null)[]> {
+  const results: (string | null)[] = [];
+
+  for (const item of amounts) {
+    if (item.amount === null || item.amount === undefined) {
+      results.push(null);
+      continue;
+    }
+
+    try {
+      const converted = await convertCurrency(
+        db,
+        item.amount,
+        item.currency,
+        targetCurrency,
+        referenceDate
+      );
+      results.push(converted);
+    } catch (err) {
+      console.error(`Failed to convert ${item.amount} ${item.currency} to ${targetCurrency}:`, err);
+      results.push(item.amount); // Fallback to original amount
+    }
+  }
+
+  return results;
 }

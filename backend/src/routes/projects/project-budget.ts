@@ -78,13 +78,14 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
               const fiscalYearStart = alloc.fiscalYear
                 ? new Date(`${alloc.fiscalYear}-01-01`)
                 : undefined;
-              convertedAmount = await convertCurrency(
+              const converted = await convertCurrency(
                 db,
                 alloc.allocationAmount,
                 alloc.currency,
                 project.reportCurrency,
                 fiscalYearStart
               );
+              convertedAmount = converted || undefined;
             } catch (err) {
               // If conversion fails, leave convertedAmount undefined
               console.error(`Failed to convert ${alloc.currency} to ${project.reportCurrency}:`, err);
@@ -112,23 +113,23 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
 
       if (project.reportCurrency && project.reportCurrency !== budgetSourceCurrency) {
         try {
-          if (project.opexBudget) {
+          if (project.opexBudget && project.reportCurrency) {
             convertedOpex = await convertCurrency(
               db,
               project.opexBudget,
               budgetSourceCurrency,
               project.reportCurrency,
               projectStartDate
-            );
+            ) || undefined;
           }
-          if (project.capexBudget) {
+          if (project.capexBudget && project.reportCurrency) {
             convertedCapex = await convertCurrency(
               db,
               project.capexBudget,
               budgetSourceCurrency,
               project.reportCurrency,
               projectStartDate
-            );
+            ) || undefined;
           }
           // Calculate total in reportCurrency
           const opexConverted = convertedOpex ? parseFloat(convertedOpex) : 0;
@@ -168,26 +169,27 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
 
   // PUT /api/projects/:projectId/budget
   // Updates OPEX/CAPEX budget and auto-derives cost T-shirt
+  // IMPORTANT: All budget values are stored in EUR. Input values in other currencies are converted.
   fastify.put<{
     Params: { projectId: string };
     Body: {
       opexBudget?: string;
       capexBudget?: string;
-      budgetCurrency?: string;
+      inputCurrency?: string; // Currency of input values (defaults to EUR)
       reportCurrency?: string;
     };
   }>('/:projectId/budget', async (request, reply) => {
     const projectId = parseInt(request.params.projectId);
-    const { opexBudget, capexBudget, budgetCurrency, reportCurrency } = request.body;
+    const { opexBudget, capexBudget, inputCurrency = 'EUR', reportCurrency } = request.body;
 
-    // Verify project exists
+    // Verify project exists and get startDate for rate lookup
     const [project] = await db
       .select({
         id: projects.id,
         version: projects.version,
         opexBudget: projects.opexBudget,
         capexBudget: projects.capexBudget,
-        budgetCurrency: projects.budgetCurrency,
+        startDate: projects.startDate,
       })
       .from(projects)
       .where(eq(projects.id, projectId));
@@ -203,46 +205,66 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
       }
     }
 
-    // Use existing values if not provided in request
-    const finalOpex = opexBudget !== undefined ? opexBudget : project.opexBudget;
-    const finalCapex = capexBudget !== undefined ? capexBudget : project.capexBudget;
-    const finalBudgetCurrency = budgetCurrency !== undefined ? budgetCurrency : project.budgetCurrency;
+    // Convert input amounts to EUR if needed
+    let opexEur: string | null = opexBudget !== undefined ? opexBudget : project.opexBudget;
+    let capexEur: string | null = capexBudget !== undefined ? capexBudget : project.capexBudget;
 
-    // Calculate total budget (as string to avoid precision issues)
-    const opex = parseFloat(finalOpex || '0');
-    const capex = parseFloat(finalCapex || '0');
-    const totalBudget = (opex + capex).toFixed(2);
+    if (inputCurrency !== 'EUR') {
+      const projectStartDate = project.startDate ? new Date(project.startDate) : undefined;
 
-    // Derive cost T-shirt if we have budget values
+      // Convert opex to EUR
+      if (opexBudget && parseFloat(opexBudget) > 0) {
+        try {
+          opexEur = await convertCurrency(db, opexBudget, inputCurrency, 'EUR', projectStartDate);
+          console.log(`Converting OPEX ${opexBudget} ${inputCurrency} to EUR: ${opexEur}`);
+        } catch (err) {
+          console.error('OPEX conversion failed:', err);
+          return reply.code(400).send({ error: `Failed to convert OPEX from ${inputCurrency} to EUR` });
+        }
+      }
+
+      // Convert capex to EUR
+      if (capexBudget && parseFloat(capexBudget) > 0) {
+        try {
+          capexEur = await convertCurrency(db, capexBudget, inputCurrency, 'EUR', projectStartDate);
+          console.log(`Converting CAPEX ${capexBudget} ${inputCurrency} to EUR: ${capexEur}`);
+        } catch (err) {
+          console.error('CAPEX conversion failed:', err);
+          return reply.code(400).send({ error: `Failed to convert CAPEX from ${inputCurrency} to EUR` });
+        }
+      }
+    }
+
+    // Calculate total budget in EUR (as string to avoid precision issues)
+    const opex = parseFloat(opexEur || '0');
+    const capex = parseFloat(capexEur || '0');
+    const totalBudgetEur = (opex + capex).toFixed(2);
+
+    // Derive cost T-shirt based on EUR total
     let costTshirt = null;
-    if (finalBudgetCurrency && (opex > 0 || capex > 0)) {
-      costTshirt = await deriveCostTshirt(db, totalBudget, finalBudgetCurrency);
+    if (opex > 0 || capex > 0) {
+      costTshirt = await deriveCostTshirt(db, totalBudgetEur, 'EUR');
     }
 
-    // Auto-determine committee level based on budget
+    // Auto-determine committee level based on EUR budget
     let committeeLevel = null;
-    if (finalBudgetCurrency) {
-      committeeLevel = await determineCommitteeLevel(
-        db,
-        opex + capex,
-        finalBudgetCurrency
-      );
+    if (opex > 0 || capex > 0) {
+      committeeLevel = await determineCommitteeLevel(db, opex + capex, 'EUR');
     }
 
-    // Build update object
+    // Build update object - store EUR values only
     const updateData: any = {
       version: sql`${projects.version} + 1`,
       updatedAt: new Date(),
     };
 
-    if (opexBudget !== undefined) updateData.opexBudget = opexBudget;
-    if (capexBudget !== undefined) updateData.capexBudget = capexBudget;
-    if (budgetCurrency !== undefined) updateData.budgetCurrency = budgetCurrency;
+    if (opexBudget !== undefined) updateData.opexBudget = opexEur;
+    if (capexBudget !== undefined) updateData.capexBudget = capexEur;
     if (reportCurrency !== undefined) updateData.reportCurrency = reportCurrency;
     if (costTshirt !== null) updateData.costTshirt = costTshirt;
     if (committeeLevel !== null) updateData.committeeLevel = committeeLevel;
 
-    // Update project with new budget and cost T-shirt
+    // Update project with new budget (in EUR) and cost T-shirt
     const [updated] = await db
       .update(projects)
       .set(updateData)
@@ -251,7 +273,6 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
         id: projects.id,
         opexBudget: projects.opexBudget,
         capexBudget: projects.capexBudget,
-        budgetCurrency: projects.budgetCurrency,
         reportCurrency: projects.reportCurrency,
         costTshirt: projects.costTshirt,
         version: projects.version,
@@ -259,7 +280,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
 
     return {
       ...updated,
-      totalBudget,
+      totalBudget: totalBudgetEur,
     };
   });
 

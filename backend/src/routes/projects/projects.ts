@@ -83,13 +83,14 @@ export async function projectRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // GET /api/projects - List all projects
+  // GET /api/projects - List all projects with portfolio fields
   fastify.get<{
-    Querystring: { stopped?: string };
+    Querystring: { stopped?: string; reportCurrency?: string };
   }>('/', async (request) => {
     const stoppedFilter = request.query.stopped;
+    const reportCurrency = request.query.reportCurrency || 'EUR';
 
-    // Build base query
+    // Build base query with budget/committee fields
     let query = db
       .select({
         id: projects.id,
@@ -105,7 +106,13 @@ export async function projectRoutes(fastify: FastifyInstance) {
         projectManager: projects.projectManager,
         isOwner: projects.isOwner,
         sponsor: projects.sponsor,
+        description: projects.description,
         isStopped: projects.isStopped,
+        opexBudget: projects.opexBudget,
+        capexBudget: projects.capexBudget,
+        costTshirt: projects.costTshirt,
+        committeeState: projects.committeeState,
+        committeeLevel: projects.committeeLevel,
         version: projects.version,
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
@@ -124,13 +131,137 @@ export async function projectRoutes(fastify: FastifyInstance) {
     }
 
     const projectsList = await query;
+    const projectIds = projectsList.map((p) => p.id);
 
-    return projectsList.map((p) => ({
-      ...p,
-      status: p.statusId
-        ? { id: p.statusId, name: p.statusName, color: p.statusColor }
-        : null,
-      leadTeam: { id: p.leadTeamId, name: p.leadTeamName },
+    if (projectIds.length === 0) return [];
+
+    // Fetch teams for all projects in one query
+    const allTeams = await db
+      .select({
+        projectId: projectTeams.projectId,
+        teamId: projectTeams.teamId,
+        teamName: teams.name,
+        effortSize: projectTeams.effortSize,
+        isLead: projectTeams.isLead,
+      })
+      .from(projectTeams)
+      .innerJoin(teams, eq(projectTeams.teamId, teams.id))
+      .where(sql`${projectTeams.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`);
+
+    // Fetch value scores for all projects in one query
+    const allValues = await db
+      .select({
+        projectId: projectValues.projectId,
+        score: projectValues.score,
+      })
+      .from(projectValues)
+      .where(sql`${projectValues.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`);
+
+    // Fetch actuals totals for all projects (receipts only, in EUR)
+    const allActuals = await db
+      .select({
+        projectId: receipts.projectId,
+        total: sql<string>`COALESCE(SUM(${receipts.amount}), 0)`,
+      })
+      .from(receipts)
+      .where(sql`${receipts.projectId} IN (${sql.join(projectIds.map(id => sql`${id}`), sql`, `)})`)
+      .groupBy(receipts.projectId);
+
+    // Group by project
+    const teamsByProject = new Map<number, typeof allTeams>();
+    for (const t of allTeams) {
+      const arr = teamsByProject.get(t.projectId) || [];
+      arr.push(t);
+      teamsByProject.set(t.projectId, arr);
+    }
+
+    const valuesByProject = new Map<number, number[]>();
+    for (const v of allValues) {
+      if (v.score == null) continue;
+      const arr = valuesByProject.get(v.projectId) || [];
+      arr.push(v.score);
+      valuesByProject.set(v.projectId, arr);
+    }
+
+    const actualsByProject = new Map<number, string>();
+    for (const a of allActuals) {
+      actualsByProject.set(a.projectId, a.total);
+    }
+
+    // Convert currencies if needed
+    return Promise.all(projectsList.map(async (p) => {
+      const pTeams = teamsByProject.get(p.id) || [];
+      const scores = valuesByProject.get(p.id) || [];
+      const valueScoreAvg = scores.length > 0
+        ? scores.reduce((sum, s) => sum + s, 0) / scores.length
+        : null;
+
+      // Budget values stored in EUR
+      const opexEur = p.opexBudget ? parseFloat(p.opexBudget) : 0;
+      const capexEur = p.capexBudget ? parseFloat(p.capexBudget) : 0;
+      const actualsEur = actualsByProject.get(p.id) ? parseFloat(actualsByProject.get(p.id)!) : 0;
+
+      let opexBudget = p.opexBudget;
+      let capexBudget = p.capexBudget;
+      let budgetTotal: number | null = opexEur + capexEur > 0 ? opexEur + capexEur : null;
+      let actualsTotal: number | null = actualsEur > 0 ? actualsEur : null;
+
+      // Convert to reportCurrency if different from EUR
+      if (reportCurrency !== 'EUR') {
+        const projectStartDate = p.startDate ? new Date(p.startDate) : undefined;
+
+        try {
+          if (p.opexBudget) {
+            const converted = await convertCurrency(db, p.opexBudget, 'EUR', reportCurrency, projectStartDate);
+            opexBudget = converted || p.opexBudget;
+          }
+          if (p.capexBudget) {
+            const converted = await convertCurrency(db, p.capexBudget, 'EUR', reportCurrency, projectStartDate);
+            capexBudget = converted || p.capexBudget;
+          }
+          if (opexBudget && capexBudget) {
+            budgetTotal = parseFloat(opexBudget) + parseFloat(capexBudget);
+          } else if (opexBudget) {
+            budgetTotal = parseFloat(opexBudget);
+          } else if (capexBudget) {
+            budgetTotal = parseFloat(capexBudget);
+          }
+
+          // Convert actuals (use receipt dates for accurate conversion, but for list view use project start date for simplicity)
+          if (actualsEur > 0) {
+            const convertedActuals = await convertCurrency(
+              db,
+              actualsEur.toFixed(2),
+              'EUR',
+              reportCurrency,
+              projectStartDate
+            );
+            actualsTotal = convertedActuals ? parseFloat(convertedActuals) : null;
+          }
+        } catch (err) {
+          console.error(`Failed to convert currency for project ${p.projectId}:`, err);
+          // Fall back to EUR values
+        }
+      }
+
+      return {
+        ...p,
+        status: p.statusId
+          ? { id: p.statusId, name: p.statusName, color: p.statusColor }
+          : null,
+        leadTeam: { id: p.leadTeamId, name: p.leadTeamName },
+        teams: pTeams.map((t) => ({
+          teamId: t.teamId,
+          teamName: t.teamName,
+          effortSize: t.effortSize,
+          isLead: t.isLead,
+        })),
+        valueScoreAvg,
+        opexBudget,
+        capexBudget,
+        budgetTotal,
+        actualsTotal,
+      };
     }));
   });
 
@@ -155,6 +286,7 @@ export async function projectRoutes(fastify: FastifyInstance) {
         projectManager: projects.projectManager,
         isOwner: projects.isOwner,
         sponsor: projects.sponsor,
+        description: projects.description,
         isStopped: projects.isStopped,
         opexBudget: projects.opexBudget,
         capexBudget: projects.capexBudget,
@@ -242,6 +374,7 @@ export async function projectRoutes(fastify: FastifyInstance) {
       projectManager: project.projectManager,
       isOwner: project.isOwner,
       sponsor: project.sponsor,
+      description: project.description,
       isStopped: project.isStopped,
       opexBudget: project.opexBudget,
       capexBudget: project.capexBudget,
@@ -299,6 +432,7 @@ export async function projectRoutes(fastify: FastifyInstance) {
       projectManager?: string | null;
       isOwner?: string | null;
       sponsor?: string | null;
+      description?: string | null;
       expectedVersion: number;
     };
   }>('/:id', async (request, reply) => {
@@ -375,6 +509,9 @@ export async function projectRoutes(fastify: FastifyInstance) {
     }
     if (updateData.sponsor !== undefined) {
       updates.sponsor = updateData.sponsor?.trim() || null;
+    }
+    if (updateData.description !== undefined) {
+      updates.description = updateData.description;
     }
 
     // Perform update with version check
@@ -588,7 +725,9 @@ export async function projectRoutes(fastify: FastifyInstance) {
             targetCurrency,
             receiptConversionDate
           );
-          totalReceipts += parseFloat(converted);
+          if (converted) {
+            totalReceipts += parseFloat(converted);
+          }
         } catch (err) {
           // If conversion fails, use original amount
           console.error(`Failed to convert receipt from ${receipt.currency} to ${targetCurrency}:`, err);
@@ -628,25 +767,29 @@ export async function projectRoutes(fastify: FastifyInstance) {
       budgetTotal = rawBudget;
     } else {
       try {
-        if (opex > 0) {
+        if (opex > 0 && project.opexBudget) {
           const convertedOpex = await convertCurrency(
             db,
-            project.opexBudget!,
+            project.opexBudget,
             budgetSourceCurrency,
             targetCurrency,
             projectStartDate
           );
-          budgetTotal += parseFloat(convertedOpex);
+          if (convertedOpex) {
+            budgetTotal += parseFloat(convertedOpex);
+          }
         }
-        if (capex > 0) {
+        if (capex > 0 && project.capexBudget) {
           const convertedCapex = await convertCurrency(
             db,
-            project.capexBudget!,
+            project.capexBudget,
             budgetSourceCurrency,
             targetCurrency,
             projectStartDate
           );
-          budgetTotal += parseFloat(convertedCapex);
+          if (convertedCapex) {
+            budgetTotal += parseFloat(convertedCapex);
+          }
         }
       } catch (err) {
         console.error(`Failed to convert budget from ${budgetSourceCurrency} to ${targetCurrency}:`, err);
