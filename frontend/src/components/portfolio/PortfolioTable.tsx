@@ -1,4 +1,4 @@
-import { useMemo, useRef, useCallback, useState } from 'react';
+import { useMemo, useRef, useCallback, useState, type CSSProperties } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -8,7 +8,11 @@ import {
   SortingState,
   VisibilityState,
   RowSelectionState,
+  ColumnPinningState,
+  ExpandedState,
+  getExpandedRowModel,
   flexRender,
+  type Column,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
@@ -27,6 +31,8 @@ import {
   defaultColumnOrder,
   type PortfolioProject,
 } from './columns/portfolioColumns';
+import { EffortExpandedRow } from './columns/EffortExpandedRow';
+import { ImpactExpandedRow } from './columns/ImpactExpandedRow';
 import { cn } from '@/lib/utils';
 
 type Density = 'comfortable' | 'compact';
@@ -73,6 +79,15 @@ export function PortfolioTable({
   const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
+  // Column pinning state (pin first 3 columns: select, projectId, name)
+  const [columnPinning] = useState<ColumnPinningState>({
+    left: ['select', 'projectId', 'name'],
+    right: [],
+  });
+
+  // Expanded rows state for effort/impact breakdowns
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+
   // Memoize columns and data per TanStack Table FAQ
   const columns = useMemo(() => portfolioColumns, []);
   const memoizedData = useMemo(() => data, [data]);
@@ -88,6 +103,8 @@ export function PortfolioTable({
       columnVisibility,
       columnOrder,
       rowSelection,
+      columnPinning,
+      expanded,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -95,13 +112,30 @@ export function PortfolioTable({
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
     onRowSelectionChange: setRowSelection,
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     enableMultiSort: true,
     enableSortingRemoval: false, // Always have a sort direction
     getRowId: (row) => String(row.id),
   });
+
+  // Helper function for pinned column styles
+  const getCommonPinningStyles = (column: Column<PortfolioProject>): CSSProperties => {
+    const isPinned = column.getIsPinned();
+    const isLastLeftPinnedColumn = isPinned === 'left' && column.getIsLastColumn('left');
+
+    return {
+      left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
+      position: isPinned ? 'sticky' : 'relative',
+      width: column.getSize(),
+      zIndex: isPinned ? 1 : 0,
+      backgroundColor: isPinned ? 'hsl(var(--background))' : undefined,
+      boxShadow: isLastLeftPinnedColumn ? '-4px 0 4px -4px gray inset' : undefined,
+    };
+  };
 
   // Virtual scrolling
   const { rows } = table.getRowModel();
@@ -191,7 +225,9 @@ export function PortfolioTable({
                   return (
                     <TableHead
                       key={header.id}
-                      style={{ width: header.getSize() }}
+                      style={{
+                        ...getCommonPinningStyles(header.column),
+                      }}
                       className={cn(
                         'select-none',
                         header.column.getCanSort() && 'cursor-pointer hover:bg-muted/50'
@@ -238,30 +274,45 @@ export function PortfolioTable({
               const isSelected = row.original.id === selectedProjectId;
 
               return (
-                <TableRow
-                  key={row.id}
-                  data-index={virtualRow.index}
-                  className={cn(
-                    'cursor-pointer transition-colors',
-                    isSelected
-                      ? 'bg-primary/10 hover:bg-primary/15'
-                      : 'hover:bg-muted/50',
-                    density === 'compact' ? 'h-[37px]' : 'h-[53px]'
+                <>
+                  <TableRow
+                    key={row.id}
+                    data-index={virtualRow.index}
+                    className={cn(
+                      'cursor-pointer transition-colors',
+                      isSelected
+                        ? 'bg-primary/10 hover:bg-primary/15'
+                        : 'hover:bg-muted/50',
+                      density === 'compact' ? 'h-[37px]' : 'h-[53px]'
+                    )}
+                    onClick={() => handleRowClick(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        style={{
+                          ...getCommonPinningStyles(cell.column),
+                        }}
+                        className={cn(
+                          density === 'compact' ? 'py-1 text-sm' : 'py-2'
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  {row.getIsExpanded() && (
+                    <TableRow key={`${row.id}-expanded`} className="hover:bg-transparent">
+                      <TableCell colSpan={row.getVisibleCells().length} className="p-0">
+                        {row.original._expandType === 'effort' ? (
+                          <EffortExpandedRow teams={row.original.teams || []} />
+                        ) : row.original._expandType === 'impact' ? (
+                          <ImpactExpandedRow impactTeams={row.original.changeImpactTeams || []} />
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
                   )}
-                  onClick={() => handleRowClick(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      style={{ width: cell.column.getSize() }}
-                      className={cn(
-                        density === 'compact' ? 'py-1 text-sm' : 'py-2'
-                      )}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                </>
               );
             })}
             {/* Bottom padding row */}
