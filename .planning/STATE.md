@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Enable clear visibility into the IT project portfolio with accurate budget tracking and governance
-**Current focus:** Phase 4 - Governance & Workflow
+**Current focus:** Phase 5 - Portfolio GUI
 
 ## Current Position
 
-Phase: 4 of 6 (Governance & Workflow)
-Plan: Complete - all 10 plans done (04-01 through 04-10)
-Status: Complete
-Last activity: 2026-02-09 - Completed 04-10: Integration Testing and Phase 4 verification
+Phase: 5 of 6 (Portfolio GUI)
+Plan: 2 of 6 (05-02)
+Status: In Progress
+Last activity: 2026-02-09 - Completed 05-02: Portfolio Header Component
 
-Progress: [█████████████░░░] 85% (35/41 total plans)
+Progress: [█████████████░░░] 88% (36/41 total plans)
 Quick tasks: 5 completed
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
+- Total plans completed: 36
 - Average duration: 9 min
-- Total execution time: 5.39 hours
+- Total execution time: 5.48 hours
 - Quick tasks: 5 completed (avg 9 min)
 
 **By Phase:**
@@ -33,10 +33,11 @@ Quick tasks: 5 completed
 | 02 | 10 | 61m | 6m |
 | 03 | 8 | 82m | 10m |
 | 04 | 10 | 73m | 7m |
+| 05 | 2 | 12m | 6m |
 
 **Recent Trend:**
-- Last 5 plans: 04-07 (6m), 04-08 (4m), 04-09 (3m), 04-10 (3m)
-- Trend: Phase 4 complete - all governance and workflow features verified
+- Last 5 plans: 04-08 (4m), 04-09 (3m), 04-10 (3m), 05-01 (7m), 05-02 (5m)
+- Trend: Phase 5 started - portfolio GUI components
 
 *Updated after each plan completion*
 
@@ -156,6 +157,11 @@ Recent decisions affecting current work:
 - Workflow progress visualization uses step indicator with checkmarks (04-07)
 - Committee tab placed after Change Impact, before Budget (04-07)
 - Level colors: mandatory=red, optional=yellow, not_necessary=gray (04-07)
+- Removed global header from App.tsx - each page/layout renders its own header (05-02)
+- PortfolioHeader uses sticky positioning for fixed top bar during scroll (05-02)
+- User identity shows initials from name (first + last) or first 2 chars of email (05-02)
+- Admin link highlights when on admin routes using location.pathname check (05-02)
+- Responsive design hides user name on small screens, shows only initials circle (05-02)
 
 ### Pending Todos
 
@@ -178,9 +184,9 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 04-10-PLAN.md (Integration Testing - Phase 4 verification complete)
+Stopped at: Completed 05-02-PLAN.md (Portfolio Header Component)
 Resume file: None
-Next: Begin Phase 5 - Reporting & Analytics
+Next: Continue Phase 5 - Portfolio GUI (05-03 onwards)
 
 ---
 *State initialized: 2026-02-03*
