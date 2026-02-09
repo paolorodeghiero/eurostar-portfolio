@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 5 of 6 (Portfolio GUI)
 Plan: 2 of 6 (05-02)
 Status: In Progress
-Last activity: 2026-02-09 - Completed 05-02: Portfolio Header Component
+Last activity: 2026-02-09 - Completed 05-01: Portfolio Table Columns and State
 
 Progress: [█████████████░░░] 88% (36/41 total plans)
 Quick tasks: 5 completed
@@ -40,6 +40,7 @@ Quick tasks: 5 completed
 - Trend: Phase 5 started - portfolio GUI components
 
 *Updated after each plan completion*
+| Phase 05 P01 | 7 | 4 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -162,6 +163,8 @@ Recent decisions affecting current work:
 - User identity shows initials from name (first + last) or first 2 chars of email (05-02)
 - Admin link highlights when on admin routes using location.pathname check (05-02)
 - Responsive design hides user name on small screens, shows only initials circle (05-02)
+- [Phase 05]: Use @dnd-kit for column reordering instead of deprecated react-beautiful-dnd
+- [Phase 05]: Mini-visualization cells (progress bars, dots, chips) for Linear/Notion-style data-dense table
 
 ### Pending Todos
 
@@ -184,7 +187,7 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 05-02-PLAN.md (Portfolio Header Component)
+Stopped at: Completed 05-01-PLAN.md (Portfolio Table Columns and State)
 Resume file: None
 Next: Continue Phase 5 - Portfolio GUI (05-03 onwards)
 
