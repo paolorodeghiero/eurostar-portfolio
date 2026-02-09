@@ -45,6 +45,7 @@ Quick tasks: 5 completed
 | Phase 07 P04 | 4 | 2 tasks | 2 files |
 | Phase 07 P07 | 5 | 2 tasks | 3 files |
 | Phase 07 P08 | 13 | 3 tasks | 3 files |
+| Phase 07 P03 | 12 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -204,6 +205,9 @@ Recent decisions affecting current work:
 - GeneralTab merged with People tab into four sections: Core Info, People, Description, Business Case (07-07)
 - SectionHeader and SectionDivider components for visual organization in tab layouts (07-07)
 - Business Case upload moved from CommitteeTab to GeneralTab for better discoverability (07-07)
+- [Phase 07]: MAX algorithm for T-shirt aggregation (represents peak team effort) (07-03)
+- [Phase 07]: Click-to-expand inline pattern for table cells instead of hover tooltip (07-03)
+- [Phase 07]: Expandable cell pattern with aggregate view, expand chevron, and inline breakdown row (07-03)
 
 ### Pending Todos
 
