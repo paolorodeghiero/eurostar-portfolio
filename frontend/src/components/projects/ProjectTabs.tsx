@@ -21,10 +21,10 @@ interface ProjectTabsProps {
 const tabs = [
   { id: 'general', label: 'General' },
   { id: 'effort', label: 'Effort' },
-  { id: 'value', label: 'Value' },
   { id: 'change-impact', label: 'Change Impact' },
-  { id: 'committee', label: 'Committee' },
+  { id: 'value', label: 'Value' },
   { id: 'budget', label: 'Budget' },
+  { id: 'committee', label: 'Committee' },
   { id: 'actuals', label: 'Actuals' },
   { id: 'history', label: 'History' },
 ];
@@ -67,20 +67,20 @@ export function ProjectTabs({ project, formData, onChange, disabled, defaultTab 
           <TeamsTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
-        <TabsContent value="value" className="mt-0 h-full">
-          <ValueTab projectId={project.id} disabled={disabled} />
-        </TabsContent>
-
         <TabsContent value="change-impact" className="mt-0 h-full">
           <ChangeImpactTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
-        <TabsContent value="committee" className="mt-0 h-full">
-          <CommitteeTab projectId={project.id} disabled={disabled} />
+        <TabsContent value="value" className="mt-0 h-full">
+          <ValueTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="budget" className="mt-0 h-full">
           <BudgetTab project={project} disabled={disabled} />
+        </TabsContent>
+
+        <TabsContent value="committee" className="mt-0 h-full">
+          <CommitteeTab projectId={project.id} disabled={disabled} />
         </TabsContent>
 
         <TabsContent value="actuals" className="mt-0 h-full">
