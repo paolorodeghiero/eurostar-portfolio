@@ -1,8 +1,6 @@
 import { memo } from 'react';
-import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { deriveGlobalEffort, TSHIRT_COLORS } from '@/lib/effort-utils';
-import { cn } from '@/lib/utils';
 
 interface Team {
   teamId: number;
@@ -13,14 +11,12 @@ interface Team {
 
 interface EffortCellProps {
   teams: Team[];
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
+  onClick?: () => void;
 }
 
 export const EffortCell = memo(function EffortCell({
   teams,
-  isExpanded = false,
-  onToggleExpand,
+  onClick,
 }: EffortCellProps) {
   const globalEffort = deriveGlobalEffort(teams);
 
@@ -32,15 +28,15 @@ export const EffortCell = memo(function EffortCell({
     <div
       className="flex items-center gap-2 cursor-pointer hover:opacity-80"
       onClick={(e) => {
-        e.stopPropagation(); // Prevent row click
-        onToggleExpand?.();
+        e.stopPropagation();
+        onClick?.();
       }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.stopPropagation();
-          onToggleExpand?.();
+          onClick?.();
         }
       }}
     >
@@ -50,12 +46,6 @@ export const EffortCell = memo(function EffortCell({
       <span className="text-xs text-muted-foreground">
         ({teams.length})
       </span>
-      <ChevronRight
-        className={cn(
-          "h-4 w-4 transition-transform duration-200",
-          isExpanded && "rotate-90"
-        )}
-      />
     </div>
   );
 });

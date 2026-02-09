@@ -178,44 +178,28 @@ export const portfolioColumns: ColumnDef<PortfolioProject, any>[] = [
     size: 90,
   }),
 
-  // Effort (expandable)
+  // Effort
   columnHelper.accessor('teams', {
     id: 'effort',
     header: 'Effort',
-    cell: ({ row }) => (
+    cell: ({ row, table }) => (
       <EffortCell
         teams={row.original.teams || []}
-        isExpanded={row.getIsExpanded() && row.original._expandType === 'effort'}
-        onToggleExpand={() => {
-          if (row.getIsExpanded() && row.original._expandType === 'effort') {
-            row.toggleExpanded(false);
-          } else {
-            row.original._expandType = 'effort';
-            row.toggleExpanded(true);
-          }
-        }}
+        onClick={() => table.options.meta?.onEffortClick?.(row.original.id)}
       />
     ),
     enableSorting: false,
     size: 100,
   }),
 
-  // Impact (expandable)
+  // Impact
   columnHelper.accessor('changeImpactTeams', {
     id: 'impact',
     header: 'Impact',
-    cell: ({ row }) => (
+    cell: ({ row, table }) => (
       <ImpactCell
         impactTeams={row.original.changeImpactTeams || []}
-        isExpanded={row.getIsExpanded() && row.original._expandType === 'impact'}
-        onToggleExpand={() => {
-          if (row.getIsExpanded() && row.original._expandType === 'impact') {
-            row.toggleExpanded(false);
-          } else {
-            row.original._expandType = 'impact';
-            row.toggleExpanded(true);
-          }
-        }}
+        onClick={() => table.options.meta?.onImpactClick?.(row.original.id)}
       />
     ),
     enableSorting: false,

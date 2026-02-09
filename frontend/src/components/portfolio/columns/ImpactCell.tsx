@@ -1,8 +1,6 @@
 import { memo } from 'react';
-import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { deriveGlobalImpact, TSHIRT_COLORS } from '@/lib/effort-utils';
-import { cn } from '@/lib/utils';
 
 interface ImpactTeam {
   teamId: number;
@@ -12,14 +10,12 @@ interface ImpactTeam {
 
 interface ImpactCellProps {
   impactTeams: ImpactTeam[];
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
+  onClick?: () => void;
 }
 
 export const ImpactCell = memo(function ImpactCell({
   impactTeams,
-  isExpanded = false,
-  onToggleExpand,
+  onClick,
 }: ImpactCellProps) {
   const globalImpact = deriveGlobalImpact(impactTeams);
 
@@ -31,15 +27,15 @@ export const ImpactCell = memo(function ImpactCell({
     <div
       className="flex items-center gap-2 cursor-pointer hover:opacity-80"
       onClick={(e) => {
-        e.stopPropagation(); // Prevent row click
-        onToggleExpand?.();
+        e.stopPropagation();
+        onClick?.();
       }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.stopPropagation();
-          onToggleExpand?.();
+          onClick?.();
         }
       }}
     >
@@ -49,12 +45,6 @@ export const ImpactCell = memo(function ImpactCell({
       <span className="text-xs text-muted-foreground">
         ({impactTeams.length})
       </span>
-      <ChevronRight
-        className={cn(
-          "h-4 w-4 transition-transform duration-200",
-          isExpanded && "rotate-90"
-        )}
-      />
     </div>
   );
 });

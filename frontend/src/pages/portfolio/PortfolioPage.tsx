@@ -15,6 +15,8 @@ import {
 declare module '@tanstack/react-table' {
   interface TableMeta<TData> {
     onValueClick?: (projectId: number) => void;
+    onEffortClick?: (projectId: number) => void;
+    onImpactClick?: (projectId: number) => void;
   }
 }
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -107,7 +109,19 @@ export function PortfolioPage() {
 
   const handleValueClick = useCallback((projectId: number) => {
     setSelectedProjectId(projectId);
-    setDefaultTab('value'); // Value click opens to Value tab
+    setDefaultTab('value');
+    setSidebarOpen(true);
+  }, []);
+
+  const handleEffortClick = useCallback((projectId: number) => {
+    setSelectedProjectId(projectId);
+    setDefaultTab('effort');
+    setSidebarOpen(true);
+  }, []);
+
+  const handleImpactClick = useCallback((projectId: number) => {
+    setSelectedProjectId(projectId);
+    setDefaultTab('change-impact');
     setSidebarOpen(true);
   }, []);
 
@@ -147,6 +161,8 @@ export function PortfolioPage() {
     getRowId: (row) => String(row.id),
     meta: {
       onValueClick: handleValueClick,
+      onEffortClick: handleEffortClick,
+      onImpactClick: handleImpactClick,
     },
     // Custom global filter to search text fields
     globalFilterFn: (row, _columnId, filterValue) => {
