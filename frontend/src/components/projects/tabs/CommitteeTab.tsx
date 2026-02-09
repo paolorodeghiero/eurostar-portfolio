@@ -95,30 +95,34 @@ export function CommitteeTab({ projectId, disabled }: CommitteeTabProps) {
         </Alert>
       )}
 
-      {/* Committee Level */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium text-muted-foreground">Engagement Committee Level</h3>
-        <div className="flex items-center gap-2">
-          {status.committeeLevel ? (
-            <Badge className={LEVEL_COLORS[status.committeeLevel] || 'bg-gray-100 text-gray-800'}>
-              {LEVEL_LABELS[status.committeeLevel] || status.committeeLevel}
-            </Badge>
-          ) : (
-            <span className="text-sm text-muted-foreground">
-              Set project budget to determine committee level
-            </span>
-          )}
+      {/* Engagement Level Summary */}
+      <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Engagement Level
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            {status.committeeLevel === 'mandatory' && 'Committee approval required for this budget level'}
+            {status.committeeLevel === 'optional' && 'Committee review is optional'}
+            {status.committeeLevel === 'not_necessary' && 'No committee review needed'}
+            {!status.committeeLevel && 'Set project budget to determine level'}
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {status.committeeLevel === 'mandatory' && 'Projects over threshold require committee approval.'}
-          {status.committeeLevel === 'optional' && 'Committee review is optional for this budget level.'}
-          {status.committeeLevel === 'not_necessary' && 'Projects under threshold do not require committee review.'}
-        </p>
+        {status.committeeLevel ? (
+          <Badge className={`text-lg px-4 py-1 ${LEVEL_COLORS[status.committeeLevel] || 'bg-gray-100 text-gray-800'}`}>
+            {LEVEL_LABELS[status.committeeLevel] || status.committeeLevel}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">Not set</span>
+        )}
       </div>
+
+      {/* Divider */}
+      <div className="border-t" />
 
       {/* Workflow Progress Visualization */}
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-muted-foreground">Workflow Progress</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">Workflow</h3>
         <div className="flex items-center gap-2 py-2">
           {WORKFLOW_STATES.map((state, index) => {
             const isCompleted = currentStateIndex >= index && !isRejected;
