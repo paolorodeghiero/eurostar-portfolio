@@ -55,7 +55,7 @@ export const ValueScoreCell = memo(function ValueScoreCell({ values, onClick }: 
             }}
             position={{ x: 50, y: 0 }}
             contentStyle={{
-              backgroundColor: 'hsl(var(--popover))',
+              backgroundColor: 'white',
               border: '1px solid hsl(var(--border))',
               borderRadius: '6px',
               boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
