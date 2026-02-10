@@ -1,5 +1,4 @@
-import { execSync } from 'child_process';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from './index.js';
 import { statuses } from './schema.js';
 import { seedEssentialData } from './seed.js';
@@ -43,32 +42,37 @@ export async function ensureSystemStatuses(): Promise<void> {
 }
 
 /**
- * Runs database migrations using drizzle-kit push.
- * Exits process on migration failure.
+ * Checks if essential database tables exist.
+ * Exits with helpful message if schema is missing.
  */
-function runMigrations(): void {
-  console.log('Running database migrations...');
+async function checkSchemaExists(): Promise<void> {
+  console.log('Checking database schema...');
   try {
-    execSync('npx drizzle-kit push --force --accept-data-loss', {
-      cwd: process.cwd(),
-      stdio: 'inherit',
-    });
-    console.log('Migrations complete.');
-  } catch (error) {
-    console.error('Migration failed:', error);
-    process.exit(1);
+    // Try to query a core table - if it fails, schema isn't set up
+    await db.execute(sql`SELECT 1 FROM statuses LIMIT 1`);
+    console.log('Schema verified.');
+  } catch (error: any) {
+    if (error.message?.includes('does not exist') || error.code === '42P01') {
+      console.error('\n❌ Database schema not found!');
+      console.error('Run "make db-push" to create the schema, then restart the server.\n');
+      process.exit(1);
+    }
+    // Other errors - let them propagate
+    throw error;
   }
 }
 
 /**
  * Complete startup initialization:
- * 1. Run migrations (exits on failure)
+ * 1. Check schema is in sync (exits if not)
  * 2. Ensure system statuses exist
  * 3. Seed essential referential data
  * 4. Create/update reporting views
+ *
+ * NOTE: Migrations must be run separately via "make db-push" before starting the server.
  */
 export async function runStartupInit(): Promise<void> {
-  runMigrations();
+  await checkSchemaExists();
   await ensureSystemStatuses();
   await seedEssentialData();
 
