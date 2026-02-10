@@ -10,6 +10,7 @@ import { committeeThresholdsRoutes } from './committee-thresholds.js';
 import { costTshirtThresholdsRoutes } from './cost-tshirt-thresholds.js';
 import { competenceMonthPatternsRoutes } from './competence-month-patterns.js';
 import { budgetLinesRoutes } from './budget-lines.js';
+import { auditLogRoutes } from './audit-log.js';
 
 export async function referentialsRoutes(fastify: FastifyInstance) {
   // All admin routes require admin role
@@ -43,4 +44,5 @@ export async function referentialsRoutes(fastify: FastifyInstance) {
   await fastify.register(costTshirtThresholdsRoutes, { prefix: '/cost-tshirt-thresholds' });
   await fastify.register(competenceMonthPatternsRoutes, { prefix: '/competence-month-patterns' });
   await fastify.register(budgetLinesRoutes, { prefix: '/budget-lines' });
+  await fastify.register(auditLogRoutes, { prefix: '/audit-log' });
 }
