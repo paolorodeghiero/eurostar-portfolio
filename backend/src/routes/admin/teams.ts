@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, sql } from 'drizzle-orm';
 import { teams, departments, projects, projectTeams, statuses } from '../../db/schema.js';
 import * as XLSX from 'xlsx';
 
@@ -246,7 +246,7 @@ export async function teamsRoutes(fastify: FastifyInstance) {
         projectId: projects.projectId,
         name: projects.name,
         statusName: statuses.name,
-        role: 'lead' as const,
+        role: sql<string>`'lead'`.as('role'),
       })
       .from(projects)
       .leftJoin(statuses, eq(projects.statusId, statuses.id))
@@ -259,7 +259,7 @@ export async function teamsRoutes(fastify: FastifyInstance) {
         projectId: projects.projectId,
         name: projects.name,
         statusName: statuses.name,
-        role: 'involved' as const,
+        role: sql<string>`'involved'`.as('role'),
       })
       .from(projectTeams)
       .innerJoin(projects, eq(projectTeams.projectId, projects.id))

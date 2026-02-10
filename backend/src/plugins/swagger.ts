@@ -2,10 +2,7 @@ import fp from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
-import {
-  jsonSchemaTransform,
-  createJsonSchemaTransformObject,
-} from 'fastify-type-provider-zod';
+import { jsonSchemaTransform } from 'fastify-type-provider-zod';
 
 async function swaggerPluginHandler(fastify: FastifyInstance): Promise<void> {
   // Register @fastify/swagger for OpenAPI generation
@@ -142,82 +139,59 @@ async function swaggerPluginHandler(fastify: FastifyInstance): Promise<void> {
       tryItOutEnabled: true,
     },
     staticCSP: false,
-    transformStaticCSP: (header) => header,
     theme: {
       title: 'Eurostar Portfolio API',
-    },
-    logo: {
-      type: 'image/png',
-      content: Buffer.from(
-        await import('fs').then((fs) =>
-          fs.promises.readFile('./assets/eurostar-logo.png')
-        )
-      ).toString('base64'),
-      href: '/',
-      target: '_self',
-    },
-    uiHooks: {
-      onRequest: function (request, reply, next) {
-        next();
-      },
-      preHandler: function (request, reply, next) {
-        next();
-      },
+      css: [
+        {
+          filename: 'theme.css',
+          content: `
+            /* Eurostar teal theme */
+            .swagger-ui .topbar {
+              background-color: #086264 !important;
+            }
+            .swagger-ui .opblock-tag {
+              color: #086264 !important;
+            }
+            .swagger-ui .btn.authorize {
+              background-color: #086264 !important;
+              border-color: #086264 !important;
+            }
+            .swagger-ui .btn.authorize svg {
+              fill: #fff !important;
+            }
+            .swagger-ui .opblock .opblock-summary {
+              border-left: 3px solid #086264 !important;
+            }
+            .swagger-ui .opblock.opblock-get .opblock-summary-method {
+              background: #086264 !important;
+            }
+            .swagger-ui .opblock.opblock-post .opblock-summary-method {
+              background: #086264 !important;
+            }
+            .swagger-ui .opblock.opblock-put .opblock-summary-method {
+              background: #086264 !important;
+            }
+            .swagger-ui .opblock.opblock-delete .opblock-summary-method {
+              background: #d32f2f !important;
+            }
+            body {
+              font-family: system-ui, -apple-system, sans-serif !important;
+            }
+            .swagger-ui .info .title {
+              color: #086264 !important;
+            }
+            .swagger-ui a {
+              color: #086264 !important;
+            }
+            .swagger-ui .scheme-container {
+              background: #f5f5f5 !important;
+              box-shadow: none !important;
+            }
+          `,
+        },
+      ],
     },
     transformSpecificationClone: true,
-  });
-
-  // Inject custom CSS for Eurostar theme
-  fastify.addHook('onRequest', async (request, reply) => {
-    if (request.url.startsWith('/docs')) {
-      const customCSS = `
-        <style>
-          /* Eurostar teal theme */
-          .swagger-ui .topbar {
-            background-color: #086264 !important;
-          }
-          .swagger-ui .opblock-tag {
-            color: #086264 !important;
-          }
-          .swagger-ui .btn.authorize {
-            background-color: #086264 !important;
-            border-color: #086264 !important;
-          }
-          .swagger-ui .btn.authorize svg {
-            fill: #fff !important;
-          }
-          .swagger-ui .opblock .opblock-summary {
-            border-left: 3px solid #086264 !important;
-          }
-          .swagger-ui .opblock.opblock-get .opblock-summary-method {
-            background: #086264 !important;
-          }
-          .swagger-ui .opblock.opblock-post .opblock-summary-method {
-            background: #086264 !important;
-          }
-          .swagger-ui .opblock.opblock-put .opblock-summary-method {
-            background: #086264 !important;
-          }
-          .swagger-ui .opblock.opblock-delete .opblock-summary-method {
-            background: #d32f2f !important;
-          }
-          body {
-            font-family: system-ui, -apple-system, sans-serif !important;
-          }
-          .swagger-ui .info .title {
-            color: #086264 !important;
-          }
-          .swagger-ui a {
-            color: #086264 !important;
-          }
-          .swagger-ui .scheme-container {
-            background: #f5f5f5 !important;
-            box-shadow: none !important;
-          }
-        </style>
-      `;
-      reply.header('Content-Security-Policy', '');
-    }
   });
 }
 

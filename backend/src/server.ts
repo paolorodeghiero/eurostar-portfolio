@@ -6,6 +6,7 @@ import path from 'path';
 import { config } from './config/index.js';
 import { dbPlugin } from './plugins/db.js';
 import { authPlugin } from './plugins/auth.js';
+import { swaggerPlugin } from './plugins/swagger.js';
 import { referentialsRoutes } from './routes/admin/referentials.js';
 import { projectsRouter } from './routes/projects/index.js';
 import { actualsRouter } from './routes/actuals/index.js';
@@ -43,6 +44,9 @@ await runStartupInit();
 
 // Register authentication plugin
 await fastify.register(authPlugin);
+
+// Register Swagger plugin (after auth, before routes for route discovery)
+await fastify.register(swaggerPlugin);
 
 // Health check endpoint (skips auth)
 fastify.get('/health', async () => {
