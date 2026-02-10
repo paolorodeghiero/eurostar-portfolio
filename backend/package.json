@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx src/db/seed.ts",
+    "db:demo-data": "tsx src/db/demo-data.ts",
     "db:reset": "tsx src/db/reset.ts"
   },
   "dependencies": {
