@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 7 of 7 (Refactor and Reorganize)
 Plan: 10 of 10 (07-10)
 Status: Complete
-Last activity: 2026-02-10 - Completed quick-012: Unify status and state
+Last activity: 2026-02-10 - Completed quick-013: Refactor seed to demo-data, add startup migration
 
 Progress: [████████████████████] 98% (51/52 total plans)
-Quick tasks: 12 completed
+Quick tasks: 13 completed
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 51
 - Average duration: 8 min
-- Total execution time: 6.85 hours
-- Quick tasks: 12 completed (avg 4 min)
+- Total execution time: 6.92 hours
+- Quick tasks: 13 completed (avg 4 min)
 
 **By Phase:**
 
@@ -50,6 +50,7 @@ Quick tasks: 12 completed
 | Phase 07 P05 | 8 | 3 tasks | 3 files |
 | Phase 07 P10 | 3 | 2 tasks | 3 files |
 | Phase quick P009 | 2 | 1 tasks | 1 files |
+| Phase quick P013 | 4 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -224,6 +225,9 @@ Recent decisions affecting current work:
 - System statuses (Draft/Stopped/Completed) protected from deletion via isSystemStatus flag (quick-012)
 - Stop/Reactivate moved from project menu to status dropdown for unified UX (quick-012)
 - previousStatusId preserves status context before stop for intelligent reactivation (quick-012)
+- Demo data separated from essential seed: demo-data.ts for dev testing, seed.ts for critical referentials only (quick-013)
+- Database migrations run automatically at backend startup with fail-fast error handling (quick-013)
+- Essential seed (thresholds, counters) runs on every startup, demo data only via make db-demo-data (quick-013)
 
 ### Pending Todos
 
@@ -253,14 +257,15 @@ None currently.
 | 010 | Change Impact/Effort layout | 2026-02-09 | bd927544 | [010-change-impact-effort-layout](./quick/010-change-impact-effort-layout/) |
 | 011 | Committee effort layout | 2026-02-09 | 4f11267a | [011-committee-effort-layout](./quick/011-committee-effort-layout/) |
 | 012 | Unify status and state into unified state | 2026-02-10 | 75286b28 | [012-unify-status-and-state-into-unified-stat](./quick/012-unify-status-and-state-into-unified-stat/) |
+| 013 | Refactor seed to demo-data, add startup migration | 2026-02-10 | d2766963 | [013-refactor-seed-to-demo-data-add-startup-m](./quick/013-refactor-seed-to-demo-data-add-startup-m/) |
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed quick-012: Unify status and state
+Stopped at: Completed quick-013: Refactor seed to demo-data, add startup migration
 Resume file: None
 Next: Phase 6 (Admin GUI & Reporting) is the only remaining phase
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-10 (quick-012 complete)*
+*Last updated: 2026-02-10 (quick-013 complete)*
