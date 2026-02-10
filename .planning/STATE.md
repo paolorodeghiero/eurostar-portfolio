@@ -52,6 +52,7 @@ Quick tasks: 13 completed
 | Phase 07 P10 | 3 | 2 tasks | 3 files |
 | Phase quick P009 | 2 | 1 tasks | 1 files |
 | Phase quick P013 | 4 | 3 tasks | 6 files |
+| Phase 06 P01 | 11 | 2 tasks | 4 files |
 | Phase 06 P02 | 5 | 2 tasks | 3 files |
 | Phase 06 P03 | 8 | 3 tasks | 7 files |
 
@@ -234,6 +235,9 @@ Recent decisions affecting current work:
 - Regular views (not materialized) for Power BI DirectQuery real-time data access (06-02)
 - Reporting views created programmatically on startup for schema sync flexibility (06-02)
 - LEFT JOIN for currency conversion allows partial data display when rates missing (06-02)
+- Use @fastify/swagger with jsonSchemaTransform for automatic OpenAPI generation from Zod schemas (06-01)
+- Require EntraID authentication for /docs endpoint (consistent with security policy) (06-01)
+- Apply Eurostar teal (#086264) theme via custom CSS for Swagger UI branding (06-01)
 - Audit log endpoint supports filtering by date range, table, user, and operation (06-03)
 - Usage endpoints return project lists with relevant context for admin decision-making (06-03)
 - Bulk imports validate all rows before inserting any data (all-or-nothing pattern) (06-03)
