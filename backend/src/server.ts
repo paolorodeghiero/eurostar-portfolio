@@ -10,7 +10,7 @@ import { referentialsRoutes } from './routes/admin/referentials.js';
 import { projectsRouter } from './routes/projects/index.js';
 import { actualsRouter } from './routes/actuals/index.js';
 import { alertsPlugin } from './routes/alerts/index.js';
-import { ensureSystemStatuses } from './db/init.js';
+import { runStartupInit } from './db/init.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -38,8 +38,8 @@ await fastify.register(fastifyStatic, {
 // Register database plugin
 await fastify.register(dbPlugin);
 
-// Ensure system statuses exist (Draft, Completed, Stopped)
-await ensureSystemStatuses();
+// Run startup initialization (migrations + system data)
+await runStartupInit();
 
 // Register authentication plugin
 await fastify.register(authPlugin);

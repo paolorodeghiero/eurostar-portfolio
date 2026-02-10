@@ -1,6 +1,8 @@
+import { execSync } from 'child_process';
 import { eq } from 'drizzle-orm';
 import { db } from './index.js';
 import { statuses } from './schema.js';
+import { seedEssentialData } from './seed.js';
 
 /**
  * System statuses that must always exist.
@@ -37,4 +39,34 @@ export async function ensureSystemStatuses(): Promise<void> {
       console.log(`Updated ${status.name} to system status`);
     }
   }
+}
+
+/**
+ * Runs database migrations using drizzle-kit push.
+ * Exits process on migration failure.
+ */
+function runMigrations(): void {
+  console.log('Running database migrations...');
+  try {
+    execSync('npx drizzle-kit push --force', {
+      cwd: process.cwd(),
+      stdio: 'inherit',
+    });
+    console.log('Migrations complete.');
+  } catch (error) {
+    console.error('Migration failed:', error);
+    process.exit(1);
+  }
+}
+
+/**
+ * Complete startup initialization:
+ * 1. Run migrations (exits on failure)
+ * 2. Ensure system statuses exist
+ * 3. Seed essential referential data
+ */
+export async function runStartupInit(): Promise<void> {
+  runMigrations();
+  await ensureSystemStatuses();
+  await seedEssentialData();
 }
