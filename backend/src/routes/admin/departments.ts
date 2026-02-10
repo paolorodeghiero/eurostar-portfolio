@@ -181,20 +181,17 @@ export async function departmentsRoutes(fastify: FastifyInstance) {
       return reply.code(404).send({ error: 'Department not found' });
     }
 
-    // Find projects where lead team belongs to this department
-    const projectsList = await db
+    // Find teams that belong to this department (direct FK relation)
+    const teamsList = await db
       .select({
-        id: projects.id,
-        projectId: projects.projectId,
-        name: projects.name,
-        statusName: statuses.name,
+        id: teams.id,
+        name: teams.name,
+        description: teams.description,
       })
-      .from(projects)
-      .innerJoin(teams, eq(projects.leadTeamId, teams.id))
-      .leftJoin(statuses, eq(projects.statusId, statuses.id))
+      .from(teams)
       .where(eq(teams.departmentId, id));
 
-    return { projects: projectsList };
+    return { teams: teamsList };
   });
 
   // Delete department (blocked if in use)

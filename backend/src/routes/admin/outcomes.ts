@@ -193,19 +193,17 @@ export async function outcomesRoutes(fastify: FastifyInstance) {
       return reply.code(404).send({ error: 'Outcome not found' });
     }
 
-    // Find projects with scores for this outcome
-    const projectsList = await db
+    // Find projectValues that reference this outcome (direct FK relation)
+    const valuesList = await db
       .select({
-        id: projects.id,
-        projectId: projects.projectId,
-        name: projects.name,
+        id: projectValues.id,
+        projectId: projectValues.projectId,
         score: projectValues.score,
       })
       .from(projectValues)
-      .innerJoin(projects, eq(projectValues.projectId, projects.id))
       .where(eq(projectValues.outcomeId, id));
 
-    return { projects: projectsList };
+    return { projectValues: valuesList };
   });
 
   // Delete outcome (blocked if in use)
