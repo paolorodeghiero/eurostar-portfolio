@@ -193,23 +193,23 @@ async function swaggerPluginHandler(fastify: FastifyInstance): Promise<void> {
     },
     transformSpecificationClone: true,
     transformSpecification: (swaggerObject) => {
-      // Auto-tag routes based on URL path
+      // Auto-tag routes based on URL path (paths don't include /api prefix in spec)
       const pathTagMap: Record<string, string> = {
-        '/api/projects': 'Projects',
-        '/api/admin/departments': 'Departments',
-        '/api/admin/teams': 'Teams',
-        '/api/admin/statuses': 'Statuses',
-        '/api/admin/outcomes': 'Outcomes',
-        '/api/admin/cost-centers': 'Cost Centers',
-        '/api/admin/currency-rates': 'Currency Rates',
-        '/api/admin/committee-thresholds': 'Thresholds',
-        '/api/admin/cost-tshirt-thresholds': 'Thresholds',
-        '/api/admin/competence-month-patterns': 'Admin',
-        '/api/admin/budget-lines': 'Budget Lines',
-        '/api/admin/audit-log': 'Admin',
-        '/api/receipts': 'Actuals',
-        '/api/invoices': 'Actuals',
-        '/api/alerts': 'Alerts',
+        '/projects': 'Projects',
+        '/admin/departments': 'Departments',
+        '/admin/teams': 'Teams',
+        '/admin/statuses': 'Statuses',
+        '/admin/outcomes': 'Outcomes',
+        '/admin/cost-centers': 'Cost Centers',
+        '/admin/currency-rates': 'Currency Rates',
+        '/admin/committee-thresholds': 'Thresholds',
+        '/admin/cost-tshirt-thresholds': 'Thresholds',
+        '/admin/competence-month-patterns': 'Admin',
+        '/admin/budget-lines': 'Budget Lines',
+        '/admin/audit-log': 'Admin',
+        '/actuals/receipts': 'Actuals',
+        '/actuals/invoices': 'Actuals',
+        '/alerts': 'Alerts',
       };
 
       if (swaggerObject.paths) {
