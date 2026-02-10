@@ -12,7 +12,22 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
-import { Pencil, Trash2 } from 'lucide-react';
+import { BulkImportDialog } from '@/components/admin/BulkImportDialog';
+import { UsageDrawer } from '@/components/admin/UsageDrawer';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Pencil, Trash2, Download, Upload, Plus, Eye } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface Department {
   id: number;
@@ -29,6 +44,9 @@ export function DepartmentsPage() {
   const [formName, setFormName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [usageDrawerOpen, setUsageDrawerOpen] = useState(false);
+  const [selectedDept, setSelectedDept] = useState<Department | null>(null);
 
   const fetchDepartments = async () => {
     try {
@@ -77,14 +95,17 @@ export function DepartmentsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this department?')) return;
-
     try {
       await apiClient(`/api/admin/departments/${id}`, { method: 'DELETE' });
       fetchDepartments();
     } catch (err) {
       console.error('Failed to delete department:', err);
     }
+  };
+
+  const openUsageDrawer = (dept: Department) => {
+    setSelectedDept(dept);
+    setUsageDrawerOpen(true);
   };
 
   const openCreateDialog = () => {
@@ -99,6 +120,15 @@ export function DepartmentsPage() {
     setFormName(dept.name);
     setError(null);
     setIsDialogOpen(true);
+  };
+
+  const handleExport = () => {
+    const link = document.createElement('a');
+    link.href = `${API_URL}/api/admin/departments/export`;
+    link.download = 'departments.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const columns: ColumnDef<Department>[] = [
@@ -130,8 +160,16 @@ export function DepartmentsPage() {
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) => (
+      cell: ({ row}) => (
         <div className="flex gap-1 justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => openUsageDrawer(row.original)}
+            title="View usage"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -139,20 +177,41 @@ export function DepartmentsPage() {
           >
             <Pencil className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(row.original.id)}
-            disabled={row.original.usageCount > 0}
-            title={
-              row.original.usageCount > 0
-                ? `Cannot delete: in use by ${row.original.usageCount} team(s)`
-                : 'Delete department'
-            }
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={row.original.usageCount > 0}
+                title={
+                  row.original.usageCount > 0
+                    ? `Cannot delete: in use by ${row.original.usageCount} team(s)`
+                    : 'Delete department'
+                }
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete {row.original.name}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This department will be
+                  permanently deleted from the system.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleDelete(row.original.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       ),
     },
@@ -168,18 +227,32 @@ export function DepartmentsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Departments</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage organizational departments. Departments group teams together.
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Departments</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage organizational departments. Departments group teams together.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Department
+          </Button>
+        </div>
       </div>
 
       <DataTable
         columns={columns}
         data={departments}
-        onAdd={openCreateDialog}
-        addButtonLabel="Add Department"
         filterPlaceholder="Search departments..."
         emptyMessage="No departments found. Create your first department."
       />
@@ -226,6 +299,22 @@ export function DepartmentsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <BulkImportDialog
+        referentialType="departments"
+        expectedColumns={['name']}
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onSuccess={fetchDepartments}
+      />
+
+      <UsageDrawer
+        referentialType="departments"
+        referentialId={selectedDept?.id || 0}
+        referentialName={selectedDept?.name || ''}
+        open={usageDrawerOpen}
+        onOpenChange={setUsageDrawerOpen}
+      />
     </div>
   );
 }

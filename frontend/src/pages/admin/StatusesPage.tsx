@@ -12,7 +12,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
-import { Pencil, Trash2 } from 'lucide-react';
+import { UsageDrawer } from '@/components/admin/UsageDrawer';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Pencil, Trash2, Eye } from 'lucide-react';
 
 interface Status {
   id: number;
@@ -35,6 +47,8 @@ export function StatusesPage() {
   const [formDisplayOrder, setFormDisplayOrder] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usageDrawerOpen, setUsageDrawerOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<Status | null>(null);
 
   const fetchStatuses = async () => {
     try {
@@ -95,14 +109,17 @@ export function StatusesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this status?')) return;
-
     try {
       await apiClient(`/api/admin/statuses/${id}`, { method: 'DELETE' });
       fetchStatuses();
     } catch (err) {
       console.error('Failed to delete status:', err);
     }
+  };
+
+  const openUsageDrawer = (status: Status) => {
+    setSelectedStatus(status);
+    setUsageDrawerOpen(true);
   };
 
   const openCreateDialog = () => {
@@ -201,20 +218,49 @@ export function StatusesPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => openEditDialog(row.original)}
+              onClick={() => openUsageDrawer(row.original)}
+              title="View usage"
             >
-              <Pencil className="h-4 w-4" />
+              <Eye className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleDelete(row.original.id)}
-              disabled={cannotDelete}
-              title={deleteTooltip}
-              className="text-destructive hover:text-destructive"
+              onClick={() => openEditDialog(row.original)}
             >
-              <Trash2 className="h-4 w-4" />
+              <Pencil className="h-4 w-4" />
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={cannotDelete}
+                  title={deleteTooltip}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete {row.original.name}?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This status will be
+                    permanently deleted from the system.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => handleDelete(row.original.id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         );
       },
@@ -323,6 +369,14 @@ export function StatusesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <UsageDrawer
+        referentialType="statuses"
+        referentialId={selectedStatus?.id || 0}
+        referentialName={selectedStatus?.name || ''}
+        open={usageDrawerOpen}
+        onOpenChange={setUsageDrawerOpen}
+      />
     </div>
   );
 }
