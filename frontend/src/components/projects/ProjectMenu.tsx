@@ -18,8 +18,8 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MoreVertical, Square, RotateCcw, Trash2 } from 'lucide-react';
-import { stopProject, reactivateProject, deleteProject, type Project } from '@/lib/project-api';
+import { MoreVertical, Trash2 } from 'lucide-react';
+import { deleteProject, type Project } from '@/lib/project-api';
 
 interface ProjectMenuProps {
   project: Project;
@@ -27,23 +27,13 @@ interface ProjectMenuProps {
   onDeleted: () => void;
 }
 
-export function ProjectMenu({ project, onProjectUpdated, onDeleted }: ProjectMenuProps) {
+export function ProjectMenu({ project, onProjectUpdated: _onProjectUpdated, onDeleted }: ProjectMenuProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmName, setConfirmName] = useState('');
   const [deleting, setDeleting] = useState(false);
 
   // Placeholder - actuals count would come from API
   const hasActuals = false; // TODO: Get from project when actuals exist
-
-  const handleStop = async () => {
-    await stopProject(project.id);
-    onProjectUpdated();
-  };
-
-  const handleReactivate = async () => {
-    await reactivateProject(project.id);
-    onProjectUpdated();
-  };
 
   const handleDelete = async () => {
     if (confirmName !== project.name) return;
@@ -66,20 +56,6 @@ export function ProjectMenu({ project, onProjectUpdated, onDeleted }: ProjectMen
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {!project.isStopped && (
-            <DropdownMenuItem onClick={handleStop}>
-              <Square className="h-4 w-4 mr-2" />
-              Stop Project
-            </DropdownMenuItem>
-          )}
-
-          {project.isStopped && (
-            <DropdownMenuItem onClick={handleReactivate}>
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Reactivate
-            </DropdownMenuItem>
-          )}
-
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="w-full">

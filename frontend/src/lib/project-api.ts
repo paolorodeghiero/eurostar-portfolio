@@ -13,7 +13,7 @@ export interface Project {
   sponsor: string | null;
   description: string | null;
   businessCaseFile: string | null;
-  isStopped: boolean;
+  isStopped: boolean; // Deprecated - use status.isReadOnly instead
   opexBudget: string | null;
   capexBudget: string | null;
   budgetCurrency: string | null;
@@ -21,7 +21,13 @@ export interface Project {
   version: number;
   createdAt: string;
   updatedAt: string;
-  status?: { id: number; name: string; color: string };
+  status?: {
+    id: number;
+    name: string;
+    color: string;
+    isSystemStatus?: boolean;
+    isReadOnly?: boolean;
+  };
   leadTeam?: { id: number; name: string };
   teams?: ProjectTeam[];
   values?: ProjectValue[];

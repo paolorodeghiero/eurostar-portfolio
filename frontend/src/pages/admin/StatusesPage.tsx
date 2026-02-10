@@ -20,6 +20,8 @@ interface Status {
   color: string;
   displayOrder: number;
   usageCount: number;
+  isSystemStatus?: boolean;
+  isReadOnly?: boolean;
   createdAt: string;
 }
 
@@ -164,33 +166,54 @@ export function StatusesPage() {
       ),
     },
     {
-      id: 'actions',
-      header: '',
+      accessorKey: 'type',
+      header: 'Type',
       cell: ({ row }) => (
-        <div className="flex gap-1 justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => openEditDialog(row.original)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(row.original.id)}
-            disabled={row.original.usageCount > 0}
-            title={
-              row.original.usageCount > 0
-                ? `Cannot delete: in use by ${row.original.usageCount} project(s)`
-                : 'Delete status'
-            }
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+        <div className="flex gap-2 items-center">
+          {row.original.isSystemStatus && (
+            <Badge variant="secondary">System</Badge>
+          )}
+          {row.original.isReadOnly && (
+            <span className="text-xs text-muted-foreground">Read-only</span>
+          )}
         </div>
       ),
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => {
+        const isSystemStatus = row.original.isSystemStatus;
+        const isUsedByProjects = row.original.usageCount > 0;
+        const cannotDelete = isSystemStatus || isUsedByProjects;
+        const deleteTooltip = isSystemStatus
+          ? 'System status cannot be deleted'
+          : isUsedByProjects
+          ? `Cannot delete: in use by ${row.original.usageCount} project(s)`
+          : 'Delete status';
+
+        return (
+          <div className="flex gap-1 justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openEditDialog(row.original)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(row.original.id)}
+              disabled={cannotDelete}
+              title={deleteTooltip}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 

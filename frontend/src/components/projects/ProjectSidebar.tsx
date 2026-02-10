@@ -123,8 +123,8 @@ export function ProjectSidebar({
     setConflictState(null);
   }, [conflictState]);
 
-  // Read-only mode for stopped projects
-  const isReadOnly = project?.isStopped ?? false;
+  // Read-only mode based on status.isReadOnly (Stopped/Completed statuses)
+  const isReadOnly = project?.status?.isReadOnly ?? false;
 
   // Track currency update in progress to prevent double-clicks
   const [currencyUpdating, setCurrencyUpdating] = useState(false);
