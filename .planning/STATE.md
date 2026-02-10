@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 ## Current Position
 
 Phase: 6 of 7 (Admin GUI and Reporting)
-Plan: 4 of 7 (06-04)
+Plan: 5 of 7 (06-05)
 Status: In Progress
-Last activity: 2026-02-10 - Completed 06-04: API Documentation Link and Usage Drawer
+Last activity: 2026-02-10 - Completed 06-05: Audit Log and Usage Integration
 
 Progress: [████████████████████] 98% (54/54 total plans)
 Quick tasks: 13 completed
@@ -38,8 +38,8 @@ Quick tasks: 13 completed
 | 07 | 7 | 48m | 7m |
 
 **Recent Trend:**
-- Last 5 plans: 07-09 (4m), 07-10 (3m), 06-02 (5m), 06-03 (8m), 06-04 (1m)
-- Trend: Phase 6 in progress - API documentation link and usage drawer added
+- Last 5 plans: 07-10 (3m), 06-02 (5m), 06-03 (8m), 06-04 (1m), 06-05 (8m)
+- Trend: Phase 6 in progress - audit log and usage integration complete
 
 *Updated after each plan completion*
 | Phase 07 P01 | 15 | 2 tasks | 5 files |
@@ -56,6 +56,7 @@ Quick tasks: 13 completed
 | Phase 06 P02 | 5 | 2 tasks | 3 files |
 | Phase 06 P03 | 8 | 3 tasks | 7 files |
 | Phase 06 P04 | 1 | 2 tasks | 2 files |
+| Phase 06 P05 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -243,6 +244,12 @@ Recent decisions affecting current work:
 - Usage endpoints return project lists with relevant context for admin decision-making (06-03)
 - Bulk imports validate all rows before inserting any data (all-or-nothing pattern) (06-03)
 - Team imports use departmentName lookup for easier Excel file preparation (06-03)
+- Audit log UI positioned second in admin nav (after Overview) for visibility (06-05)
+- Relative timestamps shown alongside absolute dates using date-fns formatDistanceToNow (06-05)
+- Operation badge colors: green (INSERT), blue (UPDATE), red (DELETE) for visual clarity (06-05)
+- AlertDialog replaces native confirm() for professional delete UX with accessibility (06-05)
+- Eye icon for "View Usage" action to see referential impact before deletion (06-05)
+- System statuses protected from deletion via isSystemStatus flag (06-05)
 
 ### Pending Todos
 
@@ -277,10 +284,10 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 06-04: API Documentation Link and Usage Drawer
+Stopped at: Completed 06-05: Audit Log and Usage Integration
 Resume file: None
-Next: Phase 6 plans 05-07 remaining (Audit/Alerts UI, Reports, Integration Testing)
+Next: Phase 6 plans 06-07 remaining (Alerts UI, Reports, Integration Testing)
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-10 (06-04 complete)*
+*Last updated: 2026-02-10 (06-05 complete)*
