@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { eq, or } from 'drizzle-orm';
 import { teams, departments, projects, projectTeams, statuses } from '../../db/schema.js';
+import * as XLSX from 'xlsx';
 
 export async function teamsRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -115,6 +116,117 @@ export async function teamsRoutes(fastify: FastifyInstance) {
     }
 
     return team;
+  });
+
+  // Bulk import teams from Excel/CSV
+  fastify.post('/import', async (request, reply) => {
+    const data = await request.file();
+    if (!data) {
+      return reply.code(400).send({ error: 'No file uploaded' });
+    }
+
+    try {
+      const buffer = await data.toBuffer();
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json<{
+        name: string;
+        departmentName: string;
+        description?: string;
+      }>(sheet);
+
+      if (rows.length === 0) {
+        return reply.code(400).send({ error: 'File is empty' });
+      }
+
+      const errors: string[] = [];
+      const validRows: Array<{
+        name: string;
+        departmentId: number;
+        description?: string;
+      }> = [];
+
+      // Validate all rows first
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row.name?.trim()) {
+          errors.push(`Row ${i + 2}: Name is required`);
+          continue;
+        }
+        if (!row.departmentName?.trim()) {
+          errors.push(`Row ${i + 2}: Department name is required`);
+          continue;
+        }
+
+        // Lookup department by name
+        const [dept] = await db
+          .select()
+          .from(departments)
+          .where(eq(departments.name, row.departmentName.trim()));
+        if (!dept) {
+          errors.push(`Row ${i + 2}: Department "${row.departmentName}" not found`);
+          continue;
+        }
+
+        validRows.push({
+          name: row.name.trim(),
+          departmentId: dept.id,
+          description: row.description?.trim() || undefined,
+        });
+      }
+
+      if (errors.length > 0) {
+        return reply.code(400).send({ error: 'Validation failed', errors });
+      }
+
+      // Insert all valid rows
+      let imported = 0;
+      for (const row of validRows) {
+        await db.insert(teams).values(row);
+        imported++;
+      }
+
+      return { imported, total: rows.length };
+    } catch (error: any) {
+      return reply.code(500).send({ error: 'Import failed', message: error.message });
+    }
+  });
+
+  // Export teams as Excel
+  fastify.get('/export', async (request, reply) => {
+    const teamsList = await db
+      .select({
+        id: teams.id,
+        name: teams.name,
+        description: teams.description,
+        departmentName: departments.name,
+        createdAt: teams.createdAt,
+        updatedAt: teams.updatedAt,
+      })
+      .from(teams)
+      .leftJoin(departments, eq(teams.departmentId, departments.id));
+
+    const ws = XLSX.utils.json_to_sheet(
+      teamsList.map((t) => ({
+        id: t.id,
+        name: t.name,
+        description: t.description || '',
+        departmentName: t.departmentName,
+        createdAt: t.createdAt.toISOString(),
+        updatedAt: t.updatedAt.toISOString(),
+      }))
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Teams');
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    return reply
+      .header(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      )
+      .header('Content-Disposition', 'attachment; filename="teams.xlsx"')
+      .send(buffer);
   });
 
   // Get team usage details

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { costCenters, budgetLines, projectBudgetAllocations, projects } from '../../db/schema.js';
+import * as XLSX from 'xlsx';
 
 export async function costCentersRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -69,6 +70,96 @@ export async function costCentersRoutes(fastify: FastifyInstance) {
 
     if (!costCenter) return reply.code(404).send({ error: 'Cost center not found' });
     return costCenter;
+  });
+
+  // Bulk import cost centers from Excel/CSV
+  fastify.post('/import', async (request, reply) => {
+    const data = await request.file();
+    if (!data) {
+      return reply.code(400).send({ error: 'No file uploaded' });
+    }
+
+    try {
+      const buffer = await data.toBuffer();
+      const workbook = XLSX.read(buffer, { type: 'buffer' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json<{
+        code: string;
+        description?: string;
+      }>(sheet);
+
+      if (rows.length === 0) {
+        return reply.code(400).send({ error: 'File is empty' });
+      }
+
+      const errors: string[] = [];
+      const validRows: Array<{ code: string; description?: string }> = [];
+
+      // Validate all rows first
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row.code?.trim()) {
+          errors.push(`Row ${i + 2}: Code is required`);
+          continue;
+        }
+
+        // Check if already exists
+        const [existing] = await db
+          .select()
+          .from(costCenters)
+          .where(eq(costCenters.code, row.code.trim()));
+        if (existing) {
+          errors.push(`Row ${i + 2}: Cost center "${row.code}" already exists`);
+          continue;
+        }
+
+        validRows.push({
+          code: row.code.trim(),
+          description: row.description?.trim() || undefined,
+        });
+      }
+
+      if (errors.length > 0) {
+        return reply.code(400).send({ error: 'Validation failed', errors });
+      }
+
+      // Insert all valid rows
+      let imported = 0;
+      for (const row of validRows) {
+        await db.insert(costCenters).values(row);
+        imported++;
+      }
+
+      return { imported, total: rows.length };
+    } catch (error: any) {
+      return reply.code(500).send({ error: 'Import failed', message: error.message });
+    }
+  });
+
+  // Export cost centers as Excel
+  fastify.get('/export', async (request, reply) => {
+    const items = await db.select().from(costCenters);
+
+    const ws = XLSX.utils.json_to_sheet(
+      items.map((c) => ({
+        id: c.id,
+        code: c.code,
+        description: c.description || '',
+        createdAt: c.createdAt.toISOString(),
+        updatedAt: c.updatedAt.toISOString(),
+      }))
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Cost Centers');
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    return reply
+      .header(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      )
+      .header('Content-Disposition', 'attachment; filename="cost-centers.xlsx"')
+      .send(buffer);
   });
 
   // Get cost center usage details
