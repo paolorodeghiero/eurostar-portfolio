@@ -18,9 +18,7 @@ import {
   budgetLines,
   projectBudgetAllocations,
   receipts,
-  invoices,
   auditLog,
-  alertConfig,
 } from './schema.js';
 
 async function createDemoData() {
@@ -30,9 +28,7 @@ async function createDemoData() {
   console.log('Clearing existing data...');
   // Phase 4 governance tables first
   await db.delete(auditLog);
-  await db.delete(alertConfig);
   // Phase 3 financial tables
-  await db.delete(invoices);
   await db.delete(receipts);
   await db.delete(projectBudgetAllocations);
   await db.delete(budgetLines);
@@ -437,74 +433,6 @@ async function createDemoData() {
     },
   ]);
 
-  // Invoices
-  console.log('Creating invoices...');
-  await db.insert(invoices).values([
-    {
-      projectId: project1.id,
-      company: 'THIF',
-      invoiceNumber: 'INV-2026-001',
-      purchaseOrder: 'PO-2026-001',
-      amount: '15000.00',
-      currency: 'EUR',
-      invoiceDate: '2026-01-25',
-      description: 'Development services 01/2026',
-      competenceMonth: '2026-01',
-      competenceMonthExtracted: true,
-    },
-    {
-      projectId: project1.id,
-      company: 'THIF',
-      invoiceNumber: 'INV-2026-002',
-      purchaseOrder: 'PO-2026-002',
-      amount: '18500.00',
-      currency: 'EUR',
-      invoiceDate: '2026-02-03',
-      description: 'Ongoing development February 2026',
-      competenceMonth: '2026-02',
-      competenceMonthExtracted: true,
-    },
-    {
-      projectId: project2.id,
-      company: 'EIL',
-      invoiceNumber: 'INV-2026-003',
-      purchaseOrder: 'PO-2026-003',
-      amount: '32000.00',
-      currency: 'EUR',
-      invoiceDate: '2026-02-01',
-      description: 'Data engineering contract',
-      competenceMonth: null,
-      competenceMonthExtracted: false,
-    },
-    {
-      projectId: project3.id,
-      company: 'THIF',
-      invoiceNumber: 'INV-2026-004',
-      purchaseOrder: 'PO-2026-004',
-      amount: '75000.00',
-      currency: 'EUR',
-      invoiceDate: '2026-01-31',
-      description: 'Cloud infrastructure Q1 2026',
-      competenceMonth: '2026-01',
-      competenceMonthExtracted: true,
-    },
-  ]);
-
-  // Alert Configuration
-  console.log('Creating alert configuration...');
-  await db.insert(alertConfig).values([
-    {
-      type: 'overdue',
-      enabled: true,
-      budgetThresholdPercent: null, // Not applicable for overdue
-    },
-    {
-      type: 'budget_limit',
-      enabled: true,
-      budgetThresholdPercent: 90, // Alert at 90% budget used
-    },
-  ]);
-
   console.log('\n✅ Demo data created successfully!');
   console.log('\nCreated:');
   console.log('  - 5 departments');
@@ -523,8 +451,6 @@ async function createDemoData() {
   console.log('  - 4 budget lines');
   console.log('  - 6 budget allocations');
   console.log('  - 3 receipts');
-  console.log('  - 4 invoices');
-  console.log('  - 2 alert configurations');
 
   await pool.end();
 }
