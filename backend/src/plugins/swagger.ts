@@ -192,6 +192,48 @@ async function swaggerPluginHandler(fastify: FastifyInstance): Promise<void> {
       ],
     },
     transformSpecificationClone: true,
+    transformSpecification: (swaggerObject) => {
+      // Auto-tag routes based on URL path
+      const pathTagMap: Record<string, string> = {
+        '/api/projects': 'Projects',
+        '/api/admin/departments': 'Departments',
+        '/api/admin/teams': 'Teams',
+        '/api/admin/statuses': 'Statuses',
+        '/api/admin/outcomes': 'Outcomes',
+        '/api/admin/cost-centers': 'Cost Centers',
+        '/api/admin/currency-rates': 'Currency Rates',
+        '/api/admin/committee-thresholds': 'Thresholds',
+        '/api/admin/cost-tshirt-thresholds': 'Thresholds',
+        '/api/admin/competence-month-patterns': 'Admin',
+        '/api/admin/budget-lines': 'Budget Lines',
+        '/api/admin/audit-log': 'Admin',
+        '/api/receipts': 'Actuals',
+        '/api/invoices': 'Actuals',
+        '/api/alerts': 'Alerts',
+      };
+
+      if (swaggerObject.paths) {
+        for (const [path, methods] of Object.entries(swaggerObject.paths)) {
+          // Find matching tag based on path prefix
+          let tag = 'default';
+          for (const [prefix, tagName] of Object.entries(pathTagMap)) {
+            if (path.startsWith(prefix)) {
+              tag = tagName;
+              break;
+            }
+          }
+
+          // Apply tag to all methods in this path
+          for (const method of Object.values(methods as Record<string, any>)) {
+            if (method && typeof method === 'object' && !method.tags?.length) {
+              method.tags = [tag];
+            }
+          }
+        }
+      }
+
+      return swaggerObject;
+    },
   });
 }
 
