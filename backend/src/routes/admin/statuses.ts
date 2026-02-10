@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { statuses } from '../../db/schema.js';
+import { statuses, projects } from '../../db/schema.js';
 
 export async function statusesRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -72,6 +72,29 @@ export async function statusesRoutes(fastify: FastifyInstance) {
 
     if (!status) return reply.code(404).send({ error: 'Status not found' });
     return status;
+  });
+
+  // Get status usage details
+  fastify.get<{ Params: { id: string } }>('/:id/usage', async (request, reply) => {
+    const id = parseInt(request.params.id);
+
+    // Check if status exists
+    const [status] = await db.select().from(statuses).where(eq(statuses.id, id));
+    if (!status) {
+      return reply.code(404).send({ error: 'Status not found' });
+    }
+
+    // Find projects with this status
+    const projectsList = await db
+      .select({
+        id: projects.id,
+        projectId: projects.projectId,
+        name: projects.name,
+      })
+      .from(projects)
+      .where(eq(projects.statusId, id));
+
+    return { projects: projectsList };
   });
 
   fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {

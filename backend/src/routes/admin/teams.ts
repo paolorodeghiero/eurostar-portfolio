@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
-import { teams, departments } from '../../db/schema.js';
+import { eq, or } from 'drizzle-orm';
+import { teams, departments, projects, projectTeams, statuses } from '../../db/schema.js';
 
 export async function teamsRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -115,6 +115,49 @@ export async function teamsRoutes(fastify: FastifyInstance) {
     }
 
     return team;
+  });
+
+  // Get team usage details
+  fastify.get<{ Params: { id: string } }>('/:id/usage', async (request, reply) => {
+    const id = parseInt(request.params.id);
+
+    // Check if team exists
+    const [team] = await db.select().from(teams).where(eq(teams.id, id));
+    if (!team) {
+      return reply.code(404).send({ error: 'Team not found' });
+    }
+
+    // Find projects where team is lead
+    const leadProjects = await db
+      .select({
+        id: projects.id,
+        projectId: projects.projectId,
+        name: projects.name,
+        statusName: statuses.name,
+        role: 'lead' as const,
+      })
+      .from(projects)
+      .leftJoin(statuses, eq(projects.statusId, statuses.id))
+      .where(eq(projects.leadTeamId, id));
+
+    // Find projects where team is involved (not lead)
+    const involvedProjects = await db
+      .select({
+        id: projects.id,
+        projectId: projects.projectId,
+        name: projects.name,
+        statusName: statuses.name,
+        role: 'involved' as const,
+      })
+      .from(projectTeams)
+      .innerJoin(projects, eq(projectTeams.projectId, projects.id))
+      .leftJoin(statuses, eq(projects.statusId, statuses.id))
+      .where(eq(projectTeams.teamId, id));
+
+    // Combine results
+    const allProjects = [...leadProjects, ...involvedProjects];
+
+    return { projects: allProjects };
   });
 
   // Delete team (blocked if in use by projects)

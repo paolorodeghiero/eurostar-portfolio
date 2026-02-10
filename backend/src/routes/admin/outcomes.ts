@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { outcomes } from '../../db/schema.js';
+import { outcomes, projectValues, projects } from '../../db/schema.js';
 
 export async function outcomesRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -78,6 +78,31 @@ export async function outcomesRoutes(fastify: FastifyInstance) {
 
     if (!outcome) return reply.code(404).send({ error: 'Outcome not found' });
     return outcome;
+  });
+
+  // Get outcome usage details
+  fastify.get<{ Params: { id: string } }>('/:id/usage', async (request, reply) => {
+    const id = parseInt(request.params.id);
+
+    // Check if outcome exists
+    const [outcome] = await db.select().from(outcomes).where(eq(outcomes.id, id));
+    if (!outcome) {
+      return reply.code(404).send({ error: 'Outcome not found' });
+    }
+
+    // Find projects with scores for this outcome
+    const projectsList = await db
+      .select({
+        id: projects.id,
+        projectId: projects.projectId,
+        name: projects.name,
+        score: projectValues.score,
+      })
+      .from(projectValues)
+      .innerJoin(projects, eq(projectValues.projectId, projects.id))
+      .where(eq(projectValues.outcomeId, id));
+
+    return { projects: projectsList };
   });
 
   // Delete outcome (blocked if in use)

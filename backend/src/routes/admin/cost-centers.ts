@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { costCenters } from '../../db/schema.js';
+import { costCenters, budgetLines, projectBudgetAllocations, projects } from '../../db/schema.js';
 
 export async function costCentersRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
@@ -69,6 +69,72 @@ export async function costCentersRoutes(fastify: FastifyInstance) {
 
     if (!costCenter) return reply.code(404).send({ error: 'Cost center not found' });
     return costCenter;
+  });
+
+  // Get cost center usage details
+  fastify.get<{ Params: { id: string } }>('/:id/usage', async (request, reply) => {
+    const id = parseInt(request.params.id);
+
+    // Check if cost center exists
+    const [costCenter] = await db.select().from(costCenters).where(eq(costCenters.id, id));
+    if (!costCenter) {
+      return reply.code(404).send({ error: 'Cost center not found' });
+    }
+
+    // Find budget lines using this cost center
+    const budgetLinesList = await db
+      .select({
+        id: budgetLines.id,
+        company: budgetLines.company,
+        lineValue: budgetLines.lineValue,
+        lineAmount: budgetLines.lineAmount,
+        currency: budgetLines.currency,
+        type: budgetLines.type,
+        fiscalYear: budgetLines.fiscalYear,
+      })
+      .from(budgetLines)
+      .where(eq(budgetLines.costCenterId, id));
+
+    // Find projects that have allocations from these budget lines
+    const budgetLineIds = budgetLinesList.map((bl) => bl.id);
+    let projectsList: Array<{ id: number; projectId: string; name: string }> = [];
+
+    if (budgetLineIds.length > 0) {
+      projectsList = await db
+        .select({
+          id: projects.id,
+          projectId: projects.projectId,
+          name: projects.name,
+        })
+        .from(projectBudgetAllocations)
+        .innerJoin(projects, eq(projectBudgetAllocations.projectId, projects.id))
+        .where(eq(projectBudgetAllocations.budgetLineId, budgetLineIds[0])); // Simplified - would need OR for multiple
+
+      // For multiple budget lines, do additional queries
+      for (let i = 1; i < budgetLineIds.length; i++) {
+        const moreProjects = await db
+          .select({
+            id: projects.id,
+            projectId: projects.projectId,
+            name: projects.name,
+          })
+          .from(projectBudgetAllocations)
+          .innerJoin(projects, eq(projectBudgetAllocations.projectId, projects.id))
+          .where(eq(projectBudgetAllocations.budgetLineId, budgetLineIds[i]));
+
+        // Deduplicate by project id
+        for (const proj of moreProjects) {
+          if (!projectsList.some((p) => p.id === proj.id)) {
+            projectsList.push(proj);
+          }
+        }
+      }
+    }
+
+    return {
+      budgetLines: budgetLinesList,
+      projects: projectsList,
+    };
   });
 
   // Delete cost center (blocked if in use)
