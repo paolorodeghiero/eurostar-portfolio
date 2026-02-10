@@ -5,6 +5,7 @@ import { DevAuthProvider, useDevAuth } from './components/DevAuthProvider';
 import { LoginButton } from './components/LoginButton';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { ReferentialList } from './pages/admin/ReferentialList';
+import { AuditLogPage } from './pages/admin/AuditLogPage';
 import { DepartmentsPage } from './pages/admin/DepartmentsPage';
 import { TeamsPage } from './pages/admin/TeamsPage';
 import { StatusesPage } from './pages/admin/StatusesPage';
@@ -28,6 +29,7 @@ function AppRoutes() {
       {/* Admin routes for referential data management */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<ReferentialList />} />
+        <Route path="audit-log" element={<AuditLogPage />} />
         <Route path="departments" element={<DepartmentsPage />} />
         <Route path="teams" element={<TeamsPage />} />
         <Route path="statuses" element={<StatusesPage />} />

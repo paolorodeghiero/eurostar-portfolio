@@ -13,10 +13,12 @@ import {
   Calendar,
   LayoutGrid,
   CreditCard,
+  History,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: LayoutGrid, exact: true },
+  { href: '/admin/audit-log', label: 'Audit Log', icon: History },
   { href: '/admin/departments', label: 'Departments', icon: Building2 },
   { href: '/admin/teams', label: 'Teams', icon: Users },
   { href: '/admin/statuses', label: 'Statuses', icon: Flag },
