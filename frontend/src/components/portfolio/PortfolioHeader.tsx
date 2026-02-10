@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAccount } from '@azure/msal-react';
-import { Upload, Settings } from 'lucide-react';
+import { Upload, Settings, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertsDropdown } from '@/components/AlertsDropdown';
 import { useDevAuth } from '@/components/DevAuthProvider';
@@ -71,6 +71,17 @@ export function PortfolioHeader({ onUploadActuals, onAlertClick }: PortfolioHead
               Upload Actuals
             </Button>
           )}
+
+          {/* API Documentation link */}
+          <a
+            href="/docs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-white/90 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <FileJson className="h-4 w-4" />
+            API
+          </a>
 
           {/* Alerts dropdown */}
           <div className="text-white [&_button]:text-white [&_button]:hover:bg-white/10">
