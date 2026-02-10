@@ -170,11 +170,15 @@ export function StatusesPage() {
       header: 'Type',
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
-          {row.original.isSystemStatus && (
-            <Badge variant="secondary">System</Badge>
-          )}
-          {row.original.isReadOnly && (
-            <span className="text-xs text-muted-foreground">Read-only</span>
+          {row.original.isSystemStatus ? (
+            <>
+              <Badge variant="default" className="bg-blue-600">System</Badge>
+              {row.original.isReadOnly && (
+                <span className="text-xs text-muted-foreground">(read-only)</span>
+              )}
+            </>
+          ) : (
+            <span className="text-muted-foreground text-sm">Custom</span>
           )}
         </div>
       ),
