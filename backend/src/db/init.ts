@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { db } from './index.js';
 import { statuses } from './schema.js';
 import { seedEssentialData } from './seed.js';
+import { createReportingViews } from './reporting-views.js';
 
 /**
  * System statuses that must always exist.
@@ -64,9 +65,20 @@ function runMigrations(): void {
  * 1. Run migrations (exits on failure)
  * 2. Ensure system statuses exist
  * 3. Seed essential referential data
+ * 4. Create/update reporting views
  */
 export async function runStartupInit(): Promise<void> {
   runMigrations();
   await ensureSystemStatuses();
   await seedEssentialData();
+
+  // Create/update reporting views
+  console.log('Creating/updating reporting views...');
+  try {
+    await createReportingViews(db);
+    console.log('Reporting views created/updated successfully.');
+  } catch (error) {
+    console.error('Failed to create reporting views:', error);
+    throw error;
+  }
 }

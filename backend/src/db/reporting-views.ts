@@ -6,7 +6,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
  * Called on app startup to ensure views stay in sync with schema changes.
  * Uses CREATE OR REPLACE VIEW for idempotency.
  */
-export async function createReportingViews(db: NodePgDatabase): Promise<void> {
+export async function createReportingViews(db: NodePgDatabase<any>): Promise<void> {
   // Create reporting schema
   await db.execute(sql`CREATE SCHEMA IF NOT EXISTS reporting`);
 
