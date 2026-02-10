@@ -12,7 +12,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
-import { Pencil, Trash2 } from 'lucide-react';
+import { BulkImportDialog } from '@/components/admin/BulkImportDialog';
+import { Pencil, Trash2, Download, Upload, Plus } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface CostCenter {
   id: number;
@@ -31,6 +34,7 @@ export function CostCentersPage() {
   const [formDescription, setFormDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const fetchCostCenters = async () => {
     try {
@@ -114,6 +118,15 @@ export function CostCentersPage() {
     setIsDialogOpen(true);
   };
 
+  const handleExport = () => {
+    const link = document.createElement('a');
+    link.href = `${API_URL}/api/admin/cost-centers/export`;
+    link.download = 'cost-centers.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const columns: ColumnDef<CostCenter>[] = [
     {
       accessorKey: 'code',
@@ -183,18 +196,32 @@ export function CostCentersPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Cost Centers</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage accounting cost center codes for project budget allocation.
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Cost Centers</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage accounting cost center codes for project budget allocation.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Cost Center
+          </Button>
+        </div>
       </div>
 
       <DataTable
         columns={columns}
         data={costCenters}
-        onAdd={openCreateDialog}
-        addButtonLabel="Add Cost Center"
         filterPlaceholder="Search cost centers..."
         emptyMessage="No cost centers found. Create your first cost center."
       />
@@ -255,6 +282,14 @@ export function CostCentersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <BulkImportDialog
+        referentialType="cost-centers"
+        expectedColumns={['code', 'description']}
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onSuccess={fetchCostCenters}
+      />
     </div>
   );
 }
