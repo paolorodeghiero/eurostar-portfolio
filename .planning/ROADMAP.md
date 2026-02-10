@@ -158,12 +158,16 @@ Plans:
   5. Power BI can connect via DirectQuery to reporting schema
   6. OpenAPI/Swagger documentation is available showing all endpoints with examples and error responses
   7. All API endpoints require EntraID token authentication matching frontend
-**Plans**: TBD
+**Plans**: 7 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
-- [ ] 06-03: TBD
+- [ ] 06-01-PLAN.md - Swagger/OpenAPI setup with Eurostar branding and EntraID auth
+- [ ] 06-02-PLAN.md - PostgreSQL reporting views (dim_*, fact_*) for Power BI
+- [ ] 06-03-PLAN.md - Admin backend: audit log endpoint, usage endpoints, bulk import/export
+- [ ] 06-04-PLAN.md - Frontend: API link in navbar, UsageDrawer component
+- [ ] 06-05-PLAN.md - AuditLogPage, AlertDialog confirmations, UsageDrawer integration
+- [ ] 06-06-PLAN.md - Bulk import/export UI for admin referential pages
+- [ ] 06-07-PLAN.md - Integration verification and phase completion
 
 ### Phase 7: Refactor and Reorganize Information Between Main Table and Sidebar
 **Goal**: Refactor portfolio table with new visualizations (radar charts, expandable rows, column pinning) and reorganize sidebar tabs (merge People into General, rename Teams to Effort, add Description field, fix currency model)
