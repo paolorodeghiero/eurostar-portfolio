@@ -24,7 +24,7 @@ async function checkIfDevMode(): Promise<boolean> {
   return false;
 }
 
-async function getAccessToken(): Promise<string | null> {
+export async function getAccessToken(): Promise<string | null> {
   // Check if we're in dev mode first
   const devMode = await checkIfDevMode();
   if (devMode) {
