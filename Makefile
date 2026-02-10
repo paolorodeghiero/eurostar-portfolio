@@ -12,12 +12,13 @@ help:
 	@echo "  make db-demo-data - Load demo data (departments, projects, etc.)"
 	@echo "  make db-fresh     - Full reset: push schema + truncate + demo data"
 
-# Start both backend and frontend dev servers concurrently
+# Start both backend and frontend dev servers concurrently with labeled output
 dev:
-	@echo "Starting backend and frontend dev servers..."
-	@trap 'kill 0' EXIT; \
-	cd backend && npm run dev & \
-	cd frontend && npm run dev
+	@npx concurrently --kill-others \
+		--names "BE,FE" \
+		--prefix-colors "blue,green" \
+		"cd backend && npm run dev" \
+		"cd frontend && npm run dev"
 
 # Truncate all tables (empty database)
 db-reset:
