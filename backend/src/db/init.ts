@@ -49,7 +49,7 @@ export async function ensureSystemStatuses(): Promise<void> {
 function runMigrations(): void {
   console.log('Running database migrations...');
   try {
-    execSync('npx drizzle-kit push --force', {
+    execSync('npx drizzle-kit push --force --accept-data-loss', {
       cwd: process.cwd(),
       stdio: 'inherit',
     });
