@@ -9,10 +9,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
-import { Pencil, Trash2 } from 'lucide-react';
+import { BulkImportDialog } from '@/components/admin/BulkImportDialog';
+import { UsageDrawer } from '@/components/admin/UsageDrawer';
+import { Pencil, Trash2, Download, Upload, Plus, Eye } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface Department {
   id: number;
@@ -40,6 +55,9 @@ export function TeamsPage() {
   const [formDepartmentId, setFormDepartmentId] = useState<number | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [usageDrawerOpen, setUsageDrawerOpen] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   const fetchTeams = async () => {
     try {
@@ -110,8 +128,6 @@ export function TeamsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this team?')) return;
-
     try {
       await apiClient(`/api/admin/teams/${id}`, { method: 'DELETE' });
       fetchTeams();
@@ -134,6 +150,20 @@ export function TeamsPage() {
     setFormDepartmentId(team.departmentId);
     setError(null);
     setIsDialogOpen(true);
+  };
+
+  const openUsageDrawer = (team: Team) => {
+    setSelectedTeam(team);
+    setUsageDrawerOpen(true);
+  };
+
+  const handleExport = () => {
+    const link = document.createElement('a');
+    link.href = `${API_URL}/api/admin/teams/export`;
+    link.download = 'teams.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const columns: ColumnDef<Team>[] = [
@@ -177,24 +207,53 @@ export function TeamsPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => openEditDialog(row.original)}
+            onClick={() => openUsageDrawer(row.original)}
+            title="View usage"
           >
-            <Pencil className="h-4 w-4" />
+            <Eye className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleDelete(row.original.id)}
-            disabled={row.original.usageCount > 0}
-            title={
-              row.original.usageCount > 0
-                ? `Cannot delete: in use by ${row.original.usageCount} project(s)`
-                : 'Delete team'
-            }
-            className="text-destructive hover:text-destructive"
+            onClick={() => openEditDialog(row.original)}
           >
-            <Trash2 className="h-4 w-4" />
+            <Pencil className="h-4 w-4" />
           </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={row.original.usageCount > 0}
+                title={
+                  row.original.usageCount > 0
+                    ? `Cannot delete: in use by ${row.original.usageCount} project(s)`
+                    : 'Delete team'
+                }
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete {row.original.name}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This team will be permanently
+                  deleted from the system.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleDelete(row.original.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       ),
     },
@@ -210,18 +269,32 @@ export function TeamsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage teams within departments. Teams are assigned to projects.
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage teams within departments. Teams are assigned to projects.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Team
+          </Button>
+        </div>
       </div>
 
       <DataTable
         columns={columns}
         data={teams}
-        onAdd={openCreateDialog}
-        addButtonLabel="Add Team"
         filterPlaceholder="Search teams..."
         emptyMessage="No teams found. Create your first team."
       />
@@ -307,6 +380,22 @@ export function TeamsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <BulkImportDialog
+        referentialType="teams"
+        expectedColumns={['name', 'departmentName', 'description']}
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onSuccess={fetchTeams}
+      />
+
+      <UsageDrawer
+        referentialType="teams"
+        referentialId={selectedTeam?.id || 0}
+        referentialName={selectedTeam?.name || ''}
+        open={usageDrawerOpen}
+        onOpenChange={setUsageDrawerOpen}
+      />
     </div>
   );
 }
