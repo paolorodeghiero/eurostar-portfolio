@@ -91,12 +91,13 @@ async function seed() {
   // Statuses
   console.log('Creating statuses...');
   await db.insert(statuses).values([
-    { name: 'Draft', color: '#9CA3AF', displayOrder: 1 },
-    { name: 'Ready', color: '#3B82F6', displayOrder: 2 },
-    { name: 'In Progress', color: '#F59E0B', displayOrder: 3 },
-    { name: 'On Hold', color: '#EF4444', displayOrder: 4 },
-    { name: 'Completed', color: '#10B981', displayOrder: 5 },
-    { name: 'Cancelled', color: '#6B7280', displayOrder: 6 },
+    { name: 'Draft', color: '#9CA3AF', displayOrder: 1, isSystemStatus: true, isReadOnly: false },
+    { name: 'Ready', color: '#3B82F6', displayOrder: 2, isSystemStatus: false, isReadOnly: false },
+    { name: 'In Progress', color: '#F59E0B', displayOrder: 3, isSystemStatus: false, isReadOnly: false },
+    { name: 'On Hold', color: '#EF4444', displayOrder: 4, isSystemStatus: false, isReadOnly: false },
+    { name: 'Completed', color: '#10B981', displayOrder: 5, isSystemStatus: true, isReadOnly: true },
+    { name: 'Cancelled', color: '#6B7280', displayOrder: 6, isSystemStatus: false, isReadOnly: false },
+    { name: 'Stopped', color: '#DC2626', displayOrder: 7, isSystemStatus: true, isReadOnly: true },
   ]);
 
   // Outcomes (company strategic objectives)
@@ -508,7 +509,7 @@ async function seed() {
   console.log('\nCreated:');
   console.log('  - 5 departments');
   console.log('  - 12 teams');
-  console.log('  - 6 statuses');
+  console.log('  - 7 statuses');
   console.log('  - 6 outcomes');
   console.log('  - 9 cost centers');
   console.log('  - 14 currency rates (2020-2026)');

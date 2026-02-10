@@ -7,14 +7,25 @@ export async function statusesRoutes(fastify: FastifyInstance) {
 
   fastify.get('/', async () => {
     const list = await db.select().from(statuses).orderBy(statuses.displayOrder);
-    return list.map((s) => ({ ...s, usageCount: 0 }));
+    return list.map((s) => ({
+      ...s,
+      usageCount: 0,
+      isSystemStatus: s.isSystemStatus,
+      isReadOnly: s.isReadOnly,
+    }));
   });
 
   fastify.get<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
     const [status] = await db.select().from(statuses).where(eq(statuses.id, id));
     if (!status) return reply.code(404).send({ error: 'Status not found' });
-    return { ...status, usageCount: 0, usedBy: [] };
+    return {
+      ...status,
+      usageCount: 0,
+      usedBy: [],
+      isSystemStatus: status.isSystemStatus,
+      isReadOnly: status.isReadOnly,
+    };
   });
 
   fastify.post<{
@@ -26,9 +37,16 @@ export async function statusesRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ error: 'Color must be valid hex (e.g., #FF5733)' });
     }
 
+    // isSystemStatus is server-controlled, always false for new statuses created via API
     const [status] = await db
       .insert(statuses)
-      .values({ name: name.trim(), color, displayOrder: displayOrder || 0 })
+      .values({
+        name: name.trim(),
+        color,
+        displayOrder: displayOrder || 0,
+        isSystemStatus: false,
+        isReadOnly: false,
+      })
       .returning();
     return reply.code(201).send(status);
   });
@@ -44,6 +62,7 @@ export async function statusesRoutes(fastify: FastifyInstance) {
     if (name?.trim()) updates.name = name.trim();
     if (color?.match(/^#[0-9A-Fa-f]{6}$/)) updates.color = color;
     if (displayOrder !== undefined) updates.displayOrder = displayOrder;
+    // Note: isSystemStatus and isReadOnly are server-controlled and cannot be changed via API
 
     const [status] = await db
       .update(statuses)
@@ -57,6 +76,18 @@ export async function statusesRoutes(fastify: FastifyInstance) {
 
   fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
+
+    // Check if it's a system status
+    const [status] = await db.select().from(statuses).where(eq(statuses.id, id));
+    if (!status) return reply.code(404).send({ error: 'Status not found' });
+
+    if (status.isSystemStatus) {
+      return reply.code(400).send({
+        error: 'Cannot delete system status',
+        message: 'System statuses (Draft, Stopped, Completed) cannot be deleted',
+      });
+    }
+
     const usageCount = 0; // Placeholder
 
     if (usageCount > 0) {
@@ -68,7 +99,6 @@ export async function statusesRoutes(fastify: FastifyInstance) {
     }
 
     const [deleted] = await db.delete(statuses).where(eq(statuses.id, id)).returning();
-    if (!deleted) return reply.code(404).send({ error: 'Status not found' });
     return { success: true, deleted };
   });
 }

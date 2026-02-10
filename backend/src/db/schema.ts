@@ -37,6 +37,8 @@ export const statuses = pgTable('statuses', {
   name: varchar('name', { length: 100 }).notNull().unique(),
   color: varchar('color', { length: 7 }).notNull(), // Hex color code
   displayOrder: integer('display_order').notNull(),
+  isSystemStatus: boolean('is_system_status').notNull().default(false), // Draft/Stopped/Completed are system statuses
+  isReadOnly: boolean('is_read_only').notNull().default(false), // Stopped/Completed make project read-only
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -127,7 +129,8 @@ export const projects = pgTable('projects', {
   isOwner: varchar('is_owner', { length: 255 }),
   sponsor: varchar('sponsor', { length: 255 }),
   description: text('description'),
-  isStopped: boolean('is_stopped').notNull().default(false),
+  isStopped: boolean('is_stopped').notNull().default(false), // Deprecated - use status.isReadOnly instead
+  previousStatusId: integer('previous_status_id').references(() => statuses.id, { onDelete: 'set null' }), // For stop/reactivate workflow
   opexBudget: numeric('opex_budget', { precision: 15, scale: 2 }),
   capexBudget: numeric('capex_budget', { precision: 15, scale: 2 }),
   budgetCurrency: varchar('budget_currency', { length: 3 }), // ISO 4217

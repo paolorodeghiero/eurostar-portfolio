@@ -57,6 +57,13 @@
       "when": 1770393714461,
       "tag": "0007_yellow_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1770749453056,
+      "tag": "0008_fearless_juggernaut",
+      "breakpoints": true
     }
   ]
 }

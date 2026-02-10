@@ -99,6 +99,8 @@ export async function projectRoutes(fastify: FastifyInstance) {
         statusId: projects.statusId,
         statusName: statuses.name,
         statusColor: statuses.color,
+        statusIsReadOnly: statuses.isReadOnly,
+        statusIsSystemStatus: statuses.isSystemStatus,
         startDate: projects.startDate,
         endDate: projects.endDate,
         leadTeamId: projects.leadTeamId,
@@ -272,7 +274,13 @@ export async function projectRoutes(fastify: FastifyInstance) {
       return {
         ...p,
         status: p.statusId
-          ? { id: p.statusId, name: p.statusName, color: p.statusColor }
+          ? {
+              id: p.statusId,
+              name: p.statusName,
+              color: p.statusColor,
+              isReadOnly: p.statusIsReadOnly,
+              isSystemStatus: p.statusIsSystemStatus,
+            }
           : null,
         leadTeam: { id: p.leadTeamId, name: p.leadTeamName },
         teams: pTeams.map((t) => ({
@@ -314,6 +322,8 @@ export async function projectRoutes(fastify: FastifyInstance) {
         statusId: projects.statusId,
         statusName: statuses.name,
         statusColor: statuses.color,
+        statusIsReadOnly: statuses.isReadOnly,
+        statusIsSystemStatus: statuses.isSystemStatus,
         startDate: projects.startDate,
         endDate: projects.endDate,
         leadTeamId: projects.leadTeamId,
@@ -398,7 +408,13 @@ export async function projectRoutes(fastify: FastifyInstance) {
       projectId: project.projectId,
       name: project.name,
       status: project.statusId
-        ? { id: project.statusId, name: project.statusName, color: project.statusColor }
+        ? {
+            id: project.statusId,
+            name: project.statusName,
+            color: project.statusColor,
+            isReadOnly: project.statusIsReadOnly,
+            isSystemStatus: project.statusIsSystemStatus,
+          }
         : null,
       startDate: project.startDate,
       endDate: project.endDate,
@@ -498,6 +514,21 @@ export async function projectRoutes(fastify: FastifyInstance) {
         expectedVersion,
         currentData: current,
       });
+    }
+
+    // Check if current status is read-only (prevents updates to stopped/completed projects)
+    if (current.statusId) {
+      const [currentStatus] = await db
+        .select()
+        .from(statuses)
+        .where(eq(statuses.id, current.statusId));
+
+      if (currentStatus?.isReadOnly) {
+        return reply.code(403).send({
+          error: 'Cannot update project',
+          message: `Project is ${currentStatus.name} and cannot be modified. Use status change to modify.`,
+        });
+      }
     }
 
     // Validate leadTeamId if provided
@@ -625,11 +656,23 @@ export async function projectRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ error: 'Project is already stopped' });
     }
 
-    // Stop project and increment version
+    // Find Stopped status
+    const [stoppedStatus] = await db
+      .select()
+      .from(statuses)
+      .where(eq(statuses.name, 'Stopped'));
+
+    if (!stoppedStatus) {
+      return reply.code(500).send({ error: 'Stopped status not found in database' });
+    }
+
+    // Save current status and transition to Stopped
     const [updated] = await db
       .update(projects)
       .set({
-        isStopped: true,
+        previousStatusId: current.statusId,
+        statusId: stoppedStatus.id,
+        isStopped: true, // Keep for backward compatibility
         version: current.version + 1,
         updatedAt: new Date(),
         updatedBy: userEmail,
@@ -659,11 +702,23 @@ export async function projectRoutes(fastify: FastifyInstance) {
       return reply.code(400).send({ error: 'Project is not stopped' });
     }
 
+    // Restore previous status or default to Draft if none
+    let targetStatusId = current.previousStatusId;
+    if (!targetStatusId) {
+      const [draftStatus] = await db
+        .select()
+        .from(statuses)
+        .where(eq(statuses.name, 'Draft'));
+      targetStatusId = draftStatus?.id || null;
+    }
+
     // Reactivate project and increment version
     const [updated] = await db
       .update(projects)
       .set({
-        isStopped: false,
+        statusId: targetStatusId,
+        previousStatusId: null,
+        isStopped: false, // Keep for backward compatibility
         version: current.version + 1,
         updatedAt: new Date(),
         updatedBy: userEmail,
