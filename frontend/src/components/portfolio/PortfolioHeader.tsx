@@ -83,11 +83,6 @@ export function PortfolioHeader({ onUploadActuals, onAlertClick }: PortfolioHead
             API
           </a>
 
-          {/* Alerts dropdown */}
-          <div className="text-white [&_button]:text-white [&_button]:hover:bg-white/10">
-            <AlertsDropdown onAlertClick={onAlertClick} />
-          </div>
-
           {/* Admin link */}
           <Link
             to="/admin"
@@ -101,6 +96,11 @@ export function PortfolioHeader({ onUploadActuals, onAlertClick }: PortfolioHead
             Admin
           </Link>
 
+          {/* Alerts dropdown - next to user */}
+          <div className="text-white [&_button]:text-white [&_button]:hover:bg-white/10">
+            <AlertsDropdown onAlertClick={onAlertClick} />
+          </div>
+
           {/* User identity */}
           <div className="flex items-center gap-2 ml-2 pl-3 border-l border-white/20">
             {/* Initials circle */}
@@ -108,7 +108,7 @@ export function PortfolioHeader({ onUploadActuals, onAlertClick }: PortfolioHead
               {initials}
             </div>
             {/* Name */}
-            <span className="text-white text-sm hidden sm:block max-w-[120px] truncate">
+            <span className="text-white text-sm hidden sm:block max-w-[160px] truncate">
               {userName || userEmail || 'User'}
             </span>
             {/* Dev mode indicator */}
