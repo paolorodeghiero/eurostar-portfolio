@@ -15,7 +15,7 @@ Status: In Progress
 Last activity: 2026-02-10 - Completed 06-06: Bulk Import/Export for Admin Referential Data
 
 Progress: [████████████████████] 98% (55/55 total plans)
-Quick tasks: 13 completed
+Quick tasks: 14 completed
 
 ## Performance Metrics
 
@@ -23,7 +23,7 @@ Quick tasks: 13 completed
 - Total plans completed: 55
 - Average duration: 8 min
 - Total execution time: 7.3 hours
-- Quick tasks: 13 completed (avg 4 min)
+- Quick tasks: 14 completed (avg 5 min)
 
 **By Phase:**
 
@@ -42,6 +42,7 @@ Quick tasks: 13 completed
 - Trend: Phase 6 in progress - bulk import/export for admin data complete
 
 *Updated after each plan completion*
+| Phase quick P014 | 8 | 3 tasks | 12 files |
 | Phase 07 P01 | 15 | 2 tasks | 5 files |
 | Phase 07 P04 | 4 | 2 tasks | 2 files |
 | Phase 07 P07 | 5 | 2 tasks | 3 files |
@@ -251,6 +252,7 @@ Recent decisions affecting current work:
 - AlertDialog replaces native confirm() for professional delete UX with accessibility (06-05)
 - Eye icon for "View Usage" action to see referential impact before deletion (06-05)
 - System statuses protected from deletion via isSystemStatus flag (06-05)
+- Committee thresholds refactored to EUR-only with limit-based structure (level + maxAmount) for consistency with cost t-shirt thresholds (quick-014)
 
 ### Pending Todos
 
@@ -281,11 +283,12 @@ None currently.
 | 011 | Committee effort layout | 2026-02-09 | 4f11267a | [011-committee-effort-layout](./quick/011-committee-effort-layout/) |
 | 012 | Unify status and state into unified state | 2026-02-10 | 75286b28 | [012-unify-status-and-state-into-unified-stat](./quick/012-unify-status-and-state-into-unified-stat/) |
 | 013 | Refactor seed to demo-data, add startup migration | 2026-02-10 | d2766963 | [013-refactor-seed-to-demo-data-add-startup-m](./quick/013-refactor-seed-to-demo-data-add-startup-m/) |
+| 014 | Refactor committee threshold to euro-only limits | 2026-02-15 | f6ea290b | [014-refactor-committee-threshold-to-euro-onl](./quick/014-refactor-committee-threshold-to-euro-onl/) |
 
 ## Session Continuity
 
-Last session: 2026-02-10
-Stopped at: Completed 06-06: Bulk Import/Export for Admin Referential Data
+Last session: 2026-02-15
+Stopped at: Completed quick-014: Refactor Committee Threshold to EUR-Only Limits
 Resume file: None
 Next: Phase 6 plan 07 remaining (Integration Testing)
 
