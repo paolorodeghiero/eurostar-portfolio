@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Financial Tracking** - Budget lines, actuals import, and financial calculations
 - [x] **Phase 4: Governance & Workflow** - Engagement Committee workflow and audit trail
 - [x] **Phase 5: Portfolio GUI** - Main user interface for portfolio operations
-- [ ] **Phase 6: Admin GUI & Reporting** - Admin interface, Power BI integration, and API documentation
+- [x] **Phase 6: Admin GUI & Reporting** - Admin interface, Power BI integration, and API documentation
 - [x] **Phase 7: Refactor & Reorganize** - Table redesign, sidebar reorganization, currency model fix
 
 ## Phase Details
@@ -161,13 +161,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 06-01-PLAN.md - Swagger/OpenAPI setup with Eurostar branding and EntraID auth
-- [ ] 06-02-PLAN.md - PostgreSQL reporting views (dim_*, fact_*) for Power BI
-- [ ] 06-03-PLAN.md - Admin backend: audit log endpoint, usage endpoints, bulk import/export
-- [ ] 06-04-PLAN.md - Frontend: API link in navbar, UsageDrawer component
-- [ ] 06-05-PLAN.md - AuditLogPage, AlertDialog confirmations, UsageDrawer integration
-- [ ] 06-06-PLAN.md - Bulk import/export UI for admin referential pages
-- [ ] 06-07-PLAN.md - Integration verification and phase completion
+- [x] 06-01-PLAN.md - Swagger/OpenAPI setup with Eurostar branding and EntraID auth
+- [x] 06-02-PLAN.md - PostgreSQL reporting views (dim_*, fact_*) for Power BI
+- [x] 06-03-PLAN.md - Admin backend: audit log endpoint, usage endpoints, bulk import/export
+- [x] 06-04-PLAN.md - Frontend: API link in navbar, UsageDrawer component
+- [x] 06-05-PLAN.md - AuditLogPage, AlertDialog confirmations, UsageDrawer integration
+- [x] 06-06-PLAN.md - Bulk import/export UI for admin referential pages
+- [x] 06-07-PLAN.md - Integration verification and phase completion
 
 ### Phase 7: Refactor and Reorganize Information Between Main Table and Sidebar
 **Goal**: Refactor portfolio table with new visualizations (radar charts, expandable rows, column pinning) and reorganize sidebar tabs (merge People into General, rename Teams to Effort, add Description field, fix currency model)
@@ -210,7 +210,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 3. Financial Tracking | 8/8 | Complete | 2026-02-06 |
 | 4. Governance & Workflow | 10/10 | Complete | 2026-02-09 |
 | 5. Portfolio GUI | 6/6 | Complete | 2026-02-09 |
-| 6. Admin GUI & Reporting | 0/TBD | Not started | - |
+| 6. Admin GUI & Reporting | 7/7 | Complete | 2026-02-15 |
 | 7. Refactor & Reorganize | 10/10 | Complete | 2026-02-09 |
 
 ---
