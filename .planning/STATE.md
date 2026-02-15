@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 6 of 7 (Admin GUI and Reporting)
 Plan: 6 of 7 (06-06)
 Status: In Progress
-Last activity: 2026-02-15 - Completed quick-014: Refactor committee threshold to EUR-only limits
+Last activity: 2026-02-15 - Completed quick-015: Refactor committee threshold model with levels
 
 Progress: [████████████████████] 98% (55/55 total plans)
-Quick tasks: 14 completed
+Quick tasks: 15 completed
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 55
 - Average duration: 8 min
-- Total execution time: 7.3 hours
-- Quick tasks: 14 completed (avg 5 min)
+- Total execution time: 7.4 hours
+- Quick tasks: 15 completed (avg 5 min)
 
 **By Phase:**
 
@@ -42,6 +42,7 @@ Quick tasks: 14 completed
 - Trend: Phase 6 in progress - bulk import/export for admin data complete
 
 *Updated after each plan completion*
+| Phase quick P015 | 7 | 3 tasks | 12 files |
 | Phase quick P014 | 8 | 3 tasks | 12 files |
 | Phase 07 P01 | 15 | 2 tasks | 5 files |
 | Phase 07 P04 | 4 | 2 tasks | 2 files |
@@ -253,6 +254,7 @@ Recent decisions affecting current work:
 - Eye icon for "View Usage" action to see referential impact before deletion (06-05)
 - System statuses protected from deletion via isSystemStatus flag (06-05)
 - Committee thresholds refactored to EUR-only with limit-based structure (level + maxAmount) for consistency with cost t-shirt thresholds (quick-014)
+- Committee levels normalized to master data with mandatory flag for future alerting (quick-015)
 
 ### Pending Todos
 
@@ -284,11 +286,12 @@ None currently.
 | 012 | Unify status and state into unified state | 2026-02-10 | 75286b28 | [012-unify-status-and-state-into-unified-stat](./quick/012-unify-status-and-state-into-unified-stat/) |
 | 013 | Refactor seed to demo-data, add startup migration | 2026-02-10 | d2766963 | [013-refactor-seed-to-demo-data-add-startup-m](./quick/013-refactor-seed-to-demo-data-add-startup-m/) |
 | 014 | Refactor committee threshold to euro-only limits | 2026-02-15 | f6ea290b | [014-refactor-committee-threshold-to-euro-onl](./quick/014-refactor-committee-threshold-to-euro-onl/) |
+| 015 | Refactor committee threshold model with levels | 2026-02-15 | fa5a3ece | [015-refactor-committee-threshold-model-with-](./quick/015-refactor-committee-threshold-model-with-/) |
 
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed quick-014: Refactor Committee Threshold to EUR-Only Limits
+Stopped at: Completed quick-015: Refactor Committee Threshold Model with Levels
 Resume file: None
 Next: Phase 6 plan 07 remaining (Integration Testing)
 
