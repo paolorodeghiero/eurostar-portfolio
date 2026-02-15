@@ -46,11 +46,20 @@ export function parseFlexibleDate(value: string | number | null | undefined): st
     return null;
   }
 
-  // Handle quarter format: "Q1 2026" or "Q1-2026"
-  const quarterMatch = strValue.match(/^Q([1-4])[\s-](\d{4})$/i);
+  // Handle quarter format: "Q1 2026", "Q1-2026", or "2026 Q1"
+  let quarterMatch = strValue.match(/^Q([1-4])[\s-](\d{4})$/i);
   if (quarterMatch) {
     const quarter = `Q${quarterMatch[1]}`;
     const year = quarterMatch[2];
+    const month = QUARTER_TO_MONTH[quarter];
+    return `${year}-${month}-01`;
+  }
+
+  // Handle reversed format: "2026 Q1"
+  quarterMatch = strValue.match(/^(\d{4})[\s-]Q([1-4])$/i);
+  if (quarterMatch) {
+    const year = quarterMatch[1];
+    const quarter = `Q${quarterMatch[2]}`;
     const month = QUARTER_TO_MONTH[quarter];
     return `${year}-${month}-01`;
   }

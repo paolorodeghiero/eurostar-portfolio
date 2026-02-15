@@ -77,12 +77,12 @@ export function mapStatus(excelValue: string): string {
 
 export function mapTeamName(excelValue: string): string {
   const mapping = loadTeamMapping();
-  return mapping.teams[excelValue] ?? excelValue.trim();
+  return mapping.teams?.[excelValue] ?? excelValue.trim();
 }
 
 export function mapDepartmentName(excelValue: string): string {
   const mapping = loadTeamMapping();
-  return mapping.departments[excelValue] ?? excelValue.trim();
+  return mapping.departments?.[excelValue] ?? excelValue.trim();
 }
 
 export function mapOutcomeName(excelColumn: string): string | null {
