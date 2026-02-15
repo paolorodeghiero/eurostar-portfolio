@@ -1,0 +1,17 @@
+# L/M/H to T-shirt size mapping
+# Per user decision: L (Low effort) -> S (Small), M -> M, H (High effort) -> L (Large)
+effort_sizes:
+  "L": "S"    # Low effort -> Small T-shirt
+  "M": "M"    # Medium effort -> Medium T-shirt
+  "H": "L"    # High effort -> Large T-shirt
+  "": null    # Empty = no team involvement
+
+# Impact uses same mapping (L/M/H levels)
+impact_sizes:
+  "L": "S"
+  "M": "M"
+  "H": "L"
+  "": null
+
+# Default for unrecognized values
+default: "M"

@@ -1,0 +1,32 @@
+# Status mappings: Excel value -> DB status name
+# DB statuses: Draft, Ready, In Progress, On Hold, Completed, Cancelled, Stopped
+statuses:
+  # Common variations
+  "In progress": "In Progress"
+  "in progress": "In Progress"
+  "IN PROGRESS": "In Progress"
+  "WIP": "In Progress"
+  "Ready": "Ready"
+  "ready": "Ready"
+  "READY": "Ready"
+  "To Do": "Ready"
+  "Done": "Completed"
+  "done": "Completed"
+  "DONE": "Completed"
+  "Complete": "Completed"
+  "Completed": "Completed"
+  "Draft": "Draft"
+  "draft": "Draft"
+  "New": "Draft"
+  "On Hold": "On Hold"
+  "on hold": "On Hold"
+  "Paused": "On Hold"
+  "Cancelled": "Cancelled"
+  "cancelled": "Cancelled"
+  "Canceled": "Cancelled"
+  "TBD": "Draft"
+  "N/A": "Draft"
+  "": "Draft"  # Empty defaults to Draft
+
+# Default for unmapped values
+default: "Draft"

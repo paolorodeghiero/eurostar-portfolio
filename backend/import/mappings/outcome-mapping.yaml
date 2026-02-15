@@ -1,0 +1,10 @@
+# Excel column name -> DB outcome name
+# Maps value score columns to outcome records
+outcomes:
+  "Safety": "Safety"
+  "NPS": "NPS (Customer Satisfaction)"
+  "EBITDA": "EBITDA"
+  "Regulatory": "Regulatory Compliance"
+  "Punctuality": "Punctuality"
+  "People": "People Engagement"
+  # Excel uses "Value Score" as aggregate - skip this column

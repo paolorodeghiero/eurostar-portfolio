@@ -1,0 +1,17 @@
+# Team name normalization: Excel value -> DB team name
+# Use this to standardize variations
+teams:
+  # Add mappings as discovered during extract
+  # Example:
+  # "Digital": "Digital Platforms"
+  # "Data": "Data & Analytics"
+
+# Department name normalization
+departments:
+  # Add mappings as discovered during extract
+  # Example:
+  # "IS": "Information Systems"
+  # "IT": "Information Systems"
+
+# If true, automatically create missing teams/departments
+auto_create_missing: true
