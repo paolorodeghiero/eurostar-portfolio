@@ -14,12 +14,6 @@ import { Label } from '@/components/ui/label';
 import { apiClient } from '@/lib/api-client';
 import { Pencil, Trash2 } from 'lucide-react';
 
-const CURRENCIES = [
-  { value: 'EUR', label: 'EUR' },
-  { value: 'GBP', label: 'GBP' },
-  { value: 'USD', label: 'USD' },
-];
-
 const LEVELS = [
   { value: 'mandatory', label: 'Mandatory' },
   { value: 'optional', label: 'Optional' },
@@ -28,10 +22,8 @@ const LEVELS = [
 
 interface CommitteeThreshold {
   id: number;
-  minAmount: number;
-  maxAmount: number | null;
-  level: string;
-  currency: string;
+  level: string;       // mandatory, optional, not_necessary
+  maxAmount: number | null;  // null = unlimited
   usageCount: number;
   createdAt: string;
 }
@@ -41,10 +33,8 @@ export function CommitteeThresholdsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingThreshold, setEditingThreshold] = useState<CommitteeThreshold | null>(null);
-  const [formMinAmount, setFormMinAmount] = useState<number | ''>(0);
   const [formMaxAmount, setFormMaxAmount] = useState<number | ''>('');
   const [formLevel, setFormLevel] = useState('');
-  const [formCurrency, setFormCurrency] = useState('EUR');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,17 +56,15 @@ export function CommitteeThresholdsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formMinAmount === '' || !formLevel || !formCurrency) return;
+    if (!formLevel) return;
 
     setIsSubmitting(true);
     setError(null);
 
     try {
       const payload = {
-        minAmount: formMinAmount,
-        maxAmount: formMaxAmount === '' ? null : formMaxAmount,
         level: formLevel,
-        currency: formCurrency,
+        maxAmount: formMaxAmount === '' ? null : formMaxAmount,
       };
 
       if (editingThreshold) {
@@ -102,10 +90,8 @@ export function CommitteeThresholdsPage() {
   };
 
   const resetForm = () => {
-    setFormMinAmount(0);
     setFormMaxAmount('');
     setFormLevel('');
-    setFormCurrency('EUR');
   };
 
   const handleDelete = async (id: number) => {
@@ -128,18 +114,16 @@ export function CommitteeThresholdsPage() {
 
   const openEditDialog = (threshold: CommitteeThreshold) => {
     setEditingThreshold(threshold);
-    setFormMinAmount(threshold.minAmount);
     setFormMaxAmount(threshold.maxAmount ?? '');
     setFormLevel(threshold.level);
-    setFormCurrency(threshold.currency);
     setError(null);
     setIsDialogOpen(true);
   };
 
-  const formatAmount = (amount: number, currency: string) => {
+  const formatAmount = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency,
+      currency: 'EUR',
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -157,19 +141,6 @@ export function CommitteeThresholdsPage() {
 
   const columns: ColumnDef<CommitteeThreshold>[] = [
     {
-      accessorKey: 'range',
-      header: 'Amount Range',
-      cell: ({ row }) => (
-        <span className="font-mono">
-          {formatAmount(row.original.minAmount, row.original.currency)}
-          {' - '}
-          {row.original.maxAmount
-            ? formatAmount(row.original.maxAmount, row.original.currency)
-            : 'Unlimited'}
-        </span>
-      ),
-    },
-    {
       accessorKey: 'level',
       header: 'Committee Level',
       cell: ({ row }) => (
@@ -179,10 +150,14 @@ export function CommitteeThresholdsPage() {
       ),
     },
     {
-      accessorKey: 'currency',
-      header: 'Currency',
+      accessorKey: 'maxAmount',
+      header: 'Max Amount',
       cell: ({ row }) => (
-        <Badge variant="outline">{row.original.currency}</Badge>
+        <span className="font-mono">
+          {row.original.maxAmount !== null
+            ? formatAmount(row.original.maxAmount)
+            : 'Unlimited'}
+        </span>
       ),
     },
     {
@@ -259,40 +234,6 @@ export function CommitteeThresholdsPage() {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="minAmount">
-                  Min Amount <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="number"
-                  id="minAmount"
-                  value={formMinAmount}
-                  onChange={(e) =>
-                    setFormMinAmount(e.target.value === '' ? '' : Number(e.target.value))
-                  }
-                  required
-                  min={0}
-                  className="font-mono"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="maxAmount">Max Amount</Label>
-                <Input
-                  type="number"
-                  id="maxAmount"
-                  value={formMaxAmount}
-                  onChange={(e) =>
-                    setFormMaxAmount(e.target.value === '' ? '' : Number(e.target.value))
-                  }
-                  min={0}
-                  placeholder="Unlimited"
-                  className="font-mono"
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="level">
                 Committee Level <span className="text-red-500">*</span>
@@ -314,22 +255,21 @@ export function CommitteeThresholdsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">
-                Currency <span className="text-red-500">*</span>
-              </Label>
-              <select
-                id="currency"
-                value={formCurrency}
-                onChange={(e) => setFormCurrency(e.target.value)}
-                required
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+              <Label htmlFor="maxAmount">Max Amount (EUR)</Label>
+              <Input
+                type="number"
+                id="maxAmount"
+                value={formMaxAmount}
+                onChange={(e) =>
+                  setFormMaxAmount(e.target.value === '' ? '' : Number(e.target.value))
+                }
+                min={0}
+                placeholder="Unlimited"
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                Projects with budget up to this amount get this level. Leave empty for unlimited.
+              </p>
             </div>
 
             {error && (
@@ -348,7 +288,7 @@ export function CommitteeThresholdsPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || formMinAmount === '' || !formLevel || !formCurrency}
+                disabled={isSubmitting || !formLevel}
               >
                 {isSubmitting ? 'Saving...' : 'Save'}
               </Button>

@@ -35,7 +35,6 @@ export function AuditLogPage() {
   // State for data
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [offset, setOffset] = useState(0);
   const limit = 50;
 
@@ -50,15 +49,12 @@ export function AuditLogPage() {
     params.set('limit', String(limit));
     params.set('offset', String(offset));
 
-    setIsLoading(true);
     apiClient<{ entries: AuditEntry[]; total: number }>(
       `/api/admin/audit-log?${params}`
-    )
-      .then((data) => {
-        setEntries(data.entries);
-        setTotal(data.total);
-      })
-      .finally(() => setIsLoading(false));
+    ).then((data) => {
+      setEntries(data.entries);
+      setTotal(data.total);
+    });
   }, [startDate, endDate, tableName, changedBy, operation, offset]);
 
   const getOperationBadge = (operation: string) => {
@@ -219,7 +215,7 @@ export function AuditLogPage() {
       </div>
 
       {/* Audit entries table */}
-      <DataTable columns={columns} data={entries} isLoading={isLoading} />
+      <DataTable columns={columns} data={entries} />
 
       {/* Pagination */}
       <div className="flex justify-between items-center">
