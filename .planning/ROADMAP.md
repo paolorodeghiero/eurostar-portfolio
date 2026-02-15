@@ -213,6 +213,39 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 6. Admin GUI & Reporting | 7/7 | Complete | 2026-02-15 |
 | 7. Refactor & Reorganize | 10/10 | Complete | 2026-02-09 |
 
+### Phase 8: Data import script
+
+**Goal:** Create maintainable import scripts with three-stage pipeline (extract, validate, load) for loading TPO Portfolio.xlsx data into the portfolio system
+**Depends on:** Phase 7
+**Success Criteria** (what must be TRUE):
+  1. Extract stage reads TPO Portfolio.xlsx and generates CSV staging files per entity
+  2. Validate stage checks schema compliance and referential integrity against database
+  3. Load stage inserts/updates projects with interactive conflict resolution
+  4. YAML mapping configs externalize status, team, outcome, and T-shirt size transformations
+  5. L/M/H values map to T-shirt sizes: L to S, M to M, H to L
+  6. Missing teams/departments are auto-created during import
+  7. Child entities use merge strategy (add new, keep existing, never delete)
+  8. Dry-run mode previews changes without database modification
+  9. Import tracking columns mark imported projects for future updates
+**Plans:** 6 plans
+
+Plans:
+- [ ] 08-01-PLAN.md - Setup import infrastructure, dependencies, and database migration
+- [ ] 08-02-PLAN.md - Create YAML mapping configs and mapping loader utility
+- [ ] 08-03-PLAN.md - Extract stage: Excel reader, CSV writer, entity extraction
+- [ ] 08-04-PLAN.md - Validate stage: Schema and referential integrity checking
+- [ ] 08-05-PLAN.md - Load stage: Database insertion with conflict resolution
+- [ ] 08-06-PLAN.md - Combined orchestrator, npm scripts, and Makefile targets
+
+### Phase 9: Import budget file
+
+**Goal:** [To be planned]
+**Depends on:** Phase 8
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 9 to break down)
+
 ---
 *Roadmap created: 2026-02-03*
 *Depth: standard (6 phases derived from 72 requirements)*
