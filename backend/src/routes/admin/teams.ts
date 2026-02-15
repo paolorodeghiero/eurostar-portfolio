@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { eq, or, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { teams, departments, projects, projectTeams, statuses } from '../../db/schema.js';
 import * as XLSX from 'xlsx';
 
@@ -21,8 +21,23 @@ export async function teamsRoutes(fastify: FastifyInstance) {
       .from(teams)
       .leftJoin(departments, eq(teams.departmentId, departments.id));
 
-    // Usage count placeholder (will be projects count in Phase 2)
-    return teamsList.map((team) => ({ ...team, usageCount: 0 }));
+    // Get usage counts (unique projects using each team as lead or involved)
+    const teamsWithUsage = await Promise.all(
+      teamsList.map(async (team) => {
+        // Count unique projects where team is lead OR involved (avoid double counting)
+        const result = await db.execute(sql`
+          SELECT COUNT(*) as count FROM (
+            SELECT id FROM projects WHERE lead_team_id = ${team.id}
+            UNION
+            SELECT project_id FROM project_teams WHERE team_id = ${team.id}
+          ) as unique_projects
+        `);
+        const usageCount = Number((result.rows[0] as { count: string })?.count) || 0;
+        return { ...team, usageCount };
+      })
+    );
+
+    return teamsWithUsage;
   });
 
   // Get single team
@@ -46,7 +61,17 @@ export async function teamsRoutes(fastify: FastifyInstance) {
       return reply.code(404).send({ error: 'Team not found' });
     }
 
-    return { ...team, usageCount: 0, usedBy: [] };
+    // Count unique projects where team is lead OR involved
+    const result = await db.execute(sql`
+      SELECT COUNT(*) as count FROM (
+        SELECT id FROM projects WHERE lead_team_id = ${id}
+        UNION
+        SELECT project_id FROM project_teams WHERE team_id = ${id}
+      ) as unique_projects
+    `);
+    const usageCount = Number((result.rows[0] as { count: string })?.count) || 0;
+
+    return { ...team, usageCount, usedBy: [] };
   });
 
   // Create team
@@ -276,8 +301,15 @@ export async function teamsRoutes(fastify: FastifyInstance) {
   fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
 
-    // Usage check placeholder (will check projects in Phase 2)
-    const usageCount = 0;
+    // Count unique projects where team is lead OR involved
+    const result = await db.execute(sql`
+      SELECT COUNT(*) as count FROM (
+        SELECT id FROM projects WHERE lead_team_id = ${id}
+        UNION
+        SELECT project_id FROM project_teams WHERE team_id = ${id}
+      ) as unique_projects
+    `);
+    const usageCount = Number((result.rows[0] as { count: string })?.count) || 0;
 
     if (usageCount > 0) {
       return reply.code(409).send({
