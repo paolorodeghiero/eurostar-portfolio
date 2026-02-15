@@ -21,7 +21,7 @@ import {
   closeReadline,
   resetGlobalResolution,
 } from './lib/conflict-resolver.js';
-import { shouldAutoCreateMissing } from './lib/mapping-loader.js';
+import { shouldAutoCreateMissing, mapStatus, mapOutcomeName } from './lib/mapping-loader.js';
 import { writeReport } from './lib/csv-writer.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -138,6 +138,67 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
         }
       }
     }
+
+    // Collect unique statuses from projects (after mapping)
+    const uniqueStatuses = new Set<string>();
+    for (const row of projectRows) {
+      if (row.status) {
+        const mappedStatus = mapStatus(row.status.trim());
+        uniqueStatuses.add(mappedStatus);
+      }
+    }
+
+    // Load existing statuses
+    const existingStatuses = await db.select().from(statuses);
+    const statusMapTemp = new Map(existingStatuses.map((s) => [s.name.toLowerCase(), s.id]));
+
+    // Create missing statuses
+    for (const statusName of uniqueStatuses) {
+      if (!statusMapTemp.has(statusName.toLowerCase())) {
+        const [newStatus] = await db
+          .insert(statuses)
+          .values({
+            name: statusName,
+            color: '#6b7280', // Default gray color
+          })
+          .returning();
+        statusMapTemp.set(statusName.toLowerCase(), newStatus.id);
+        console.log(`  [CREATE] Status: ${statusName}`);
+      }
+    }
+
+    // Collect unique outcomes from value scores (after mapping)
+    const uniqueOutcomes = new Set<string>();
+    for (const row of valueRows) {
+      if (row.outcomeName) {
+        const mappedOutcome = mapOutcomeName(row.outcomeName.trim());
+        if (mappedOutcome) uniqueOutcomes.add(mappedOutcome);
+      }
+    }
+
+    // Load existing outcomes
+    const existingOutcomes = await db.select().from(outcomes);
+    const outcomeMapTemp = new Map(existingOutcomes.map((o) => [o.name.toLowerCase(), o.id]));
+
+    // Create missing outcomes
+    for (const outcomeName of uniqueOutcomes) {
+      if (!outcomeMapTemp.has(outcomeName.toLowerCase())) {
+        const [newOutcome] = await db
+          .insert(outcomes)
+          .values({
+            name: outcomeName,
+            score1Example: 'No impact',
+            score2Example: 'Minor impact',
+            score3Example: 'Moderate impact',
+            score4Example: 'Significant impact',
+            score5Example: 'Major impact',
+          })
+          .returning();
+        outcomeMapTemp.set(outcomeName.toLowerCase(), newOutcome.id);
+        console.log(`  [CREATE] Outcome: ${outcomeName}`);
+      }
+    }
+
     console.log('');
   }
 
@@ -216,9 +277,11 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
         }
       }
 
-      const statusId = statusMap.get(row.status?.toLowerCase());
+      // Map status using YAML config, then look up ID
+      const mappedStatus = row.status ? mapStatus(row.status.trim()) : 'Draft';
+      const statusId = statusMap.get(mappedStatus.toLowerCase());
       if (!statusId) {
-        stats.errors.push(`${refId}: Unknown status "${row.status}"`);
+        stats.errors.push(`${refId}: Unknown status "${row.status}" (mapped to "${mappedStatus}")`);
         stats.projectsSkipped++;
         continue;
       }
