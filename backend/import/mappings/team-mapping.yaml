@@ -1,17 +1,55 @@
 # Team name normalization: Excel value -> DB team name
 # Use this to standardize variations
 teams:
-  # Add mappings as discovered during extract
-  # Example:
-  # "Digital": "Digital Platforms"
-  # "Data": "Data & Analytics"
+  "CORPHRFIN": "Corp HR & Finance"
+  "CUST": "Customer"
+  "CYBER": "Cyber Security"
+  "DATA": "Data & Middleware"
+  "DIGITAL TECH": "Digital Technology"
+  "INFRA": "Infrastructure"
+  "OPERATIONS": "Operations"
+  "PMO": "PMO"
+  "SALES": "Sales"
 
 # Department name normalization
 departments:
-  # Add mappings as discovered during extract
-  # Example:
-  # "IS": "Information Systems"
-  # "IT": "Information Systems"
+  # Change Impact columns (with "Impact on - " prefix)
+  "Impact on - CIAL": "Commercial"
+  "Impact on - COM": "Commercial"
+  "Impact on - FIN": "Finance"
+  "Impact on - GEN SEC": "General Security"
+  "Impact on - HR": "Human Resources"
+  "Impact on - IS": "Information Systems"
+  "Impact on - OPS": "Operations"
+  "Impact on - ROLL STOCK": "Rolling Stock"
+  "Impact on - SAFETY": "Safety"
+  "Impact on - STATION": "Station"
+
+  # Department Owner column abbreviations (UPPERCASE)
+  "COMMERCIAL": "Commercial"
+  "FIN": "Finance"
+  "GEN SEC": "General Security"
+  "HR": "Human Resources"
+  "IS": "Information Systems"
+  "OPS": "Operations"
+  "OPERATIONS": "Operations"
+  "ROLL STOCK": "Rolling Stock"
+  "STATION": "Station"
+  "STRAT": "Strategy"
+  "CIAL": "Commercial"
+
+  # Department Owner column abbreviations (lowercase variants)
+  "commercial": "Commercial"
+  "fin": "Finance"
+  "gen sec": "General Security"
+  "hr": "Human Resources"
+  "is": "Information Systems"
+  "ops": "Operations"
+  "operations": "Operations"
+  "roll stock": "Rolling Stock"
+  "station": "Station"
+  "strat": "Strategy"
+  "cial": "Commercial"
 
 # If true, automatically create missing teams/departments
 auto_create_missing: true

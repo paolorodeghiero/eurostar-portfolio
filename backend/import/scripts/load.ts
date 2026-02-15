@@ -151,6 +151,7 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
     // Load existing statuses
     const existingStatuses = await db.select().from(statuses);
     const statusMapTemp = new Map(existingStatuses.map((s) => [s.name.toLowerCase(), s.id]));
+    let maxDisplayOrder = existingStatuses.length;
 
     // Create missing statuses
     for (const statusName of uniqueStatuses) {
@@ -160,6 +161,7 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
           .values({
             name: statusName,
             color: '#6b7280', // Default gray color
+            displayOrder: maxDisplayOrder++,
           })
           .returning();
         statusMapTemp.set(statusName.toLowerCase(), newStatus.id);
