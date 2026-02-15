@@ -14,3 +14,7 @@ uploads/*
 
 # Logs
 *.log
+
+# Import staging files (CSVs are generated, not committed)
+import/staging/*.csv
+import/staging/*.md
