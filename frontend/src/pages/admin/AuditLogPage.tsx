@@ -28,9 +28,9 @@ export function AuditLogPage() {
   // State for filters
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
-  const [tableName, setTableName] = useState<string>('');
+  const [tableName, setTableName] = useState<string>('all');
   const [changedBy, setChangedBy] = useState<string>('');
-  const [operation, setOperation] = useState<string>('');
+  const [operation, setOperation] = useState<string>('all');
 
   // State for data
   const [entries, setEntries] = useState<AuditEntry[]>([]);
@@ -43,9 +43,9 @@ export function AuditLogPage() {
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', startDate);
     if (endDate) params.set('endDate', endDate);
-    if (tableName) params.set('tableName', tableName);
+    if (tableName && tableName !== 'all') params.set('tableName', tableName);
     if (changedBy) params.set('changedBy', changedBy);
-    if (operation) params.set('operation', operation);
+    if (operation && operation !== 'all') params.set('operation', operation);
     params.set('limit', String(limit));
     params.set('offset', String(offset));
 
@@ -169,7 +169,7 @@ export function AuditLogPage() {
             <SelectValue placeholder="All tables" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All tables</SelectItem>
+            <SelectItem value="all">All tables</SelectItem>
             <SelectItem value="projects">projects</SelectItem>
             <SelectItem value="project_teams">project_teams</SelectItem>
             <SelectItem value="project_values">project_values</SelectItem>
@@ -193,7 +193,7 @@ export function AuditLogPage() {
             <SelectValue placeholder="Operation" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="INSERT">Insert</SelectItem>
             <SelectItem value="UPDATE">Update</SelectItem>
             <SelectItem value="DELETE">Delete</SelectItem>
