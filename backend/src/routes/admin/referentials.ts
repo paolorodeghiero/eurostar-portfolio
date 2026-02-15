@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { count } from 'drizzle-orm';
 import { requireAdmin } from '../../middleware/require-admin.js';
 import { departmentsRoutes } from './departments.js';
 import { teamsRoutes } from './teams.js';
@@ -12,6 +13,18 @@ import { costTshirtThresholdsRoutes } from './cost-tshirt-thresholds.js';
 import { competenceMonthPatternsRoutes } from './competence-month-patterns.js';
 import { budgetLinesRoutes } from './budget-lines.js';
 import { auditLogRoutes } from './audit-log.js';
+import {
+  departments,
+  teams,
+  statuses,
+  outcomes,
+  costCenters,
+  currencyRates,
+  committeeLevels,
+  committeeThresholds,
+  costTshirtThresholds,
+  competenceMonthPatterns,
+} from '../../db/schema.js';
 
 export async function referentialsRoutes(fastify: FastifyInstance) {
   // All admin routes require admin role
@@ -32,6 +45,49 @@ export async function referentialsRoutes(fastify: FastifyInstance) {
         { id: 'cost-tshirt-thresholds', name: 'Cost T-shirt Thresholds', endpoint: '/api/admin/cost-tshirt-thresholds' },
         { id: 'competence-month-patterns', name: 'Competence Month Patterns', endpoint: '/api/admin/competence-month-patterns' },
       ],
+    };
+  });
+
+  // Get stats for all referential types
+  fastify.get('/stats', async () => {
+    const db = fastify.db;
+
+    // Fetch all counts in parallel
+    const [
+      departmentsResult,
+      teamsResult,
+      statusesResult,
+      outcomesResult,
+      costCentersResult,
+      currencyRatesResult,
+      committeeLevelsResult,
+      committeeThresholdsResult,
+      costTshirtThresholdsResult,
+      competenceMonthPatternsResult,
+    ] = await Promise.all([
+      db.select({ count: count() }).from(departments),
+      db.select({ count: count() }).from(teams),
+      db.select({ count: count() }).from(statuses),
+      db.select({ count: count() }).from(outcomes),
+      db.select({ count: count() }).from(costCenters),
+      db.select({ count: count() }).from(currencyRates),
+      db.select({ count: count() }).from(committeeLevels),
+      db.select({ count: count() }).from(committeeThresholds),
+      db.select({ count: count() }).from(costTshirtThresholds),
+      db.select({ count: count() }).from(competenceMonthPatterns),
+    ]);
+
+    return {
+      departments: departmentsResult[0].count,
+      teams: teamsResult[0].count,
+      statuses: statusesResult[0].count,
+      outcomes: outcomesResult[0].count,
+      costCenters: costCentersResult[0].count,
+      currencyRates: currencyRatesResult[0].count,
+      committeeLevels: committeeLevelsResult[0].count,
+      committeeThresholds: committeeThresholdsResult[0].count,
+      costTshirtThresholds: costTshirtThresholdsResult[0].count,
+      competenceMonthPatterns: competenceMonthPatternsResult[0].count,
     };
   });
 
