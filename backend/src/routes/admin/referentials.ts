@@ -6,6 +6,7 @@ import { statusesRoutes } from './statuses.js';
 import { outcomesRoutes } from './outcomes.js';
 import { costCentersRoutes } from './cost-centers.js';
 import { currencyRatesRoutes } from './currency-rates.js';
+import { committeeLevelsRoutes } from './committee-levels.js';
 import { committeeThresholdsRoutes } from './committee-thresholds.js';
 import { costTshirtThresholdsRoutes } from './cost-tshirt-thresholds.js';
 import { competenceMonthPatternsRoutes } from './competence-month-patterns.js';
@@ -26,6 +27,7 @@ export async function referentialsRoutes(fastify: FastifyInstance) {
         { id: 'outcomes', name: 'Outcomes', endpoint: '/api/admin/outcomes' },
         { id: 'cost-centers', name: 'Cost Centers', endpoint: '/api/admin/cost-centers' },
         { id: 'currency-rates', name: 'Currency Rates', endpoint: '/api/admin/currency-rates' },
+        { id: 'committee-levels', name: 'Committee Levels', endpoint: '/api/admin/committee-levels' },
         { id: 'committee-thresholds', name: 'Committee Thresholds', endpoint: '/api/admin/committee-thresholds' },
         { id: 'cost-tshirt-thresholds', name: 'Cost T-shirt Thresholds', endpoint: '/api/admin/cost-tshirt-thresholds' },
         { id: 'competence-month-patterns', name: 'Competence Month Patterns', endpoint: '/api/admin/competence-month-patterns' },
@@ -40,6 +42,7 @@ export async function referentialsRoutes(fastify: FastifyInstance) {
   await fastify.register(outcomesRoutes, { prefix: '/outcomes' });
   await fastify.register(costCentersRoutes, { prefix: '/cost-centers' });
   await fastify.register(currencyRatesRoutes, { prefix: '/currency-rates' });
+  await fastify.register(committeeLevelsRoutes, { prefix: '/committee-levels' });
   await fastify.register(committeeThresholdsRoutes, { prefix: '/committee-thresholds' });
   await fastify.register(costTshirtThresholdsRoutes, { prefix: '/cost-tshirt-thresholds' });
   await fastify.register(competenceMonthPatternsRoutes, { prefix: '/competence-month-patterns' });
