@@ -1,16 +1,28 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push db-fresh
+.PHONY: help dev db-reset db-demo-data db-push db-fresh import-extract import-validate import-load import-all import-dry-run import-help
 
 # Default target - show available commands
 help:
 	@echo "Available commands:"
+	@echo ""
+	@echo "Development:"
 	@echo "  make dev          - Start both backend and frontend dev servers concurrently"
+	@echo ""
+	@echo "Database:"
 	@echo "  make db-push      - Push schema changes to database (drizzle-kit push)"
 	@echo "  make db-reset     - Truncate all tables (empty database)"
 	@echo "  make db-demo-data - Load demo data (departments, projects, etc.)"
 	@echo "  make db-fresh     - Full reset: push schema + truncate + demo data"
+	@echo ""
+	@echo "Data Import:"
+	@echo "  make import-extract   - Extract data from Excel to CSV staging files"
+	@echo "  make import-validate  - Validate staging CSV files against schema and database"
+	@echo "  make import-load      - Load validated data to database"
+	@echo "  make import-all       - Run full import pipeline (extract -> validate -> load)"
+	@echo "  make import-dry-run   - Preview full import without database changes"
+	@echo "  make import-help      - Show import tool help"
 
 # Start both backend and frontend dev servers concurrently with labeled output
 dev:
@@ -39,3 +51,22 @@ db-fresh:
 	@echo "Full database reset..."
 	cd backend && npx drizzle-kit push && npm run db:reset && npm run db:demo-data
 	@echo "Database ready with fresh data."
+
+# Data Import
+import-extract: ## Extract data from Excel to CSV staging files
+	cd backend && npm run import:extract
+
+import-validate: ## Validate staging CSV files against schema and database
+	cd backend && npm run import:validate
+
+import-load: ## Load validated data to database
+	cd backend && npm run import:load
+
+import-all: ## Run full import pipeline (extract -> validate -> load)
+	cd backend && npm run import:all
+
+import-dry-run: ## Preview full import without database changes
+	cd backend && npm run import:dry-run
+
+import-help: ## Show import tool help
+	cd backend && npm run import -- --help
