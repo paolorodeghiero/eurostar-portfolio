@@ -1,4 +1,4 @@
-import { apiClient } from './api-client';
+import { apiClient, getAuthorizationHeader } from './api-client';
 import * as XLSX from 'xlsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -87,8 +87,10 @@ export async function uploadReceiptsExcel(file: File): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);
 
+  const authHeaders = await getAuthorizationHeader();
   const response = await fetch(`${API_URL}/api/actuals/receipts/upload`, {
     method: 'POST',
+    headers: authHeaders,
     body: formData,
   });
 
@@ -104,8 +106,10 @@ export async function uploadInvoicesExcel(file: File): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);
 
+  const authHeaders = await getAuthorizationHeader();
   const response = await fetch(`${API_URL}/api/actuals/invoices/upload`, {
     method: 'POST',
+    headers: authHeaders,
     body: formData,
   });
 

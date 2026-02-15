@@ -4,8 +4,18 @@ export function UserMenu() {
   const { instance, accounts } = useMsal();
   const account = accounts[0];
 
-  const handleLogout = async () => {
-    await instance.logoutPopup();
+  const handleLogout = () => {
+    // Clear MSAL cache from localStorage to ensure complete logout
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('msal.') || key.includes('.msal.')) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    // Redirect to Microsoft logout
+    instance.logoutRedirect({
+      postLogoutRedirectUri: window.location.origin,
+    });
   };
 
   if (!account) return null;

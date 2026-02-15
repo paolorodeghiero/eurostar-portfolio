@@ -1,3 +1,5 @@
+import { apiClient, getAuthorizationHeader } from './api-client';
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export interface CommitteeStatus {
@@ -27,11 +29,7 @@ export interface UploadResult {
 
 // Get committee status and allowed transitions
 export async function fetchCommitteeStatus(projectId: number): Promise<CommitteeStatus> {
-  const response = await fetch(`${API_BASE}/api/projects/${projectId}/committee`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch committee status');
-  }
-  return response.json();
+  return apiClient<CommitteeStatus>(`/api/projects/${projectId}/committee`);
 }
 
 // Transition committee state
@@ -39,18 +37,10 @@ export async function transitionCommitteeState(
   projectId: number,
   newState: string
 ): Promise<TransitionResult> {
-  const response = await fetch(`${API_BASE}/api/projects/${projectId}/committee-state`, {
+  return apiClient<TransitionResult>(`/api/projects/${projectId}/committee-state`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ committeeState: newState }),
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to transition state');
-  }
-
-  return response.json();
 }
 
 // Upload business case file
@@ -61,8 +51,10 @@ export async function uploadBusinessCase(
   const formData = new FormData();
   formData.append('file', file);
 
+  const authHeaders = await getAuthorizationHeader();
   const response = await fetch(`${API_BASE}/api/projects/${projectId}/business-case`, {
     method: 'POST',
+    headers: authHeaders,
     body: formData,
   });
 
@@ -76,7 +68,10 @@ export async function uploadBusinessCase(
 
 // Download business case file
 export async function downloadBusinessCase(projectId: number): Promise<void> {
-  const response = await fetch(`${API_BASE}/api/projects/${projectId}/business-case/download`);
+  const authHeaders = await getAuthorizationHeader();
+  const response = await fetch(`${API_BASE}/api/projects/${projectId}/business-case/download`, {
+    headers: authHeaders,
+  });
 
   if (!response.ok) {
     throw new Error('Failed to download file');
@@ -100,14 +95,9 @@ export async function downloadBusinessCase(projectId: number): Promise<void> {
 
 // Delete business case file
 export async function deleteBusinessCase(projectId: number): Promise<void> {
-  const response = await fetch(`${API_BASE}/api/projects/${projectId}/business-case`, {
+  await apiClient(`/api/projects/${projectId}/business-case`, {
     method: 'DELETE',
   });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to delete file');
-  }
 }
 
 // State labels for display

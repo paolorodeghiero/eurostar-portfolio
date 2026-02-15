@@ -19,6 +19,7 @@ import {
   removeProjectChangeImpact,
   type ProjectChangeImpact,
 } from '@/lib/project-api';
+import { apiClient } from '@/lib/api-client';
 import { deriveGlobalImpact, TSHIRT_COLORS } from '@/lib/effort-utils';
 
 interface Team {
@@ -43,7 +44,7 @@ export function ChangeImpactTab({ projectId, onProjectUpdated, disabled }: Chang
     try {
       const [ci, at] = await Promise.all([
         fetchProjectChangeImpact(projectId),
-        fetch('/api/admin/teams').then(r => r.json()),
+        apiClient<Team[]>('/api/admin/teams'),
       ]);
       setImpactTeams(ci);
       setAllTeams(at);

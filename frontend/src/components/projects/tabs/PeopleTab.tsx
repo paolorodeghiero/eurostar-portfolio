@@ -2,6 +2,7 @@ import { useEffect, useState, useId } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Project } from '@/lib/project-api';
+import { apiClient } from '@/lib/api-client';
 
 interface PeopleTabProps {
   formData: Partial<Project>;
@@ -51,8 +52,7 @@ export function PeopleTab({ formData, onChange, disabled }: PeopleTabProps) {
 
   // Load suggestions from existing projects
   useEffect(() => {
-    fetch('/api/projects/people-suggestions')
-      .then(r => r.json())
+    apiClient<{ projectManagers: string[]; isOwners: string[]; sponsors: string[] }>('/api/projects/people-suggestions')
       .then(data => {
         setPmSuggestions(data.projectManagers || []);
         setOwnerSuggestions(data.isOwners || []);

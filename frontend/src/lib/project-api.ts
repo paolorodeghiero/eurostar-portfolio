@@ -1,4 +1,4 @@
-import { apiClient } from './api-client';
+import { apiClient, getAuthHeaders } from './api-client';
 
 export interface Project {
   id: number;
@@ -95,11 +95,12 @@ export async function updateProject(
   id: number,
   data: Partial<Project> & { expectedVersion: number }
 ): Promise<Project> {
+  const headers = await getAuthHeaders();
   const response = await fetch(
     `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/projects/${id}`,
     {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(data),
     }
   );
@@ -123,12 +124,8 @@ export async function updateProject(
 }
 
 // Team management functions
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 export async function fetchProjectTeams(projectId: number): Promise<ProjectTeam[]> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams`);
-  if (!res.ok) throw new Error('Failed to fetch teams');
-  return res.json();
+  return apiClient<ProjectTeam[]>(`/api/projects/${projectId}/teams`);
 }
 
 export async function addProjectTeam(
@@ -136,15 +133,10 @@ export async function addProjectTeam(
   teamId: number,
   effortSize: string
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams`, {
+  await apiClient(`/api/projects/${projectId}/teams`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ teamId, effortSize }),
   });
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to add team');
-  }
 }
 
 export async function updateProjectTeamSize(
@@ -152,38 +144,28 @@ export async function updateProjectTeamSize(
   teamId: number,
   effortSize: string
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams/${teamId}`, {
+  await apiClient(`/api/projects/${projectId}/teams/${teamId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ effortSize }),
   });
-  if (!res.ok) throw new Error('Failed to update team size');
 }
 
 export async function removeProjectTeam(
   projectId: number,
   teamId: number
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/teams/${teamId}`, {
+  await apiClient(`/api/projects/${projectId}/teams/${teamId}`, {
     method: 'DELETE',
   });
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to remove team');
-  }
 }
 
 // Value score management functions
 export async function fetchOutcomes(): Promise<Outcome[]> {
-  const res = await fetch(`${API_BASE}/api/admin/outcomes`);
-  if (!res.ok) throw new Error('Failed to fetch outcomes');
-  return res.json();
+  return apiClient<Outcome[]>('/api/admin/outcomes');
 }
 
 export async function fetchProjectValues(projectId: number): Promise<ProjectValue[]> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/values`);
-  if (!res.ok) throw new Error('Failed to fetch values');
-  return res.json();
+  return apiClient<ProjectValue[]>(`/api/projects/${projectId}/values`);
 }
 
 export async function updateProjectValue(
@@ -192,19 +174,15 @@ export async function updateProjectValue(
   score: number,
   justification: string | null
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/values/${outcomeId}`, {
+  await apiClient(`/api/projects/${projectId}/values/${outcomeId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ score, justification }),
   });
-  if (!res.ok) throw new Error('Failed to update value');
 }
 
 // Change Impact API
 export async function fetchProjectChangeImpact(projectId: number): Promise<ProjectChangeImpact[]> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/change-impact`);
-  if (!res.ok) throw new Error('Failed to fetch change impact');
-  return res.json();
+  return apiClient<ProjectChangeImpact[]>(`/api/projects/${projectId}/change-impact`);
 }
 
 export async function addProjectChangeImpact(
@@ -212,12 +190,10 @@ export async function addProjectChangeImpact(
   teamId: number,
   impactSize: string
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/change-impact`, {
+  await apiClient(`/api/projects/${projectId}/change-impact`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ teamId, impactSize }),
   });
-  if (!res.ok) throw new Error('Failed to add change impact');
 }
 
 export async function updateProjectChangeImpact(
@@ -225,43 +201,32 @@ export async function updateProjectChangeImpact(
   teamId: number,
   impactSize: string
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/change-impact/${teamId}`, {
+  await apiClient(`/api/projects/${projectId}/change-impact/${teamId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ impactSize }),
   });
-  if (!res.ok) throw new Error('Failed to update change impact');
 }
 
 export async function removeProjectChangeImpact(
   projectId: number,
   teamId: number
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/change-impact/${teamId}`, {
+  await apiClient(`/api/projects/${projectId}/change-impact/${teamId}`, {
     method: 'DELETE',
   });
-  if (!res.ok) throw new Error('Failed to remove change impact');
 }
 
 // Lifecycle API
 export async function stopProject(id: number): Promise<Project> {
-  const res = await fetch(`${API_BASE}/api/projects/${id}/stop`, { method: 'PATCH' });
-  if (!res.ok) throw new Error('Failed to stop project');
-  return res.json();
+  return apiClient<Project>(`/api/projects/${id}/stop`, { method: 'PATCH' });
 }
 
 export async function reactivateProject(id: number): Promise<Project> {
-  const res = await fetch(`${API_BASE}/api/projects/${id}/reactivate`, { method: 'PATCH' });
-  if (!res.ok) throw new Error('Failed to reactivate project');
-  return res.json();
+  return apiClient<Project>(`/api/projects/${id}/reactivate`, { method: 'PATCH' });
 }
 
 export async function deleteProject(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${id}`, { method: 'DELETE' });
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to delete project');
-  }
+  await apiClient(`/api/projects/${id}`, { method: 'DELETE' });
 }
 
 // Portfolio table with computed fields

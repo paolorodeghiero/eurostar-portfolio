@@ -4,14 +4,11 @@ import { loginRequest } from '../lib/auth-config';
 export function LoginButton() {
   const { instance, inProgress } = useMsal();
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (inProgress !== 'none') return; // Prevent duplicate logins
 
-    try {
-      await instance.loginPopup(loginRequest);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
+    // Use redirect flow - more reliable than popup
+    instance.loginRedirect(loginRequest);
   };
 
   return (

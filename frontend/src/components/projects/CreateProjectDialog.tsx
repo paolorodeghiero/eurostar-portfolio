@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createProject, type Project } from '@/lib/project-api';
+import { apiClient } from '@/lib/api-client';
 
 interface Team {
   id: number;
@@ -43,8 +44,7 @@ export function CreateProjectDialog({
 
   useEffect(() => {
     if (open) {
-      fetch('/api/admin/teams')
-        .then(r => r.json())
+      apiClient<Team[]>('/api/admin/teams')
         .then(data => setTeams(Array.isArray(data) ? data : []))
         .catch(() => setTeams([]));
     }

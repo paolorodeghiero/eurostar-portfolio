@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { apiClient, getAuthorizationHeader } from './api-client';
 
 export interface BudgetLine {
   id: number;
@@ -34,19 +34,20 @@ export async function fetchBudgetLines(filters?: BudgetLineFilters): Promise<Bud
   if (filters?.type) params.append('type', filters.type);
 
   const queryString = params.toString();
-  const url = `${API_BASE}/api/admin/budget-lines${queryString ? `?${queryString}` : ''}`;
+  const endpoint = `/api/admin/budget-lines${queryString ? `?${queryString}` : ''}`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch budget lines');
-  return res.json();
+  return apiClient<BudgetLine[]>(endpoint);
 }
 
 export async function importBudgetLines(file: File): Promise<ImportResult> {
   const formData = new FormData();
   formData.append('file', file);
 
+  const authHeaders = await getAuthorizationHeader();
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   const res = await fetch(`${API_BASE}/api/admin/budget-lines/import`, {
     method: 'POST',
+    headers: authHeaders,
     body: formData,
   });
 
@@ -59,17 +60,7 @@ export async function importBudgetLines(file: File): Promise<ImportResult> {
 }
 
 export async function deleteBudgetLine(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/admin/budget-lines/${id}`, {
+  await apiClient(`/api/admin/budget-lines/${id}`, {
     method: 'DELETE',
   });
-
-  if (res.status === 409) {
-    const error = await res.json();
-    throw new Error(error.message || 'Cannot delete: budget line is in use');
-  }
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: 'Delete failed' }));
-    throw new Error(error.message || 'Failed to delete budget line');
-  }
 }

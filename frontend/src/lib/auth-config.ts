@@ -23,16 +23,11 @@ const msalConfig: Configuration = {
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
-// Initialize MSAL instance
-msalInstance.initialize().then(() => {
-  const accounts = msalInstance.getAllAccounts();
-  if (accounts.length > 0) {
-    msalInstance.setActiveAccount(accounts[0]);
-  }
-});
+// Promise that resolves when MSAL is initialized
+export const msalInitPromise = msalInstance.initialize();
 
 export const loginRequest = {
-  scopes: [import.meta.env.VITE_API_SCOPE || "api://default/.default"],
+  scopes: (import.meta.env.VITE_API_SCOPE || "openid profile email").split(' '),
 };
 
 export { msalConfig };

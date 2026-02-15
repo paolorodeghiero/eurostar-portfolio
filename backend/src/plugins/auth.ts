@@ -13,8 +13,12 @@ async function authPluginHandler(fastify: FastifyInstance): Promise<void> {
         return;
       }
 
+      // Debug: Log hook entry
+      fastify.log.info({ url: request.url, isDev: config.isDev }, 'Auth hook entered');
+
       // Dev mode bypass
       if (config.isDev) {
+        fastify.log.info('Using dev mode bypass');
         request.user = getDevUser();
         return;
       }
@@ -22,6 +26,11 @@ async function authPluginHandler(fastify: FastifyInstance): Promise<void> {
       // Extract Bearer token
       const authHeader = request.headers.authorization;
       if (!authHeader?.startsWith('Bearer ')) {
+        fastify.log.warn({
+          url: request.url,
+          hasAuthHeader: !!authHeader,
+          authHeaderStart: authHeader ? authHeader.substring(0, 20) : 'none',
+        }, 'Missing or invalid authorization header');
         return reply
           .code(401)
           .send({ error: 'Missing or invalid authorization header' });
@@ -29,12 +38,27 @@ async function authPluginHandler(fastify: FastifyInstance): Promise<void> {
 
       const token = authHeader.substring(7);
 
+      // Debug: Log token info (first/last chars only for security)
+      fastify.log.info({
+        tokenLength: token.length,
+        tokenStart: token.substring(0, 20) + '...',
+        isDev: config.isDev,
+      }, 'Auth attempt');
+
       try {
         const decoded = await validateToken(token);
+        fastify.log.info({ oid: decoded.oid, email: decoded.email }, 'Token validated successfully');
 
         // Check admin group membership
+        // Special case: '*' means all authenticated users are admins (for testing)
         const groups = decoded.groups || [];
-        const isAdmin = groups.includes(config.auth.adminGroupId);
+        const isAdmin = config.auth.adminGroupId === '*' || groups.includes(config.auth.adminGroupId);
+
+        fastify.log.info({
+          groupCount: groups.length,
+          adminGroupId: config.auth.adminGroupId,
+          isAdmin,
+        }, 'Admin role check');
 
         request.user = {
           id: decoded.oid,
@@ -43,7 +67,12 @@ async function authPluginHandler(fastify: FastifyInstance): Promise<void> {
           role: isAdmin ? 'admin' : 'user',
         };
       } catch (err) {
-        fastify.log.error(err, 'Token validation failed');
+        // Log the full error details
+        fastify.log.error({
+          errorName: (err as Error).name,
+          errorMessage: (err as Error).message,
+          errorStack: (err as Error).stack,
+        }, 'Token validation failed');
         return reply.code(401).send({ error: 'Invalid token' });
       }
     }

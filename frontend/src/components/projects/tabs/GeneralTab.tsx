@@ -12,6 +12,7 @@ import {
 import { Upload, Download, FileText, Trash2 } from 'lucide-react';
 import { DescriptionEditor } from '../DescriptionEditor';
 import type { Project } from '@/lib/project-api';
+import { apiClient, getAuthorizationHeader } from '@/lib/api-client';
 
 interface GeneralTabProps {
   project: Project;
@@ -52,12 +53,10 @@ export function GeneralTab({ project, formData, onChange, disabled }: GeneralTab
 
   // Load statuses and teams for dropdowns
   useEffect(() => {
-    fetch('/api/admin/statuses')
-      .then(r => r.json())
+    apiClient<Status[]>('/api/admin/statuses')
       .then(data => setStatuses(Array.isArray(data) ? data : []))
       .catch(() => setStatuses([]));
-    fetch('/api/admin/teams')
-      .then(r => r.json())
+    apiClient<Team[]>('/api/admin/teams')
       .then(data => setTeams(Array.isArray(data) ? data : []))
       .catch(() => setTeams([]));
   }, []);
@@ -77,8 +76,11 @@ export function GeneralTab({ project, formData, onChange, disabled }: GeneralTab
     formDataObj.append('file', file);
 
     try {
-      const res = await fetch(`/api/projects/${project.id}/business-case`, {
+      const authHeaders = await getAuthorizationHeader();
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const res = await fetch(`${API_URL}/api/projects/${project.id}/business-case`, {
         method: 'POST',
+        headers: authHeaders,
         body: formDataObj,
       });
       if (res.ok) {
@@ -94,7 +96,7 @@ export function GeneralTab({ project, formData, onChange, disabled }: GeneralTab
 
   const handleFileDelete = async () => {
     try {
-      await fetch(`/api/projects/${project.id}/business-case`, { method: 'DELETE' });
+      await apiClient(`/api/projects/${project.id}/business-case`, { method: 'DELETE' });
       onChange({ ...formData, businessCaseFile: null });
     } catch (err) {
       console.error('Failed to delete business case:', err);

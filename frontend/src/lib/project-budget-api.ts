@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { apiClient } from './api-client';
 
 export interface ProjectBudget {
   opexBudget: string | null;
@@ -34,9 +34,7 @@ export interface AvailableBudgetLine {
 }
 
 export async function fetchProjectBudget(projectId: number): Promise<ProjectBudget> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget`);
-  if (!res.ok) throw new Error('Failed to fetch project budget');
-  return res.json();
+  return apiClient<ProjectBudget>(`/api/projects/${projectId}/budget`);
 }
 
 export async function updateProjectBudget(
@@ -48,20 +46,15 @@ export async function updateProjectBudget(
     reportCurrency?: string | null;
   }
 ): Promise<ProjectBudget> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget`, {
+  return apiClient<ProjectBudget>(`/api/projects/${projectId}/budget`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('Failed to update project budget');
-  return res.json();
 }
 
 export async function fetchAvailableBudgetLines(currency: string): Promise<AvailableBudgetLine[]> {
   const params = new URLSearchParams({ currency });
-  const res = await fetch(`${API_BASE}/api/admin/budget-lines?${params}`);
-  if (!res.ok) throw new Error('Failed to fetch available budget lines');
-  const allLines = await res.json();
+  const allLines = await apiClient<any[]>(`/api/admin/budget-lines?${params}`);
   // Filter to only those with available > 0 and map to expected interface
   return allLines
     .filter((line: any) => parseFloat(line.availableAmount) > 0)
@@ -79,19 +72,10 @@ export async function addBudgetAllocation(
   budgetLineId: number,
   amount: string
 ): Promise<BudgetAllocation> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget/allocations`, {
+  return apiClient<BudgetAllocation>(`/api/projects/${projectId}/budget/allocations`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ budgetLineId, allocationAmount: amount }),
   });
-  if (!res.ok) {
-    const error = await res.json();
-    if (res.status === 400) {
-      throw new Error(error.message || 'Allocation amount exceeds available budget');
-    }
-    throw new Error(error.message || 'Failed to add budget allocation');
-  }
-  return res.json();
 }
 
 export async function updateBudgetAllocation(
@@ -99,30 +83,17 @@ export async function updateBudgetAllocation(
   budgetLineId: number,
   amount: string
 ): Promise<BudgetAllocation> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget/allocations/${budgetLineId}`, {
+  return apiClient<BudgetAllocation>(`/api/projects/${projectId}/budget/allocations/${budgetLineId}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ allocationAmount: amount }),
   });
-  if (!res.ok) {
-    const error = await res.json();
-    if (res.status === 400) {
-      throw new Error(error.message || 'Allocation amount exceeds available budget');
-    }
-    throw new Error(error.message || 'Failed to update budget allocation');
-  }
-  return res.json();
 }
 
 export async function removeBudgetAllocation(
   projectId: number,
   budgetLineId: number
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/projects/${projectId}/budget/allocations/${budgetLineId}`, {
+  await apiClient(`/api/projects/${projectId}/budget/allocations/${budgetLineId}`, {
     method: 'DELETE',
   });
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Failed to remove budget allocation');
-  }
 }
