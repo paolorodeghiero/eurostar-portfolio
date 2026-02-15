@@ -25,7 +25,7 @@ async function checkIfDevMode(): Promise<boolean> {
   return false;
 }
 
-export async function getAccessToken(): Promise<string | null> {
+export async function getAccessToken(forceRefresh = false): Promise<string | null> {
   // Ensure MSAL is initialized
   await msalInitPromise;
 
@@ -51,11 +51,33 @@ export async function getAccessToken(): Promise<string | null> {
     const response = await msalInstance.acquireTokenSilent({
       ...loginRequest,
       account,
+      forceRefresh, // Force refresh if requested (e.g., after 401)
     });
+
+    // Check if token is expired or about to expire (within 5 minutes)
+    const expiresOn = response.expiresOn?.getTime() || 0;
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+
+    if (!forceRefresh && expiresOn < now + fiveMinutes) {
+      console.warn('[Auth Debug] Token expired or expiring soon, forcing refresh...');
+      const freshResponse = await msalInstance.acquireTokenSilent({
+        ...loginRequest,
+        account,
+        forceRefresh: true,
+      });
+      console.log('[Auth Debug] Fresh token obtained:', {
+        length: freshResponse.idToken.length,
+        expiresOn: freshResponse.expiresOn,
+      });
+      return freshResponse.idToken;
+    }
+
     // Debug: Log token info
     console.log('[Auth Debug] Token obtained:', {
       length: response.idToken.length,
       start: response.idToken.substring(0, 50) + '...',
+      expiresOn: response.expiresOn,
     });
     return response.idToken;
   } catch (error) {
@@ -117,8 +139,8 @@ export async function apiClient<T>(
 
   // Handle 401 with retry logic - token might be expired on backend
   if (response.status === 401 && !options._retried) {
-    console.warn('Got 401, attempting token refresh...');
-    const newToken = await getAccessToken();
+    console.warn('Got 401, forcing token refresh...');
+    const newToken = await getAccessToken(true); // Force refresh
     if (newToken) {
       headers['Authorization'] = `Bearer ${newToken}`;
       return apiClient(endpoint, { ...options, headers, _retried: true });
