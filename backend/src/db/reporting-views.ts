@@ -82,14 +82,25 @@ export async function createReportingViews(db: NodePgDatabase<any>): Promise<voi
   `);
 
   await db.execute(sql`
+    CREATE OR REPLACE VIEW reporting.dim_committee_levels AS
+    SELECT
+      id AS level_key,
+      name AS level_name,
+      mandatory,
+      display_order
+    FROM committee_levels
+  `);
+
+  await db.execute(sql`
     CREATE OR REPLACE VIEW reporting.dim_committee_thresholds AS
     SELECT
-      id AS threshold_key,
-      min_amount,
-      max_amount,
-      level,
-      currency
-    FROM committee_thresholds
+      ct.id AS threshold_key,
+      ct.level_id AS level_key,
+      cl.name AS level_name,
+      cl.mandatory,
+      ct.max_amount
+    FROM committee_thresholds ct
+    LEFT JOIN committee_levels cl ON ct.level_id = cl.id
   `);
 
   await db.execute(sql`
