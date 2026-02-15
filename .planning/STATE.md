@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 ## Current Position
 
-Phase: 6 of 7 (Admin GUI and Reporting) - Complete
-Plan: 7 of 7 (06-07)
-Status: Complete
-Last activity: 2026-02-15 - Completed Phase 6 - Admin GUI & Reporting
+Phase: 8 (Data Import Script) - In Progress
+Plan: 2 of TBD (08-02)
+Status: In Progress
+Last activity: 2026-02-15 - Completed Plan 08-02: YAML Mapping Configurations
 
 Progress: [████████████████████] 100% (56/56 total plans)
 Quick tasks: 16 completed
@@ -36,12 +36,14 @@ Quick tasks: 16 completed
 | 05 | 6 | 37m | 6m |
 | 06 | 7 | 23m | 3m |
 | 07 | 10 | 48m | 5m |
+| 08 | 2 | 8m | 4m |
 
 **Recent Trend:**
 - Last 5 plans: 06-02 (5m), 06-03 (8m), 06-04 (1m), 06-05 (8m), 06-06 (9m)
 - Trend: Phase 6 in progress - bulk import/export for admin data complete
 
 *Updated after each plan completion*
+| Phase 08 P01 | 4 | 2 tasks | 7 files |
 | Phase quick P016 | 9 | 3 tasks | 2 files |
 | Phase quick P015 | 7 | 3 tasks | 12 files |
 | Phase quick P014 | 8 | 3 tasks | 12 files |
@@ -257,6 +259,10 @@ Recent decisions affecting current work:
 - System statuses protected from deletion via isSystemStatus flag (06-05)
 - Committee thresholds refactored to EUR-only with limit-based structure (level + maxAmount) for consistency with cost t-shirt thresholds (quick-014)
 - Committee levels normalized to master data with mandatory flag for future alerting (quick-015)
+- L/M/H effort mapping uses inverted logic: L->S, M->M, H->L (Low effort = Small T-shirt) (08-02)
+- YAML mapping configurations externalize Excel-to-DB business rules for easy refinement (08-02)
+- Team/department mapping supports auto-create for missing entities during import (08-02)
+- Status mapping defaults to Draft for empty/unmapped Excel values (08-02)
 
 ### Pending Todos
 
@@ -265,6 +271,8 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 7 added: Refactor and reorganize information between main table and sidebar
+- Phase 8 added: Data import script
+- Phase 9 added: Import budget file
 
 ### Blockers/Concerns
 
@@ -294,9 +302,9 @@ None currently.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed Phase 6 - Admin GUI & Reporting
+Stopped at: Completed 08-01-PLAN.md: Import Infrastructure Setup
 Resume file: None
-Next: All phases complete
+Next: Continue Phase 8 - Data Import Script
 
 ---
 *State initialized: 2026-02-03*
