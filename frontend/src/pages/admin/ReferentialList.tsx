@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   Building2,
   Users,
@@ -10,6 +11,21 @@ import {
   Shirt,
   Calendar,
 } from 'lucide-react';
+import { getAuthorizationHeader } from '../../lib/api-client';
+
+// Map frontend IDs to backend stats keys
+const statsKeyMap: Record<string, string> = {
+  'departments': 'departments',
+  'teams': 'teams',
+  'statuses': 'statuses',
+  'outcomes': 'outcomes',
+  'cost-centers': 'costCenters',
+  'currency-rates': 'currencyRates',
+  'committee-levels': 'committeeLevels',
+  'committee-thresholds': 'committeeThresholds',
+  'cost-tshirt-thresholds': 'costTshirtThresholds',
+  'competence-month-patterns': 'competenceMonthPatterns',
+};
 
 const referentialTypes = [
   {
@@ -69,6 +85,29 @@ const referentialTypes = [
 ];
 
 export function ReferentialList() {
+  const [stats, setStats] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      setLoading(true);
+      try {
+        const headers = await getAuthorizationHeader();
+        const response = await fetch('/api/admin/stats', { headers });
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-2 text-gray-900">Referential Management</h1>
@@ -79,6 +118,8 @@ export function ReferentialList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {referentialTypes.map((type) => {
           const Icon = type.icon;
+          const statsKey = statsKeyMap[type.id];
+          const count = stats[statsKey];
           return (
             <Link
               key={type.id}
@@ -92,6 +133,11 @@ export function ReferentialList() {
                 <div>
                   <h3 className="font-medium text-gray-900">{type.name}</h3>
                   <p className="text-sm text-gray-500 mt-1">{type.description}</p>
+                  {!loading && count !== undefined && (
+                    <p className="text-xs text-gray-400 mt-2">
+                      {count} {count === 1 ? 'item' : 'items'}
+                    </p>
+                  )}
                 </div>
               </div>
             </Link>
