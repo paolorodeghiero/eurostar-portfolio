@@ -70,7 +70,78 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
     errors: [],
   };
 
-  // Load lookup tables
+  // Parse CSV files first to know what referentials we need
+  const projectRows = await parseCsv<any>(join(STAGING_DIR, 'projects.csv'));
+  const teamRows = await parseCsv<any>(join(STAGING_DIR, 'teams.csv'));
+  const valueRows = await parseCsv<any>(join(STAGING_DIR, 'value_scores.csv'));
+  const impactRows = await parseCsv<any>(join(STAGING_DIR, 'change_impact.csv'));
+
+  console.log(`Loaded: ${projectRows.length} projects, ${teamRows.length} team assignments`);
+  console.log(`        ${valueRows.length} value scores, ${impactRows.length} change impacts\n`);
+
+  // Auto-create missing departments and teams if enabled
+  if (shouldAutoCreateMissing() && !options.dryRun) {
+    // Collect unique departments from projects
+    const uniqueDepts = new Set<string>();
+    for (const row of projectRows) {
+      if (row.departmentOwner) uniqueDepts.add(row.departmentOwner.trim());
+    }
+
+    // Load existing departments
+    const existingDepts = await db.select().from(departments);
+    const deptMap = new Map(existingDepts.map((d) => [d.name.toLowerCase(), d.id]));
+
+    // Create missing departments
+    for (const deptName of uniqueDepts) {
+      if (!deptMap.has(deptName.toLowerCase())) {
+        const [newDept] = await db
+          .insert(departments)
+          .values({ name: deptName })
+          .returning();
+        deptMap.set(deptName.toLowerCase(), newDept.id);
+        console.log(`  [CREATE] Department: ${deptName}`);
+      }
+    }
+
+    // Collect unique teams from projects
+    const uniqueTeams = new Set<string>();
+    for (const row of projectRows) {
+      if (row.leadTeam) uniqueTeams.add(row.leadTeam.trim());
+    }
+    for (const row of teamRows) {
+      if (row.teamName) uniqueTeams.add(row.teamName.trim());
+    }
+
+    // Load existing teams
+    const existingTeams = await db.select().from(teams);
+    const teamMapTemp = new Map(existingTeams.map((t) => [t.name.toLowerCase(), t.id]));
+
+    // Get default department for teams (use IS or first available)
+    const refreshedDepts = await db.select().from(departments);
+    const isDept = refreshedDepts.find((d) => d.name.toLowerCase() === 'is');
+    const defaultDeptId = isDept?.id || refreshedDepts[0]?.id;
+
+    if (defaultDeptId) {
+      // Create missing teams
+      for (const teamName of uniqueTeams) {
+        if (!teamMapTemp.has(teamName.toLowerCase())) {
+          const [newTeam] = await db
+            .insert(teams)
+            .values({
+              name: teamName,
+              description: 'Auto-created during import',
+              departmentId: defaultDeptId,
+            })
+            .returning();
+          teamMapTemp.set(teamName.toLowerCase(), newTeam.id);
+          console.log(`  [CREATE] Team: ${teamName}`);
+        }
+      }
+    }
+    console.log('');
+  }
+
+  // Load lookup tables (refresh after auto-creation)
   const statusList = await db.select().from(statuses);
   const statusMap = new Map(statusList.map((s) => [s.name.toLowerCase(), s.id]));
 
@@ -82,15 +153,6 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
 
   const deptList = await db.select().from(departments);
   const deptMap = new Map(deptList.map((d) => [d.name.toLowerCase(), d.id]));
-
-  // Parse CSV files
-  const projectRows = await parseCsv<any>(join(STAGING_DIR, 'projects.csv'));
-  const teamRows = await parseCsv<any>(join(STAGING_DIR, 'teams.csv'));
-  const valueRows = await parseCsv<any>(join(STAGING_DIR, 'value_scores.csv'));
-  const impactRows = await parseCsv<any>(join(STAGING_DIR, 'change_impact.csv'));
-
-  console.log(`Loaded: ${projectRows.length} projects, ${teamRows.length} team assignments`);
-  console.log(`        ${valueRows.length} value scores, ${impactRows.length} change impacts\n`);
 
   // Build lookup for child entities
   const teamsByProject = new Map<string, any[]>();
