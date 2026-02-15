@@ -1,15 +1,14 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { costCenters, budgetLines, projectBudgetAllocations, projects } from '../../db/schema.js';
+import { costCenters, budgetLines, projectBudgetAllocations } from '../../db/schema.js';
 import * as XLSX from 'xlsx';
 
 export async function costCentersRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
 
-  // List all cost centers with usage count
+  // List all cost centers
   fastify.get('/', async () => {
-    const list = await db.select().from(costCenters);
-    return list.map((c) => ({ ...c, usageCount: 0 })); // Placeholder until projects exist
+    return db.select().from(costCenters);
   });
 
   // Get single cost center
@@ -17,7 +16,7 @@ export async function costCentersRoutes(fastify: FastifyInstance) {
     const id = parseInt(request.params.id);
     const [costCenter] = await db.select().from(costCenters).where(eq(costCenters.id, id));
     if (!costCenter) return reply.code(404).send({ error: 'Cost center not found' });
-    return { ...costCenter, usageCount: 0, usedBy: [] };
+    return costCenter;
   });
 
   // Create cost center
@@ -189,19 +188,9 @@ export async function costCentersRoutes(fastify: FastifyInstance) {
     return { budgetLines: budgetLinesList };
   });
 
-  // Delete cost center (blocked if in use)
+  // Delete cost center
   fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
-    const usageCount = 0; // Placeholder until projects exist
-
-    if (usageCount > 0) {
-      return reply.code(409).send({
-        error: 'Cannot delete',
-        message: `Cost center is used by ${usageCount} project(s)`,
-        usageCount,
-      });
-    }
-
     const [deleted] = await db.delete(costCenters).where(eq(costCenters.id, id)).returning();
     if (!deleted) return reply.code(404).send({ error: 'Cost center not found' });
     return { success: true, deleted };

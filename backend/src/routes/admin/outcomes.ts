@@ -1,15 +1,14 @@
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { outcomes, projectValues, projects } from '../../db/schema.js';
+import { outcomes, projectValues } from '../../db/schema.js';
 import * as XLSX from 'xlsx';
 
 export async function outcomesRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
 
-  // List all outcomes with usage count
+  // List all outcomes
   fastify.get('/', async () => {
-    const list = await db.select().from(outcomes);
-    return list.map((o) => ({ ...o, usageCount: 0 })); // Placeholder until projects exist
+    return db.select().from(outcomes);
   });
 
   // Get single outcome
@@ -17,7 +16,7 @@ export async function outcomesRoutes(fastify: FastifyInstance) {
     const id = parseInt(request.params.id);
     const [outcome] = await db.select().from(outcomes).where(eq(outcomes.id, id));
     if (!outcome) return reply.code(404).send({ error: 'Outcome not found' });
-    return { ...outcome, usageCount: 0, usedBy: [] };
+    return outcome;
   });
 
   // Create outcome
@@ -206,19 +205,9 @@ export async function outcomesRoutes(fastify: FastifyInstance) {
     return { projectValues: valuesList };
   });
 
-  // Delete outcome (blocked if in use)
+  // Delete outcome
   fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
-    const usageCount = 0; // Placeholder until projects exist
-
-    if (usageCount > 0) {
-      return reply.code(409).send({
-        error: 'Cannot delete',
-        message: `Outcome is used by ${usageCount} project(s)`,
-        usageCount,
-      });
-    }
-
     const [deleted] = await db.delete(outcomes).where(eq(outcomes.id, id)).returning();
     if (!deleted) return reply.code(404).send({ error: 'Outcome not found' });
     return { success: true, deleted };
