@@ -1,0 +1,339 @@
+import { parseArgs } from 'node:util';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
+import { parseFile } from '@fast-csv/parse';
+import { z } from 'zod';
+import { checkReferentials, createMissingTeams, createMissingDepartments } from './lib/referential-checker.js';
+import { shouldAutoCreateMissing } from './lib/mapping-loader.js';
+import { db, pool } from '../../src/db/index.js';
+import { departments } from '../../src/db/schema.js';
+import { writeReport } from './lib/csv-writer.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const STAGING_DIR = join(__dirname, '../staging');
+
+// Schemas for CSV validation
+const projectSchema = z.object({
+  rowNumber: z.string().transform(Number),
+  refId: z.string().min(1),
+  name: z.string().min(1),
+  status: z.string().min(1),
+  leadTeam: z.string(),
+  departmentOwner: z.string(),
+  startDate: z.string().nullable(),
+  endDate: z.string().nullable(),
+  isOwner: z.string(),
+  sponsor: z.string(),
+  opexBudget: z.string().transform(Number),
+  capexBudget: z.string().transform(Number),
+});
+
+const teamSchema = z.object({
+  projectRefId: z.string().min(1),
+  teamName: z.string().min(1),
+  effortSize: z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']),
+  isLead: z.string().transform((v) => v === 'true'),
+});
+
+const valueScoreSchema = z.object({
+  projectRefId: z.string().min(1),
+  outcomeName: z.string().min(1),
+  score: z.string().transform(Number).refine((n) => n >= 1 && n <= 5),
+});
+
+const changeImpactSchema = z.object({
+  projectRefId: z.string().min(1),
+  departmentName: z.string().min(1),
+  impactSize: z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']),
+});
+
+const budgetSchema = z.object({
+  projectRefId: z.string().min(1),
+  opexAmount: z.string().transform(Number),
+  capexAmount: z.string().transform(Number),
+  currency: z.string().length(3),
+});
+
+interface ValidationError {
+  file: string;
+  row: number;
+  field: string;
+  message: string;
+}
+
+async function parseCsv<T>(
+  filePath: string,
+  schema: z.ZodSchema<T>
+): Promise<{ data: T[]; errors: ValidationError[] }> {
+  return new Promise((resolve) => {
+    const data: T[] = [];
+    const errors: ValidationError[] = [];
+    let rowNum = 1;
+
+    parseFile(filePath, { headers: true })
+      .on('data', (row) => {
+        rowNum++;
+        const result = schema.safeParse(row);
+        if (result.success) {
+          data.push(result.data);
+        } else {
+          for (const issue of result.error.issues) {
+            errors.push({
+              file: filePath.split('/').pop() || filePath,
+              row: rowNum,
+              field: issue.path.join('.'),
+              message: issue.message,
+            });
+          }
+        }
+      })
+      .on('end', () => resolve({ data, errors }))
+      .on('error', (err) => {
+        errors.push({
+          file: filePath.split('/').pop() || filePath,
+          row: 0,
+          field: 'file',
+          message: err.message,
+        });
+        resolve({ data, errors });
+      });
+  });
+}
+
+async function validate(options: { autoCreate: boolean }): Promise<void> {
+  console.log('\nValidating staging CSV files...\n');
+
+  const allErrors: ValidationError[] = [];
+  let totalRows = 0;
+
+  // Check files exist
+  const requiredFiles = ['projects.csv', 'teams.csv', 'value_scores.csv', 'change_impact.csv', 'budget.csv'];
+  for (const file of requiredFiles) {
+    const path = join(STAGING_DIR, file);
+    if (!existsSync(path)) {
+      console.error(`Missing file: ${file}`);
+      console.error('Run extract stage first: npx tsx extract.ts');
+      process.exit(1);
+    }
+  }
+
+  // Parse and validate each CSV
+  console.log('Validating projects.csv...');
+  const projects = await parseCsv(join(STAGING_DIR, 'projects.csv'), projectSchema);
+  allErrors.push(...projects.errors);
+  totalRows += projects.data.length;
+  console.log(`  ${projects.data.length} rows, ${projects.errors.length} errors`);
+
+  console.log('Validating teams.csv...');
+  const teams = await parseCsv(join(STAGING_DIR, 'teams.csv'), teamSchema);
+  allErrors.push(...teams.errors);
+  totalRows += teams.data.length;
+  console.log(`  ${teams.data.length} rows, ${teams.errors.length} errors`);
+
+  console.log('Validating value_scores.csv...');
+  const valueScores = await parseCsv(join(STAGING_DIR, 'value_scores.csv'), valueScoreSchema);
+  allErrors.push(...valueScores.errors);
+  totalRows += valueScores.data.length;
+  console.log(`  ${valueScores.data.length} rows, ${valueScores.errors.length} errors`);
+
+  console.log('Validating change_impact.csv...');
+  const changeImpact = await parseCsv(join(STAGING_DIR, 'change_impact.csv'), changeImpactSchema);
+  allErrors.push(...changeImpact.errors);
+  totalRows += changeImpact.data.length;
+  console.log(`  ${changeImpact.data.length} rows, ${changeImpact.errors.length} errors`);
+
+  console.log('Validating budget.csv...');
+  const budgets = await parseCsv(join(STAGING_DIR, 'budget.csv'), budgetSchema);
+  allErrors.push(...budgets.errors);
+  totalRows += budgets.data.length;
+  console.log(`  ${budgets.data.length} rows, ${budgets.errors.length} errors`);
+
+  // Check referential integrity
+  console.log('\nChecking referential integrity against database...');
+
+  const teamNames = [
+    ...projects.data.map((p) => p.leadTeam),
+    ...teams.data.map((t) => t.teamName),
+  ].filter(Boolean);
+
+  const departmentNames = [
+    ...projects.data.map((p) => p.departmentOwner),
+    ...changeImpact.data.map((c) => c.departmentName),
+  ].filter(Boolean);
+
+  const statusNames = projects.data.map((p) => p.status).filter(Boolean);
+  const outcomeNames = valueScores.data.map((v) => v.outcomeName).filter(Boolean);
+
+  const refCheck = await checkReferentials(
+    teamNames,
+    departmentNames,
+    statusNames,
+    outcomeNames
+  );
+
+  console.log(`\nExisting referentials:`);
+  console.log(`  Teams: ${refCheck.existingTeams.size}`);
+  console.log(`  Departments: ${refCheck.existingDepartments.size}`);
+  console.log(`  Statuses: ${refCheck.existingStatuses.size}`);
+  console.log(`  Outcomes: ${refCheck.existingOutcomes.size}`);
+
+  console.log(`\nMissing referentials:`);
+  console.log(`  Teams: ${refCheck.missingTeams.length}`);
+  console.log(`  Departments: ${refCheck.missingDepartments.length}`);
+  console.log(`  Statuses: ${refCheck.missingStatuses.length}`);
+  console.log(`  Outcomes: ${refCheck.missingOutcomes.length}`);
+
+  // Auto-create missing referentials if enabled
+  if (options.autoCreate && shouldAutoCreateMissing()) {
+    if (refCheck.missingDepartments.length > 0) {
+      console.log('\nAuto-creating missing departments...');
+      const newDepts = await createMissingDepartments(refCheck.missingDepartments);
+      for (const [name, id] of newDepts) {
+        refCheck.existingDepartments.set(name, id);
+      }
+      refCheck.missingDepartments.length = 0;
+    }
+
+    if (refCheck.missingTeams.length > 0) {
+      console.log('\nAuto-creating missing teams...');
+      // Get or create a default department for new teams
+      const [defaultDept] = await db.select().from(departments).limit(1);
+      if (defaultDept) {
+        const newTeams = await createMissingTeams(refCheck.missingTeams, defaultDept.id);
+        for (const [name, id] of newTeams) {
+          refCheck.existingTeams.set(name, id);
+        }
+        refCheck.missingTeams.length = 0;
+      }
+    }
+  }
+
+  // Add referential errors
+  for (const status of refCheck.missingStatuses) {
+    allErrors.push({
+      file: 'projects.csv',
+      row: 0,
+      field: 'status',
+      message: `Unknown status: "${status}". Add mapping to status-mapping.yaml`,
+    });
+  }
+
+  for (const outcome of refCheck.missingOutcomes) {
+    allErrors.push({
+      file: 'value_scores.csv',
+      row: 0,
+      field: 'outcomeName',
+      message: `Unknown outcome: "${outcome}". Add mapping to outcome-mapping.yaml`,
+    });
+  }
+
+  if (!options.autoCreate) {
+    for (const team of refCheck.missingTeams) {
+      allErrors.push({
+        file: 'teams.csv',
+        row: 0,
+        field: 'teamName',
+        message: `Unknown team: "${team}". Will be auto-created during load if auto_create_missing is true`,
+      });
+    }
+  }
+
+  // Write validation report
+  writeReport(join(STAGING_DIR, 'validation_report.md'), {
+    title: 'Data Validation Report',
+    timestamp: new Date().toISOString(),
+    sourceFile: 'staging/*.csv',
+    sections: [
+      {
+        title: 'Missing Statuses (require mapping)',
+        items: refCheck.missingStatuses.length > 0
+          ? refCheck.missingStatuses
+          : ['None - all statuses mapped'],
+      },
+      {
+        title: 'Missing Outcomes (require mapping)',
+        items: refCheck.missingOutcomes.length > 0
+          ? refCheck.missingOutcomes
+          : ['None - all outcomes mapped'],
+      },
+      {
+        title: 'Missing Teams (will be auto-created)',
+        items: refCheck.missingTeams.length > 0
+          ? refCheck.missingTeams
+          : ['None - all teams exist or will be created'],
+      },
+      {
+        title: 'Missing Departments (will be auto-created)',
+        items: refCheck.missingDepartments.length > 0
+          ? refCheck.missingDepartments
+          : ['None - all departments exist or will be created'],
+      },
+    ],
+    warnings: allErrors.slice(0, 50).map((e) => `${e.file}:${e.row} [${e.field}] ${e.message}`),
+    summary: {
+      'Total Rows': totalRows,
+      'Schema Errors': allErrors.filter((e) => e.row > 0).length,
+      'Referential Errors': allErrors.filter((e) => e.row === 0).length,
+    },
+  });
+
+  console.log('\n--- Validation Summary ---');
+  console.log(`Total rows validated: ${totalRows}`);
+  console.log(`Errors found: ${allErrors.length}`);
+
+  if (allErrors.length > 0) {
+    console.log('\nFirst 10 errors:');
+    allErrors.slice(0, 10).forEach((e) => {
+      console.log(`  ${e.file}:${e.row} [${e.field}] ${e.message}`);
+    });
+    if (allErrors.length > 10) {
+      console.log(`  ... and ${allErrors.length - 10} more (see validation_report.md)`);
+    }
+  }
+
+  const canProceed = refCheck.missingStatuses.length === 0 && refCheck.missingOutcomes.length === 0;
+
+  if (canProceed) {
+    console.log('\n✅ Validation passed! Ready for load stage.');
+    console.log('Run: npx tsx load.ts');
+  } else {
+    console.log('\n❌ Validation failed. Fix mapping issues before loading.');
+    console.log('See validation_report.md for details.');
+  }
+
+  await pool.end();
+  process.exit(canProceed ? 0 : 1);
+}
+
+// CLI
+const { values } = parseArgs({
+  options: {
+    'auto-create': { type: 'boolean', short: 'a' },
+    help: { type: 'boolean', short: 'h' },
+  },
+});
+
+if (values.help) {
+  console.log(`
+Usage: npx tsx validate.ts [options]
+
+Options:
+  -a, --auto-create  Auto-create missing teams/departments in database
+  -h, --help         Show this help message
+
+The validate stage:
+1. Validates CSV schema compliance
+2. Checks referential integrity against database
+3. Reports missing referentials that need mapping
+
+Requires: staging/*.csv files from extract stage
+`);
+  process.exit(0);
+}
+
+validate({ autoCreate: values['auto-create'] ?? false }).catch((err) => {
+  console.error('Validation failed:', err.message);
+  process.exit(1);
+});
