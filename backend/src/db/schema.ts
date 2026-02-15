@@ -159,6 +159,8 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   createdBy: varchar('created_by', { length: 255 }),
   updatedBy: varchar('updated_by', { length: 255 }),
+  importedAt: timestamp('imported_at'), // When project was imported
+  importSource: varchar('import_source', { length: 100 }), // Source file name
 });
 
 // Project Teams table - Involved teams with T-shirt sizes
