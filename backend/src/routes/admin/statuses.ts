@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { statuses, projects } from '../../db/schema.js';
 
 export async function statusesRoutes(fastify: FastifyInstance) {
@@ -7,21 +7,41 @@ export async function statusesRoutes(fastify: FastifyInstance) {
 
   fastify.get('/', async () => {
     const list = await db.select().from(statuses).orderBy(statuses.displayOrder);
-    return list.map((s) => ({
-      ...s,
-      usageCount: 0,
-      isSystemStatus: s.isSystemStatus,
-      isReadOnly: s.isReadOnly,
-    }));
+
+    // Get usage counts for each status
+    const statusesWithUsage = await Promise.all(
+      list.map(async (s) => {
+        const [result] = await db
+          .select({ count: sql<string>`count(*)` })
+          .from(projects)
+          .where(eq(projects.statusId, s.id));
+        const usageCount = Number(result?.count) || 0;
+        return {
+          ...s,
+          usageCount,
+          isSystemStatus: s.isSystemStatus,
+          isReadOnly: s.isReadOnly,
+        };
+      })
+    );
+    return statusesWithUsage;
   });
 
   fastify.get<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
     const [status] = await db.select().from(statuses).where(eq(statuses.id, id));
     if (!status) return reply.code(404).send({ error: 'Status not found' });
+
+    // Count projects using this status
+    const [result] = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(projects)
+      .where(eq(projects.statusId, id));
+    const usageCount = Number(result?.count) || 0;
+
     return {
       ...status,
-      usageCount: 0,
+      usageCount,
       usedBy: [],
       isSystemStatus: status.isSystemStatus,
       isReadOnly: status.isReadOnly,
@@ -111,7 +131,12 @@ export async function statusesRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const usageCount = 0; // Placeholder
+    // Count projects using this status
+    const [result] = await db
+      .select({ count: sql<string>`count(*)` })
+      .from(projects)
+      .where(eq(projects.statusId, id));
+    const usageCount = Number(result?.count) || 0;
 
     if (usageCount > 0) {
       return reply.code(409).send({
