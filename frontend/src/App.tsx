@@ -12,6 +12,7 @@ import { StatusesPage } from './pages/admin/StatusesPage';
 import { OutcomesPage } from './pages/admin/OutcomesPage';
 import { CostCentersPage } from './pages/admin/CostCentersPage';
 import { CurrencyRatesPage } from './pages/admin/CurrencyRatesPage';
+import { CommitteeLevelsPage } from './pages/admin/CommitteeLevelsPage';
 import { CommitteeThresholdsPage } from './pages/admin/CommitteeThresholdsPage';
 import { CostTshirtThresholdsPage } from './pages/admin/CostTshirtThresholdsPage';
 import { CompetenceMonthPatternsPage } from './pages/admin/CompetenceMonthPatternsPage';
@@ -37,6 +38,7 @@ function AppRoutes() {
         <Route path="cost-centers" element={<CostCentersPage />} />
         <Route path="budget-lines" element={<BudgetLinesPage />} />
         <Route path="currency-rates" element={<CurrencyRatesPage />} />
+        <Route path="committee-levels" element={<CommitteeLevelsPage />} />
         <Route path="committee-thresholds" element={<CommitteeThresholdsPage />} />
         <Route path="cost-tshirt-thresholds" element={<CostTshirtThresholdsPage />} />
         <Route path="competence-month-patterns" element={<CompetenceMonthPatternsPage />} />

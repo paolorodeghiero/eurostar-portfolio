@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { apiClient } from '@/lib/api-client';
 import { Pencil, Trash2 } from 'lucide-react';
 
@@ -19,82 +20,66 @@ interface CommitteeLevel {
   name: string;
   mandatory: boolean;
   displayOrder: number;
-}
-
-interface CommitteeThreshold {
-  id: number;
-  levelId: number;
-  levelName: string;
-  maxAmount: number | null;  // null = unlimited
   usageCount: number;
   createdAt: string;
 }
 
-export function CommitteeThresholdsPage() {
-  const [thresholds, setThresholds] = useState<CommitteeThreshold[]>([]);
+export function CommitteeLevelsPage() {
   const [levels, setLevels] = useState<CommitteeLevel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingThreshold, setEditingThreshold] = useState<CommitteeThreshold | null>(null);
-  const [formMaxAmount, setFormMaxAmount] = useState<number | ''>('');
-  const [formLevelId, setFormLevelId] = useState<number | ''>('');
+  const [editingLevel, setEditingLevel] = useState<CommitteeLevel | null>(null);
+  const [formName, setFormName] = useState('');
+  const [formMandatory, setFormMandatory] = useState(false);
+  const [formDisplayOrder, setFormDisplayOrder] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchThresholds = async () => {
+  const fetchLevels = async () => {
     try {
       setIsLoading(true);
-      const data = await apiClient<CommitteeThreshold[]>('/api/admin/committee-thresholds');
-      setThresholds(data);
+      const data = await apiClient<CommitteeLevel[]>('/api/admin/committee-levels');
+      setLevels(data);
     } catch (err) {
-      console.error('Failed to fetch thresholds:', err);
+      console.error('Failed to fetch levels:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchLevels = async () => {
-    try {
-      const data = await apiClient<CommitteeLevel[]>('/api/admin/committee-levels');
-      setLevels(data);
-    } catch (err) {
-      console.error('Failed to fetch levels:', err);
-    }
-  };
-
   useEffect(() => {
-    fetchThresholds();
     fetchLevels();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formLevelId) return;
+    if (!formName) return;
 
     setIsSubmitting(true);
     setError(null);
 
     try {
       const payload = {
-        levelId: formLevelId,
-        maxAmount: formMaxAmount === '' ? null : formMaxAmount,
+        name: formName,
+        mandatory: formMandatory,
+        displayOrder: formDisplayOrder,
       };
 
-      if (editingThreshold) {
-        await apiClient(`/api/admin/committee-thresholds/${editingThreshold.id}`, {
+      if (editingLevel) {
+        await apiClient(`/api/admin/committee-levels/${editingLevel.id}`, {
           method: 'PUT',
           body: JSON.stringify(payload),
         });
       } else {
-        await apiClient('/api/admin/committee-thresholds', {
+        await apiClient('/api/admin/committee-levels', {
           method: 'POST',
           body: JSON.stringify(payload),
         });
       }
       setIsDialogOpen(false);
-      setEditingThreshold(null);
+      setEditingLevel(null);
       resetForm();
-      fetchThresholds();
+      fetchLevels();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save');
     } finally {
@@ -103,73 +88,61 @@ export function CommitteeThresholdsPage() {
   };
 
   const resetForm = () => {
-    setFormMaxAmount('');
-    setFormLevelId('');
+    setFormName('');
+    setFormMandatory(false);
+    setFormDisplayOrder(1);
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this threshold?')) return;
+    if (!confirm('Are you sure you want to delete this committee level?')) return;
 
     try {
-      await apiClient(`/api/admin/committee-thresholds/${id}`, { method: 'DELETE' });
-      fetchThresholds();
+      await apiClient(`/api/admin/committee-levels/${id}`, { method: 'DELETE' });
+      fetchLevels();
     } catch (err) {
-      console.error('Failed to delete threshold:', err);
+      console.error('Failed to delete level:', err);
     }
   };
 
   const openCreateDialog = () => {
-    setEditingThreshold(null);
+    setEditingLevel(null);
     resetForm();
     setError(null);
     setIsDialogOpen(true);
   };
 
-  const openEditDialog = (threshold: CommitteeThreshold) => {
-    setEditingThreshold(threshold);
-    setFormMaxAmount(threshold.maxAmount ?? '');
-    setFormLevelId(threshold.levelId);
+  const openEditDialog = (level: CommitteeLevel) => {
+    setEditingLevel(level);
+    setFormName(level.name);
+    setFormMandatory(level.mandatory);
+    setFormDisplayOrder(level.displayOrder);
     setError(null);
     setIsDialogOpen(true);
   };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const getLevelBadgeVariant = (levelName: string) => {
-    switch (levelName) {
-      case 'mandatory':
-        return 'default';
-      case 'optional':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
-  };
-
-  const columns: ColumnDef<CommitteeThreshold>[] = [
+  const columns: ColumnDef<CommitteeLevel>[] = [
     {
-      accessorKey: 'levelName',
-      header: 'Committee Level',
+      accessorKey: 'name',
+      header: 'Name',
       cell: ({ row }) => (
-        <Badge variant={getLevelBadgeVariant(row.original.levelName)}>
-          {row.original.levelName}
+        <span className="font-medium">{row.original.name}</span>
+      ),
+    },
+    {
+      accessorKey: 'mandatory',
+      header: 'Mandatory',
+      cell: ({ row }) => (
+        <Badge variant={row.original.mandatory ? 'default' : 'secondary'}>
+          {row.original.mandatory ? 'Required' : 'Optional'}
         </Badge>
       ),
     },
     {
-      accessorKey: 'maxAmount',
-      header: 'Max Amount',
+      accessorKey: 'displayOrder',
+      header: 'Display Order',
       cell: ({ row }) => (
-        <span className="font-mono">
-          {row.original.maxAmount !== null
-            ? formatAmount(row.original.maxAmount)
-            : 'Unlimited'}
+        <span className="font-mono text-muted-foreground">
+          {row.original.displayOrder}
         </span>
       ),
     },
@@ -178,7 +151,7 @@ export function CommitteeThresholdsPage() {
       header: 'Usage',
       cell: ({ row }) => (
         <Badge variant={row.original.usageCount > 0 ? 'secondary' : 'outline'}>
-          {row.original.usageCount} project(s)
+          {row.original.usageCount} threshold(s)
         </Badge>
       ),
     },
@@ -201,8 +174,8 @@ export function CommitteeThresholdsPage() {
             disabled={row.original.usageCount > 0}
             title={
               row.original.usageCount > 0
-                ? `Cannot delete: in use by ${row.original.usageCount} project(s)`
-                : 'Delete threshold'
+                ? `Cannot delete: used by ${row.original.usageCount} threshold(s)`
+                : 'Delete level'
             }
             className="text-destructive hover:text-destructive"
           >
@@ -224,64 +197,74 @@ export function CommitteeThresholdsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Committee Thresholds</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Committee Levels</h1>
         <p className="text-muted-foreground mt-1">
-          Manage budget thresholds that determine committee approval requirements.
+          Manage committee engagement levels with mandatory flag for alerting.
         </p>
       </div>
 
       <DataTable
         columns={columns}
-        data={thresholds}
+        data={levels}
         onAdd={openCreateDialog}
-        addButtonLabel="Add Threshold"
-        filterPlaceholder="Search thresholds..."
-        emptyMessage="No thresholds found. Create your first threshold."
+        addButtonLabel="Add Level"
+        filterPlaceholder="Search levels..."
+        emptyMessage="No committee levels found. Create your first level."
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingThreshold ? 'Edit Threshold' : 'Add Threshold'}
+              {editingLevel ? 'Edit Committee Level' : 'Add Committee Level'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="levelId">
-                Committee Level <span className="text-red-500">*</span>
+              <Label htmlFor="name">
+                Name <span className="text-red-500">*</span>
               </Label>
-              <select
-                id="levelId"
-                value={formLevelId}
-                onChange={(e) => setFormLevelId(Number(e.target.value))}
+              <Input
+                type="text"
+                id="name"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
                 required
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="">Select level...</option>
-                {levels.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="e.g. mandatory, optional, not_necessary"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxAmount">Max Amount (EUR)</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mandatory"
+                  checked={formMandatory}
+                  onCheckedChange={(checked) => setFormMandatory(checked === true)}
+                />
+                <Label htmlFor="mandatory" className="cursor-pointer">
+                  Committee engagement is mandatory
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                When checked, projects at this level must engage with committee (used for alerts).
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="displayOrder">
+                Display Order <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="number"
-                id="maxAmount"
-                value={formMaxAmount}
-                onChange={(e) =>
-                  setFormMaxAmount(e.target.value === '' ? '' : Number(e.target.value))
-                }
-                min={0}
-                placeholder="Unlimited"
+                id="displayOrder"
+                value={formDisplayOrder}
+                onChange={(e) => setFormDisplayOrder(Number(e.target.value))}
+                min={1}
+                required
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground">
-                Projects with budget up to this amount get this level. Leave empty for unlimited.
+                Order in which levels are displayed (lower numbers appear first).
               </p>
             </div>
 
@@ -301,7 +284,7 @@ export function CommitteeThresholdsPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formLevelId}
+                disabled={isSubmitting || !formName}
               >
                 {isSubmitting ? 'Saving...' : 'Save'}
               </Button>

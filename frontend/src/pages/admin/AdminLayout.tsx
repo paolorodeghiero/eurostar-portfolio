@@ -14,6 +14,7 @@ import {
   LayoutGrid,
   CreditCard,
   History,
+  Layers,
 } from 'lucide-react';
 
 const navItems = [
@@ -26,6 +27,7 @@ const navItems = [
   { href: '/admin/cost-centers', label: 'Cost Centers', icon: Wallet },
   { href: '/admin/budget-lines', label: 'Budget Lines', icon: CreditCard },
   { href: '/admin/currency-rates', label: 'Currency Rates', icon: DollarSign },
+  { href: '/admin/committee-levels', label: 'Committee Levels', icon: Layers },
   { href: '/admin/committee-thresholds', label: 'Committee Thresholds', icon: Scale },
   { href: '/admin/cost-tshirt-thresholds', label: 'Cost T-shirt Thresholds', icon: Shirt },
   { href: '/admin/competence-month-patterns', label: 'Competence Month Patterns', icon: Calendar },
