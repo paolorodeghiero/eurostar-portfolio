@@ -12,18 +12,18 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 6 of 7 (Admin GUI and Reporting)
 Plan: 6 of 7 (06-06)
 Status: In Progress
-Last activity: 2026-02-15 - Completed quick-015: Refactor committee threshold model with levels
+Last activity: 2026-02-15 - Completed quick-016: Add stats to referentials overview page
 
 Progress: [████████████████████] 98% (55/55 total plans)
-Quick tasks: 15 completed
+Quick tasks: 16 completed
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 55
 - Average duration: 8 min
-- Total execution time: 7.4 hours
-- Quick tasks: 15 completed (avg 5 min)
+- Total execution time: 7.5 hours
+- Quick tasks: 16 completed (avg 6 min)
 
 **By Phase:**
 
@@ -42,6 +42,7 @@ Quick tasks: 15 completed
 - Trend: Phase 6 in progress - bulk import/export for admin data complete
 
 *Updated after each plan completion*
+| Phase quick P016 | 9 | 3 tasks | 2 files |
 | Phase quick P015 | 7 | 3 tasks | 12 files |
 | Phase quick P014 | 8 | 3 tasks | 12 files |
 | Phase 07 P01 | 15 | 2 tasks | 5 files |
@@ -60,6 +61,7 @@ Quick tasks: 15 completed
 | Phase 06 P04 | 1 | 2 tasks | 2 files |
 | Phase 06 P06 | 9 | 2 tasks | 5 files |
 | Phase 06 P05 | 8 | 2 tasks | 6 files |
+| Phase quick P016 | 9 | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -287,11 +289,12 @@ None currently.
 | 013 | Refactor seed to demo-data, add startup migration | 2026-02-10 | d2766963 | [013-refactor-seed-to-demo-data-add-startup-m](./quick/013-refactor-seed-to-demo-data-add-startup-m/) |
 | 014 | Refactor committee threshold to euro-only limits | 2026-02-15 | f6ea290b | [014-refactor-committee-threshold-to-euro-onl](./quick/014-refactor-committee-threshold-to-euro-onl/) |
 | 015 | Refactor committee threshold model with levels | 2026-02-15 | fa5a3ece | [015-refactor-committee-threshold-model-with-](./quick/015-refactor-committee-threshold-model-with-/) |
+| 016 | Add stats to referentials overview page | 2026-02-15 | a9f65819 | [016-add-stats-to-referentials-overview-page-](./quick/016-add-stats-to-referentials-overview-page-/) |
 
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed quick-015: Refactor Committee Threshold Model with Levels
+Stopped at: Completed quick-016: Add stats to referentials overview page
 Resume file: None
 Next: Phase 6 plan 07 remaining (Integration Testing)
 
