@@ -9,8 +9,7 @@ export async function costTshirtThresholdsRoutes(fastify: FastifyInstance) {
 
   // List all cost t-shirt thresholds
   fastify.get('/', async () => {
-    const list = await db.select().from(costTshirtThresholds);
-    return list.map((t) => ({ ...t, usageCount: 0 }));
+    return db.select().from(costTshirtThresholds);
   });
 
   // Get single cost t-shirt threshold
@@ -18,7 +17,7 @@ export async function costTshirtThresholdsRoutes(fastify: FastifyInstance) {
     const id = parseInt(request.params.id);
     const [threshold] = await db.select().from(costTshirtThresholds).where(eq(costTshirtThresholds.id, id));
     if (!threshold) return reply.code(404).send({ error: 'Cost t-shirt threshold not found' });
-    return { ...threshold, usageCount: 0, usedBy: [] };
+    return threshold;
   });
 
   // Create cost t-shirt threshold
