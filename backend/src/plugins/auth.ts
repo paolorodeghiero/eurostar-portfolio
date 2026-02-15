@@ -8,8 +8,8 @@ async function authPluginHandler(fastify: FastifyInstance): Promise<void> {
   fastify.addHook(
     'preValidation',
     async (request: FastifyRequest, reply: FastifyReply) => {
-      // Skip auth for health endpoint
-      if (request.url === '/health') {
+      // Skip auth for health and API docs endpoints
+      if (request.url === '/health' || request.url.startsWith('/docs')) {
         return;
       }
 
