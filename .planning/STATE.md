@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 6 of 7 (Admin GUI and Reporting)
 Plan: 6 of 7 (06-06)
 Status: In Progress
-Last activity: 2026-02-10 - Completed 06-06: Bulk Import/Export for Admin Referential Data
+Last activity: 2026-02-15 - Completed quick-014: Refactor committee threshold to EUR-only limits
 
 Progress: [████████████████████] 98% (55/55 total plans)
 Quick tasks: 14 completed
