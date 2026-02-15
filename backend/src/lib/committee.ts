@@ -1,5 +1,5 @@
-import { asc, isNull } from 'drizzle-orm';
-import { committeeThresholds } from '../db/schema.js';
+import { asc, eq } from 'drizzle-orm';
+import { committeeLevels, committeeThresholds } from '../db/schema.js';
 
 // Committee state type
 export type CommitteeState = 'draft' | 'presented' | 'discussion' | 'approved' | 'rejected';
@@ -41,19 +41,25 @@ export async function determineCommitteeLevel(
   // Get thresholds ordered by maxAmount ascending (nulls last)
   // Find first threshold where totalBudget <= maxAmount (or maxAmount is null)
   const thresholds = await db
-    .select()
+    .select({
+      id: committeeThresholds.id,
+      levelId: committeeThresholds.levelId,
+      levelName: committeeLevels.name,
+      maxAmount: committeeThresholds.maxAmount,
+    })
     .from(committeeThresholds)
+    .innerJoin(committeeLevels, eq(committeeThresholds.levelId, committeeLevels.id))
     .orderBy(asc(committeeThresholds.maxAmount));
 
   for (const threshold of thresholds) {
     // If maxAmount is null, it's unlimited (mandatory for anything above previous threshold)
     if (threshold.maxAmount === null) {
-      return threshold.level as CommitteeLevel;
+      return threshold.levelName as CommitteeLevel;
     }
 
     const max = parseFloat(threshold.maxAmount);
     if (totalBudget <= max) {
-      return threshold.level as CommitteeLevel;
+      return threshold.levelName as CommitteeLevel;
     }
   }
 

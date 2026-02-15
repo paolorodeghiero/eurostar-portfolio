@@ -1,22 +1,41 @@
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
-import { committeeThresholds } from '../../db/schema.js';
-
-const VALID_LEVELS = ['mandatory', 'optional', 'not_necessary'] as const;
+import { eq, count } from 'drizzle-orm';
+import { committeeLevels, committeeThresholds } from '../../db/schema.js';
 
 export async function committeeThresholdsRoutes(fastify: FastifyInstance) {
   const db = fastify.db;
 
   // List all committee thresholds
   fastify.get('/', async () => {
-    const list = await db.select().from(committeeThresholds);
+    const list = await db
+      .select({
+        id: committeeThresholds.id,
+        levelId: committeeThresholds.levelId,
+        levelName: committeeLevels.name,
+        maxAmount: committeeThresholds.maxAmount,
+        createdAt: committeeThresholds.createdAt,
+        updatedAt: committeeThresholds.updatedAt,
+      })
+      .from(committeeThresholds)
+      .innerJoin(committeeLevels, eq(committeeThresholds.levelId, committeeLevels.id));
     return list.map((t) => ({ ...t, usageCount: 0 }));
   });
 
   // Get single committee threshold
   fastify.get<{ Params: { id: string } }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
-    const [threshold] = await db.select().from(committeeThresholds).where(eq(committeeThresholds.id, id));
+    const [threshold] = await db
+      .select({
+        id: committeeThresholds.id,
+        levelId: committeeThresholds.levelId,
+        levelName: committeeLevels.name,
+        maxAmount: committeeThresholds.maxAmount,
+        createdAt: committeeThresholds.createdAt,
+        updatedAt: committeeThresholds.updatedAt,
+      })
+      .from(committeeThresholds)
+      .innerJoin(committeeLevels, eq(committeeThresholds.levelId, committeeLevels.id))
+      .where(eq(committeeThresholds.id, id));
     if (!threshold) return reply.code(404).send({ error: 'Committee threshold not found' });
     return { ...threshold, usageCount: 0, usedBy: [] };
   });
@@ -24,15 +43,16 @@ export async function committeeThresholdsRoutes(fastify: FastifyInstance) {
   // Create committee threshold
   fastify.post<{
     Body: {
-      level: string;
+      levelId: number;
       maxAmount?: string;
     };
   }>('/', async (request, reply) => {
-    const { level, maxAmount } = request.body;
+    const { levelId, maxAmount } = request.body;
 
-    // Validate level
-    if (!VALID_LEVELS.includes(level as (typeof VALID_LEVELS)[number])) {
-      return reply.code(400).send({ error: `level must be one of: ${VALID_LEVELS.join(', ')}` });
+    // Validate levelId exists
+    const [level] = await db.select().from(committeeLevels).where(eq(committeeLevels.id, levelId));
+    if (!level) {
+      return reply.code(400).send({ error: 'Invalid levelId: committee level not found' });
     }
 
     // Validate maxAmount if provided
@@ -46,31 +66,35 @@ export async function committeeThresholdsRoutes(fastify: FastifyInstance) {
     const [threshold] = await db
       .insert(committeeThresholds)
       .values({
-        level,
+        levelId,
         maxAmount: maxAmount || null,
       })
       .returning();
-    return reply.code(201).send(threshold);
+
+    // Return with levelName for display
+    return reply.code(201).send({ ...threshold, levelName: level.name });
   });
 
   // Update committee threshold
   fastify.put<{
     Params: { id: string };
     Body: {
-      level?: string;
+      levelId?: number;
       maxAmount?: string;
     };
   }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
-    const { level, maxAmount } = request.body;
+    const { levelId, maxAmount } = request.body;
 
     const updates: Partial<typeof committeeThresholds.$inferInsert> = { updatedAt: new Date() };
 
-    if (level !== undefined) {
-      if (!VALID_LEVELS.includes(level as (typeof VALID_LEVELS)[number])) {
-        return reply.code(400).send({ error: `level must be one of: ${VALID_LEVELS.join(', ')}` });
+    if (levelId !== undefined) {
+      // Validate levelId exists
+      const [level] = await db.select().from(committeeLevels).where(eq(committeeLevels.id, levelId));
+      if (!level) {
+        return reply.code(400).send({ error: 'Invalid levelId: committee level not found' });
       }
-      updates.level = level;
+      updates.levelId = levelId;
     }
     if (maxAmount !== undefined) {
       if (maxAmount && maxAmount !== '') {
@@ -89,7 +113,10 @@ export async function committeeThresholdsRoutes(fastify: FastifyInstance) {
       .returning();
 
     if (!threshold) return reply.code(404).send({ error: 'Committee threshold not found' });
-    return threshold;
+
+    // Get level name for response
+    const [level] = await db.select().from(committeeLevels).where(eq(committeeLevels.id, threshold.levelId));
+    return { ...threshold, levelName: level?.name };
   });
 
   // Delete committee threshold

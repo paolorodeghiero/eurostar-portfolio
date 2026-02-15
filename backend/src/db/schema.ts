@@ -77,11 +77,24 @@ export const currencyRates = pgTable('currency_rates', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Committee Levels table (master data)
+export const committeeLevels = pgTable('committee_levels', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar('name', { length: 50 }).notNull().unique(), // 'mandatory', 'optional', 'not_necessary'
+  mandatory: boolean('mandatory').notNull().default(false), // True if committee must be engaged
+  displayOrder: integer('display_order').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Committee Thresholds table
 // EUR-only limits: amount <= maxAmount gets this level
 export const committeeThresholds = pgTable('committee_thresholds', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  level: varchar('level', { length: 20 }).notNull(), // 'mandatory', 'optional', 'not_necessary'
+  levelId: integer('level_id')
+    .notNull()
+    .references(() => committeeLevels.id, { onDelete: 'restrict' })
+    .unique(), // Each level can only appear once
   maxAmount: numeric('max_amount', { precision: 15, scale: 2 }), // null = unlimited
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

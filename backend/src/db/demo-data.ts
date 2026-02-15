@@ -7,6 +7,7 @@ import {
   outcomes,
   costCenters,
   currencyRates,
+  committeeLevels,
   committeeThresholds,
   costTshirtThresholds,
   competenceMonthPatterns,
@@ -184,15 +185,30 @@ async function createDemoData() {
   });
   await db.insert(currencyRates).values(currencyRateValues);
 
+  // Committee Levels (master data)
+  console.log('Creating committee levels...');
+  await db.insert(committeeLevels).values([
+    { name: 'not_necessary', mandatory: false, displayOrder: 1 },
+    { name: 'optional', mandatory: false, displayOrder: 2 },
+    { name: 'mandatory', mandatory: true, displayOrder: 3 },
+  ]);
+
   // Committee Thresholds (Engagement Committee activation) - EUR-only, limits-based
   console.log('Creating committee thresholds...');
-  await db.insert(committeeThresholds).values([
-    // EUR thresholds (limits-based: amount <= maxAmount gets this level)
-    // Sorted by maxAmount ascending: not_necessary, optional, mandatory
-    { level: 'not_necessary', maxAmount: '50000' },   // 0 - 50K
-    { level: 'optional', maxAmount: '200000' },       // 50K - 200K
-    { level: 'mandatory', maxAmount: null },          // 200K+ (unlimited)
-  ]);
+  const levels = await db.select().from(committeeLevels);
+  const notNecessaryId = levels.find(l => l.name === 'not_necessary')?.id;
+  const optionalId = levels.find(l => l.name === 'optional')?.id;
+  const mandatoryId = levels.find(l => l.name === 'mandatory')?.id;
+
+  if (notNecessaryId && optionalId && mandatoryId) {
+    await db.insert(committeeThresholds).values([
+      // EUR thresholds (limits-based: amount <= maxAmount gets this level)
+      // Sorted by maxAmount ascending: not_necessary, optional, mandatory
+      { levelId: notNecessaryId, maxAmount: '50000' },   // 0 - 50K
+      { levelId: optionalId, maxAmount: '200000' },       // 50K - 200K
+      { levelId: mandatoryId, maxAmount: null },          // 200K+ (unlimited)
+    ]);
+  }
 
   // Cost T-shirt Thresholds
   console.log('Creating cost T-shirt thresholds...');
