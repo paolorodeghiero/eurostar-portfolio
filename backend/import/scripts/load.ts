@@ -305,7 +305,7 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
 
       if (existing) {
         // Conflict resolution
-        const fieldsToCompare = ['name', 'statusId', 'leadTeamId', 'startDate', 'endDate', 'opexBudget', 'capexBudget'];
+        const fieldsToCompare = ['name', 'statusId', 'leadTeamId', 'startDate', 'endDate', 'opexBudget', 'capexBudget', 'budgetCurrency'];
         const changedFields = findChangedFields(
           {
             name: existing.name,
@@ -315,6 +315,7 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
             endDate: existing.endDate,
             opexBudget: existing.opexBudget,
             capexBudget: existing.capexBudget,
+            budgetCurrency: existing.budgetCurrency,
           },
           projectData,
           fieldsToCompare
@@ -335,6 +336,7 @@ async function load(options: { dryRun: boolean; sourceFile: string }): Promise<v
               endDate: existing.endDate,
               opexBudget: existing.opexBudget,
               capexBudget: existing.capexBudget,
+              budgetCurrency: existing.budgetCurrency,
             },
             incoming: projectData,
             fieldsChanged: changedFields,
