@@ -184,17 +184,14 @@ async function createDemoData() {
   });
   await db.insert(currencyRates).values(currencyRateValues);
 
-  // Committee Thresholds (Engagement Committee activation)
+  // Committee Thresholds (Engagement Committee activation) - EUR-only, limits-based
   console.log('Creating committee thresholds...');
   await db.insert(committeeThresholds).values([
-    // EUR thresholds
-    { minAmount: '0', maxAmount: '50000', level: 'not_necessary', currency: 'EUR' },
-    { minAmount: '50000', maxAmount: '200000', level: 'optional', currency: 'EUR' },
-    { minAmount: '200000', maxAmount: null, level: 'mandatory', currency: 'EUR' },
-    // GBP thresholds (converted from EUR at ~0.85 rate)
-    { minAmount: '0', maxAmount: '42500', level: 'not_necessary', currency: 'GBP' },
-    { minAmount: '42500', maxAmount: '170000', level: 'optional', currency: 'GBP' },
-    { minAmount: '170000', maxAmount: null, level: 'mandatory', currency: 'GBP' },
+    // EUR thresholds (limits-based: amount <= maxAmount gets this level)
+    // Sorted by maxAmount ascending: not_necessary, optional, mandatory
+    { level: 'not_necessary', maxAmount: '50000' },   // 0 - 50K
+    { level: 'optional', maxAmount: '200000' },       // 50K - 200K
+    { level: 'mandatory', maxAmount: null },          // 200K+ (unlimited)
   ]);
 
   // Cost T-shirt Thresholds

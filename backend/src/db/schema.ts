@@ -78,12 +78,11 @@ export const currencyRates = pgTable('currency_rates', {
 });
 
 // Committee Thresholds table
+// EUR-only limits: amount <= maxAmount gets this level
 export const committeeThresholds = pgTable('committee_thresholds', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  minAmount: numeric('min_amount', { precision: 15, scale: 2 }).notNull(),
-  maxAmount: numeric('max_amount', { precision: 15, scale: 2 }),
   level: varchar('level', { length: 20 }).notNull(), // 'mandatory', 'optional', 'not_necessary'
-  currency: varchar('currency', { length: 3 }).notNull(),
+  maxAmount: numeric('max_amount', { precision: 15, scale: 2 }), // null = unlimited
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

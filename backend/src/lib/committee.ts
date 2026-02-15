@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { asc, isNull } from 'drizzle-orm';
 import { committeeThresholds } from '../db/schema.js';
 
 // Committee state type
@@ -33,29 +33,31 @@ export function getAllowedTransitions(from: CommitteeState | null): CommitteeSta
 // Committee level type
 export type CommitteeLevel = 'mandatory' | 'optional' | 'not_necessary';
 
-// Determine committee level based on total budget
+// Determine committee level based on total budget (EUR-only)
 export async function determineCommitteeLevel(
   db: any,
-  totalBudget: number,
-  currency: string
+  totalBudget: number
 ): Promise<CommitteeLevel> {
-  // Get thresholds for the given currency, ordered by minAmount
+  // Get thresholds ordered by maxAmount ascending (nulls last)
+  // Find first threshold where totalBudget <= maxAmount (or maxAmount is null)
   const thresholds = await db
     .select()
     .from(committeeThresholds)
-    .where(eq(committeeThresholds.currency, currency))
-    .orderBy(committeeThresholds.minAmount);
+    .orderBy(asc(committeeThresholds.maxAmount));
 
   for (const threshold of thresholds) {
-    const min = parseFloat(threshold.minAmount);
-    const max = threshold.maxAmount ? parseFloat(threshold.maxAmount) : Infinity;
+    // If maxAmount is null, it's unlimited (mandatory for anything above previous threshold)
+    if (threshold.maxAmount === null) {
+      return threshold.level as CommitteeLevel;
+    }
 
-    if (totalBudget >= min && totalBudget < max) {
+    const max = parseFloat(threshold.maxAmount);
+    if (totalBudget <= max) {
       return threshold.level as CommitteeLevel;
     }
   }
 
-  // Default if no threshold matches
+  // Default if no threshold matches (shouldn't happen with proper seed data)
   return 'not_necessary';
 }
 

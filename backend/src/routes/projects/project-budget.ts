@@ -249,7 +249,7 @@ export async function projectBudgetRoutes(fastify: FastifyInstance) {
     // Auto-determine committee level based on EUR budget
     let committeeLevel = null;
     if (opex > 0 || capex > 0) {
-      committeeLevel = await determineCommitteeLevel(db, opex + capex, 'EUR');
+      committeeLevel = await determineCommitteeLevel(db, opex + capex);
     }
 
     // Build update object - store EUR values only

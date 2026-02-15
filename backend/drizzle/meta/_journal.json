@@ -64,6 +64,27 @@
       "when": 1770749453056,
       "tag": "0008_fearless_juggernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1770677040000,
+      "tag": "0009_add_description",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1770836520000,
+      "tag": "0010_create_reporting_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1771158905758,
+      "tag": "0011_refactor_committee_thresholds",
+      "breakpoints": true
     }
   ]
 }

@@ -24,48 +24,30 @@ export async function committeeThresholdsRoutes(fastify: FastifyInstance) {
   // Create committee threshold
   fastify.post<{
     Body: {
-      minAmount: string;
-      maxAmount?: string;
       level: string;
-      currency: string;
+      maxAmount?: string;
     };
   }>('/', async (request, reply) => {
-    const { minAmount, maxAmount, level, currency } = request.body;
-
-    // Validate minAmount
-    const minNum = parseFloat(minAmount);
-    if (isNaN(minNum) || minNum < 0) {
-      return reply.code(400).send({ error: 'minAmount must be a non-negative number' });
-    }
-
-    // Validate maxAmount if provided
-    if (maxAmount !== undefined) {
-      const maxNum = parseFloat(maxAmount);
-      if (isNaN(maxNum) || maxNum < 0) {
-        return reply.code(400).send({ error: 'maxAmount must be a non-negative number' });
-      }
-      if (maxNum <= minNum) {
-        return reply.code(400).send({ error: 'maxAmount must be greater than minAmount' });
-      }
-    }
+    const { level, maxAmount } = request.body;
 
     // Validate level
     if (!VALID_LEVELS.includes(level as (typeof VALID_LEVELS)[number])) {
       return reply.code(400).send({ error: `level must be one of: ${VALID_LEVELS.join(', ')}` });
     }
 
-    // Validate currency
-    if (!currency?.match(/^[A-Z]{3}$/)) {
-      return reply.code(400).send({ error: 'currency must be 3 uppercase letters (e.g., EUR)' });
+    // Validate maxAmount if provided
+    if (maxAmount !== undefined && maxAmount !== null && maxAmount !== '') {
+      const maxNum = parseFloat(maxAmount);
+      if (isNaN(maxNum) || maxNum < 0) {
+        return reply.code(400).send({ error: 'maxAmount must be a non-negative number' });
+      }
     }
 
     const [threshold] = await db
       .insert(committeeThresholds)
       .values({
-        minAmount,
-        maxAmount: maxAmount || null,
         level,
-        currency,
+        maxAmount: maxAmount || null,
       })
       .returning();
     return reply.code(201).send(threshold);
@@ -75,44 +57,29 @@ export async function committeeThresholdsRoutes(fastify: FastifyInstance) {
   fastify.put<{
     Params: { id: string };
     Body: {
-      minAmount?: string;
-      maxAmount?: string;
       level?: string;
-      currency?: string;
+      maxAmount?: string;
     };
   }>('/:id', async (request, reply) => {
     const id = parseInt(request.params.id);
-    const { minAmount, maxAmount, level, currency } = request.body;
+    const { level, maxAmount } = request.body;
 
     const updates: Partial<typeof committeeThresholds.$inferInsert> = { updatedAt: new Date() };
 
-    if (minAmount !== undefined) {
-      const minNum = parseFloat(minAmount);
-      if (isNaN(minNum) || minNum < 0) {
-        return reply.code(400).send({ error: 'minAmount must be a non-negative number' });
-      }
-      updates.minAmount = minAmount;
-    }
-    if (maxAmount !== undefined) {
-      if (maxAmount) {
-        const maxNum = parseFloat(maxAmount);
-        if (isNaN(maxNum) || maxNum < 0) {
-          return reply.code(400).send({ error: 'maxAmount must be a non-negative number' });
-        }
-      }
-      updates.maxAmount = maxAmount || null;
-    }
     if (level !== undefined) {
       if (!VALID_LEVELS.includes(level as (typeof VALID_LEVELS)[number])) {
         return reply.code(400).send({ error: `level must be one of: ${VALID_LEVELS.join(', ')}` });
       }
       updates.level = level;
     }
-    if (currency !== undefined) {
-      if (!currency?.match(/^[A-Z]{3}$/)) {
-        return reply.code(400).send({ error: 'currency must be 3 uppercase letters (e.g., EUR)' });
+    if (maxAmount !== undefined) {
+      if (maxAmount && maxAmount !== '') {
+        const maxNum = parseFloat(maxAmount);
+        if (isNaN(maxNum) || maxNum < 0) {
+          return reply.code(400).send({ error: 'maxAmount must be a non-negative number' });
+        }
       }
-      updates.currency = currency;
+      updates.maxAmount = maxAmount || null;
     }
 
     const [threshold] = await db
