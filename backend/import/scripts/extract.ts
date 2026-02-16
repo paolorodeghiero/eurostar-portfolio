@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { readExcelSheet, readExcelByIndex, ExcelRow } from './lib/excel-reader.js';
 import { writeCsv, writeReport } from './lib/csv-writer.js';
 import { parseFlexibleDate } from './lib/date-parser.js';
-import { mapStatus, mapTeamName, mapDepartmentName, mapEffortSize, mapImpactSize } from './lib/mapping-loader.js';
+import { mapStatus, mapTeamName, mapDepartmentName, mapEffortSize, mapImpactSize, mapOutcomeName } from './lib/mapping-loader.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,6 +38,27 @@ const COL = {
   CAPEX: 52,        // Capex IS Budget (full project)
 };
 
+// Referential row types (new CSV files)
+interface DepartmentRow {
+  name: string;
+}
+
+interface TeamRefRow {
+  name: string;
+  departmentName: string;
+}
+
+interface StatusRow {
+  name: string;
+  color: string;
+  displayOrder: number;
+}
+
+interface OutcomeRow {
+  name: string;
+}
+
+// Main data row types
 interface ProjectRow {
   rowNumber: number;
   refId: string;
@@ -48,25 +69,24 @@ interface ProjectRow {
   startDate: string | null;
   endDate: string | null;
   isOwner: string;
-  sponsor: string;
   opexBudget: number;
   capexBudget: number;
 }
 
-interface TeamRow {
+interface ProjectTeamRow {
   projectRefId: string;
   teamName: string;
   effortSize: string;
   isLead: boolean;
 }
 
-interface ValueScoreRow {
+interface ProjectValueRow {
   projectRefId: string;
   outcomeName: string;
   score: number | null;
 }
 
-interface ChangeImpactRow {
+interface ProjectImpactRow {
   projectRefId: string;
   departmentName: string;
   impactSize: string;
@@ -96,29 +116,70 @@ async function extract(filePath: string): Promise<void> {
   const dataRows = rawData.slice(2);
 
   // Get team column names (columns 21-28)
-  const teamNames: string[] = [];
+  const teamColumnNames: string[] = [];
   for (let i = COL.TEAM_START; i <= COL.TEAM_END; i++) {
-    teamNames.push(headerRow[i]?.toString().trim() || `Team ${i - COL.TEAM_START + 1}`);
+    teamColumnNames.push(headerRow[i]?.toString().trim() || `Team ${i - COL.TEAM_START + 1}`);
   }
 
   // Get impact department names (columns 32-42)
-  const impactDeptNames: string[] = [];
+  const impactDeptColumnNames: string[] = [];
   for (let i = COL.IMPACT_START; i <= COL.IMPACT_END; i++) {
-    impactDeptNames.push(headerRow[i]?.toString().trim() || `Dept ${i - COL.IMPACT_START + 1}`);
+    impactDeptColumnNames.push(headerRow[i]?.toString().trim() || `Dept ${i - COL.IMPACT_START + 1}`);
   }
 
+  // Collections for referentials (unique, mapped)
+  const uniqueDepartments = new Set<string>();
+  const uniqueTeams = new Map<string, string>(); // teamName -> departmentName
+  const uniqueStatuses = new Set<string>();
+  const uniqueOutcomes = new Set<string>();
+
+  // Collections for main data
   const projects: ProjectRow[] = [];
-  const teams: TeamRow[] = [];
-  const valueScores: ValueScoreRow[] = [];
-  const changeImpact: ChangeImpactRow[] = [];
+  const projectTeams: ProjectTeamRow[] = [];
+  const projectValues: ProjectValueRow[] = [];
+  const projectImpact: ProjectImpactRow[] = [];
   const budgets: BudgetRow[] = [];
   const warnings: string[] = [];
 
-  // Track unique values for report
-  const uniqueStatuses = new Set<string>();
-  const uniqueTeams = new Set<string>();
-  const uniqueDepartments = new Set<string>();
+  // Raw values for report (pre-mapping)
+  const rawStatuses = new Set<string>();
+  const rawTeams = new Set<string>();
+  const rawDepartments = new Set<string>();
 
+  // Pre-collect referentials from column headers
+  // Teams from IS team columns (all teams belong to IS department)
+  for (const rawTeamName of teamColumnNames) {
+    const mappedTeam = mapTeamName(rawTeamName);
+    if (mappedTeam) {
+      uniqueTeams.set(mappedTeam, 'IS'); // IS teams belong to IS department
+      rawTeams.add(rawTeamName);
+    }
+  }
+
+  // Departments from impact columns
+  for (const rawDeptName of impactDeptColumnNames) {
+    const mappedDept = mapDepartmentName(rawDeptName);
+    if (mappedDept) {
+      uniqueDepartments.add(mappedDept);
+      rawDepartments.add(rawDeptName);
+    }
+  }
+
+  // Value outcomes are fixed columns
+  const valueColumns = [
+    { col: COL.SAFETY, rawName: 'Safety' },
+    { col: COL.NPS, rawName: 'NPS' },
+    { col: COL.EBITDA, rawName: 'EBITDA' },
+    { col: COL.REGULATORY, rawName: 'Regulatory' },
+  ];
+  for (const { rawName } of valueColumns) {
+    const mappedOutcome = mapOutcomeName(rawName);
+    if (mappedOutcome) {
+      uniqueOutcomes.add(mappedOutcome);
+    }
+  }
+
+  // Process data rows
   let rowNum = 2; // Excel row number (accounting for title + header rows)
   for (const row of dataRows) {
     rowNum++;
@@ -142,14 +203,31 @@ async function extract(filePath: string): Promise<void> {
     const effectiveRefId = refId || `TBD-${rowNum}`;
     const effectiveName = projectName || 'Unknown Project';
 
-    // Extract project data
+    // Extract and map status
     const rawStatus = row[COL.STATUS]?.toString().trim() || '';
     const mappedStatus = mapStatus(rawStatus);
-    uniqueStatuses.add(rawStatus || '(empty)');
+    rawStatuses.add(rawStatus || '(empty)');
+    if (mappedStatus) {
+      uniqueStatuses.add(mappedStatus);
+    }
 
-    const leadTeam = row[COL.TEAM]?.toString().trim() || '';
-    uniqueTeams.add(leadTeam || '(empty)');
+    // Extract and map lead team
+    const rawLeadTeam = row[COL.TEAM]?.toString().trim() || '';
+    const mappedLeadTeam = mapTeamName(rawLeadTeam);
+    rawTeams.add(rawLeadTeam || '(empty)');
+    if (mappedLeadTeam) {
+      uniqueTeams.set(mappedLeadTeam, 'IS'); // Lead teams are IS teams
+    }
 
+    // Extract and map department owner
+    const rawDeptOwner = row[COL.DEPT_OWNER]?.toString().trim() || '';
+    const mappedDeptOwner = mapDepartmentName(rawDeptOwner);
+    rawDepartments.add(rawDeptOwner || '(empty)');
+    if (mappedDeptOwner) {
+      uniqueDepartments.add(mappedDeptOwner);
+    }
+
+    // Parse dates
     const startDateRaw = row[COL.START_DATE];
     const endDateRaw = row[COL.END_DATE];
     const startDate = parseFlexibleDate(startDateRaw);
@@ -168,81 +246,75 @@ async function extract(filePath: string): Promise<void> {
     const opexBudget = parseAmount(opexRaw);
     const capexBudget = parseAmount(capexRaw);
 
+    // Add project row
     projects.push({
       rowNumber: rowNum,
       refId: effectiveRefId,
       name: effectiveName,
       status: mappedStatus,
-      leadTeam: mapTeamName(leadTeam),
-      departmentOwner: mapDepartmentName(row[COL.DEPT_OWNER]?.toString().trim() || ''),
+      leadTeam: mappedLeadTeam,
+      departmentOwner: mappedDeptOwner,
       startDate,
       endDate,
       isOwner: row[COL.IS_OWNER]?.toString().trim() || '',
-      sponsor: row[COL.COMBOARD]?.toString().trim() || '',
       opexBudget,
       capexBudget,
     });
 
-    // Extract team effort (8 IS teams)
+    // Extract team assignments
     // Lead team first
-    if (leadTeam) {
-      teams.push({
+    if (mappedLeadTeam) {
+      projectTeams.push({
         projectRefId: effectiveRefId,
-        teamName: mapTeamName(leadTeam),
+        teamName: mappedLeadTeam,
         effortSize: 'M', // Default for lead team if no specific size
         isLead: true,
       });
     }
 
     // Other teams with effort sizes
-    for (let i = 0; i < teamNames.length; i++) {
+    for (let i = 0; i < teamColumnNames.length; i++) {
       const effortValue = row[COL.TEAM_START + i]?.toString().trim().toUpperCase();
       if (effortValue && effortValue !== '' && effortValue !== '0') {
         const mappedSize = mapEffortSize(effortValue);
         if (mappedSize) {
-          teams.push({
+          const mappedTeam = mapTeamName(teamColumnNames[i]);
+          projectTeams.push({
             projectRefId: effectiveRefId,
-            teamName: mapTeamName(teamNames[i]),
+            teamName: mappedTeam,
             effortSize: mappedSize,
             isLead: false,
           });
-          uniqueTeams.add(teamNames[i]);
         }
       }
     }
 
     // Extract value scores
-    const valueColumns = [
-      { col: COL.SAFETY, name: 'Safety' },
-      { col: COL.NPS, name: 'NPS' },
-      { col: COL.EBITDA, name: 'EBITDA' },
-      { col: COL.REGULATORY, name: 'Regulatory' },
-    ];
-
-    for (const { col, name } of valueColumns) {
+    for (const { col, rawName } of valueColumns) {
       const scoreRaw = row[col];
       const score = parseScore(scoreRaw);
-      if (score !== null) {
-        valueScores.push({
+      const mappedOutcome = mapOutcomeName(rawName);
+      if (score !== null && mappedOutcome) {
+        projectValues.push({
           projectRefId: effectiveRefId,
-          outcomeName: name,
+          outcomeName: mappedOutcome,
           score,
         });
       }
     }
 
-    // Extract change impact (11 departments)
-    for (let i = 0; i < impactDeptNames.length; i++) {
+    // Extract change impact
+    for (let i = 0; i < impactDeptColumnNames.length; i++) {
       const impactValue = row[COL.IMPACT_START + i]?.toString().trim().toUpperCase();
       if (impactValue && impactValue !== '' && impactValue !== '0') {
         const mappedSize = mapImpactSize(impactValue);
         if (mappedSize) {
-          changeImpact.push({
+          const mappedDept = mapDepartmentName(impactDeptColumnNames[i]);
+          projectImpact.push({
             projectRefId: effectiveRefId,
-            departmentName: mapDepartmentName(impactDeptNames[i]),
+            departmentName: mappedDept,
             impactSize: mappedSize,
           });
-          uniqueDepartments.add(impactDeptNames[i]);
         }
       }
     }
@@ -258,19 +330,56 @@ async function extract(filePath: string): Promise<void> {
     }
   }
 
+  // Add IS department (parent of all teams)
+  uniqueDepartments.add('IS');
+
+  // Build referential CSV data
+  const departmentRows: DepartmentRow[] = Array.from(uniqueDepartments)
+    .sort()
+    .map((name) => ({ name }));
+
+  const teamRefRows: TeamRefRow[] = Array.from(uniqueTeams.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, departmentName]) => ({ name, departmentName }));
+
+  const statusRows: StatusRow[] = Array.from(uniqueStatuses)
+    .sort()
+    .map((name, index) => ({
+      name,
+      color: '#6b7280', // Default gray color
+      displayOrder: index,
+    }));
+
+  const outcomeRows: OutcomeRow[] = Array.from(uniqueOutcomes)
+    .sort()
+    .map((name) => ({ name }));
+
   // Write CSV files
-  console.log('Writing CSV files...');
+  console.log('Writing referential CSV files...');
+  await writeCsv(join(STAGING_DIR, 'departments.csv'), departmentRows);
+  console.log(`  - departments.csv: ${departmentRows.length} rows`);
+
+  await writeCsv(join(STAGING_DIR, 'teams.csv'), teamRefRows);
+  console.log(`  - teams.csv: ${teamRefRows.length} rows`);
+
+  await writeCsv(join(STAGING_DIR, 'statuses.csv'), statusRows);
+  console.log(`  - statuses.csv: ${statusRows.length} rows`);
+
+  await writeCsv(join(STAGING_DIR, 'outcomes.csv'), outcomeRows);
+  console.log(`  - outcomes.csv: ${outcomeRows.length} rows`);
+
+  console.log('\nWriting main data CSV files...');
   await writeCsv(join(STAGING_DIR, 'projects.csv'), projects);
   console.log(`  - projects.csv: ${projects.length} rows`);
 
-  await writeCsv(join(STAGING_DIR, 'teams.csv'), teams);
-  console.log(`  - teams.csv: ${teams.length} rows`);
+  await writeCsv(join(STAGING_DIR, 'project_teams.csv'), projectTeams);
+  console.log(`  - project_teams.csv: ${projectTeams.length} rows`);
 
-  await writeCsv(join(STAGING_DIR, 'value_scores.csv'), valueScores);
-  console.log(`  - value_scores.csv: ${valueScores.length} rows`);
+  await writeCsv(join(STAGING_DIR, 'project_values.csv'), projectValues);
+  console.log(`  - project_values.csv: ${projectValues.length} rows`);
 
-  await writeCsv(join(STAGING_DIR, 'change_impact.csv'), changeImpact);
-  console.log(`  - change_impact.csv: ${changeImpact.length} rows`);
+  await writeCsv(join(STAGING_DIR, 'project_impact.csv'), projectImpact);
+  console.log(`  - project_impact.csv: ${projectImpact.length} rows`);
 
   await writeCsv(join(STAGING_DIR, 'budget.csv'), budgets);
   console.log(`  - budget.csv: ${budgets.length} rows`);
@@ -282,28 +391,48 @@ async function extract(filePath: string): Promise<void> {
     sourceFile: basename(filePath),
     sections: [
       {
-        title: 'Unique Statuses Found',
+        title: 'Raw Statuses Found (pre-mapping)',
+        items: Array.from(rawStatuses).sort(),
+      },
+      {
+        title: 'Mapped Statuses',
         items: Array.from(uniqueStatuses).sort(),
       },
       {
-        title: 'Unique Teams Found',
-        items: Array.from(uniqueTeams).sort(),
+        title: 'Raw Teams Found (pre-mapping)',
+        items: Array.from(rawTeams).sort(),
       },
       {
-        title: 'Unique Departments Found',
+        title: 'Mapped Teams',
+        items: Array.from(uniqueTeams.keys()).sort(),
+      },
+      {
+        title: 'Raw Departments Found (pre-mapping)',
+        items: Array.from(rawDepartments).sort(),
+      },
+      {
+        title: 'Mapped Departments',
         items: Array.from(uniqueDepartments).sort(),
+      },
+      {
+        title: 'Mapped Outcomes',
+        items: Array.from(uniqueOutcomes).sort(),
       },
     ],
     warnings,
     summary: {
-      Projects: projects.length,
-      'Team Assignments': teams.length,
-      'Value Scores': valueScores.length,
-      'Change Impact Entries': changeImpact.length,
+      'Departments': departmentRows.length,
+      'Teams': teamRefRows.length,
+      'Statuses': statusRows.length,
+      'Outcomes': outcomeRows.length,
+      'Projects': projects.length,
+      'Project Team Assignments': projectTeams.length,
+      'Project Value Scores': projectValues.length,
+      'Project Change Impact': projectImpact.length,
       'Budget Entries': budgets.length,
     },
   });
-  console.log(`  - extraction_report.md`);
+  console.log(`\n  - extraction_report.md`);
 
   console.log(`\nExtraction complete! ${warnings.length} warnings.`);
   if (warnings.length > 0) {
@@ -343,8 +472,22 @@ if (values.help) {
 Usage: npx tsx extract.ts [options] [file]
 
 Options:
-  -f, --file <path>  Path to Excel file (default: TPO Portfolio.xlsx)
+  -f, --file <path>  Path to Excel file (default: import/source/TPO Portfolio.xlsx)
   -h, --help         Show this help message
+
+Output Files (staging/):
+  Referentials:
+    - departments.csv   Unique departments
+    - teams.csv         Unique teams with department links
+    - statuses.csv      Unique statuses with colors
+    - outcomes.csv      Unique value outcomes
+
+  Main Data:
+    - projects.csv       Project records
+    - project_teams.csv  Team assignments per project
+    - project_values.csv Value scores per project
+    - project_impact.csv Change impact per project
+    - budget.csv         Budget entries
 
 Examples:
   npx tsx extract.ts
@@ -354,7 +497,7 @@ Examples:
   process.exit(0);
 }
 
-const filePath = values.file || positionals[0] || join(__dirname, '../../../..', 'TPO Portfolio.xlsx');
+const filePath = values.file || positionals[0] || join(__dirname, '../source', 'TPO Portfolio.xlsx');
 
 extract(filePath).catch((err) => {
   console.error('Extraction failed:', err.message);

@@ -1,7 +1,7 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push db-fresh import-extract import-validate import-load import-all import-dry-run import-help
+.PHONY: help dev db-reset db-demo-data db-push db-fresh db-clean import-extract import-validate import-load import-all import-dry-run import-help
 
 # Default target - show available commands
 help:
@@ -15,10 +15,11 @@ help:
 	@echo "  make db-reset     - Truncate all tables (empty database)"
 	@echo "  make db-demo-data - Load demo data (departments, projects, etc.)"
 	@echo "  make db-fresh     - Full reset: push schema + truncate + demo data"
+	@echo "  make db-clean     - Clean reset: truncate + push schema (no demo data)"
 	@echo ""
 	@echo "Data Import:"
 	@echo "  make import-extract   - Extract data from Excel to CSV staging files"
-	@echo "  make import-validate  - Validate staging CSV files against schema and database"
+	@echo "  make import-validate  - Validate staging CSV files (schema + cross-CSV consistency)"
 	@echo "  make import-load      - Load validated data to database"
 	@echo "  make import-all       - Run full import pipeline (extract -> validate -> load)"
 	@echo "  make import-dry-run   - Preview full import without database changes"
@@ -52,11 +53,17 @@ db-fresh:
 	cd backend && npx drizzle-kit push && npm run db:reset && npm run db:demo-data
 	@echo "Database ready with fresh data."
 
+# Clean reset: truncate + push schema (no demo data)
+db-clean:
+	@echo "Clean database reset..."
+	cd backend && npm run db:reset && npx drizzle-kit push
+	@echo "Database ready (empty)."
+
 # Data Import
 import-extract: ## Extract data from Excel to CSV staging files
 	cd backend && npm run import:extract
 
-import-validate: ## Validate staging CSV files against schema and database
+import-validate: ## Validate staging CSV files (schema + cross-CSV consistency)
 	cd backend && npm run import:validate
 
 import-load: ## Load validated data to database

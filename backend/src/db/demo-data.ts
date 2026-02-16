@@ -47,6 +47,7 @@ async function createDemoData() {
   await db.delete(costCenters);
   await db.delete(currencyRates);
   await db.delete(committeeThresholds);
+  await db.delete(committeeLevels);
   await db.delete(costTshirtThresholds);
   await db.delete(competenceMonthPatterns);
 

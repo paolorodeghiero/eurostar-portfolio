@@ -14,7 +14,6 @@ const { values, positionals } = parseArgs({
     load: { type: 'boolean', short: 'l' },
     all: { type: 'boolean', short: 'a' },
     'dry-run': { type: 'boolean', short: 'd' },
-    'auto-create': { type: 'boolean' },
     file: { type: 'string', short: 'f' },
     source: { type: 'string', short: 's' },
     help: { type: 'boolean', short: 'h' },
@@ -29,21 +28,35 @@ Portfolio Data Import Tool
 
 Import project data from TPO Portfolio.xlsx into the database.
 
+ARCHITECTURE: Referentials-First Approach
+------------------------------------------
+The import process uses a staged CSV approach where:
+1. Extract produces CSVs for ALL data (referentials + main data)
+2. Validate checks all CSVs for schema and cross-CSV consistency
+3. Load inserts referentials first (in FK order), then main data
+
+This ensures:
+- All referentials are explicitly defined in CSVs
+- Validation catches mismatches before touching the database
+- Load is deterministic with no auto-creation surprises
+
 WORKFLOW
 --------
 The import process has three stages:
 
-  1. EXTRACT - Read Excel file, generate CSV staging files
-     Creates: staging/projects.csv, teams.csv, value_scores.csv, etc.
-     Review:  Check extraction_report.md for warnings
+  1. EXTRACT - Read Excel file, generate all CSV staging files
+     Referentials: departments.csv, teams.csv, statuses.csv, outcomes.csv
+     Main data:    projects.csv, project_teams.csv, project_values.csv, project_impact.csv
+     Review:       Check extraction_report.md for warnings
 
-  2. VALIDATE - Check CSV data against schema and database
-     Checks:  Required fields, T-shirt sizes, referential integrity
-     Review:  Check validation_report.md for errors
+  2. VALIDATE - Check CSV data for schema and cross-CSV consistency
+     Checks:       Schema compliance, FK relationships between CSVs
+     Review:       Check validation_report.md for errors
 
-  3. LOAD - Insert/update data in database
-     Handles: Conflicts, merge strategy, import tracking
-     Review:  Check load_report.md for results
+  3. LOAD - Insert data into database in FK order
+     Order:        departments -> teams -> statuses -> outcomes -> projects -> ...
+     Handles:      Conflicts, merge strategy, import tracking
+     Review:       Check load_report.md for results
 
 USAGE
 -----
@@ -59,9 +72,6 @@ OPTIONS
 
   Extract Options:
     -f, --file <path>   Excel file path (default: TPO Portfolio.xlsx)
-
-  Validate Options:
-    --auto-create       Auto-create missing teams/departments
 
   Load Options:
     -d, --dry-run       Show changes without modifying database
@@ -92,12 +102,24 @@ EXAMPLES
 FILE STRUCTURE
 --------------
   backend/import/
+    source/               Excel source files (gitignored)
+      TPO Portfolio.xlsx  Default source file
+
     staging/              Generated CSV files (gitignored)
-      projects.csv
+      # Referentials (inserted first)
+      departments.csv
       teams.csv
-      value_scores.csv
-      change_impact.csv
+      statuses.csv
+      outcomes.csv
+
+      # Main data (inserted after referentials)
+      projects.csv
+      project_teams.csv
+      project_values.csv
+      project_impact.csv
       budget.csv
+
+      # Reports
       extraction_report.md
       validation_report.md
       load_report.md
@@ -110,9 +132,9 @@ FILE STRUCTURE
 
     scripts/              Import scripts (committed)
       import.ts           This orchestrator
-      extract.ts          Stage 1: Excel -> CSV
-      validate.ts         Stage 2: Schema + referential check
-      load.ts             Stage 3: CSV -> Database
+      extract.ts          Stage 1: Excel -> CSV (referentials + main data)
+      validate.ts         Stage 2: CSV schema + cross-CSV validation
+      load.ts             Stage 3: CSV -> Database (FK-ordered)
       lib/                Utility modules
 `);
 }
@@ -173,7 +195,6 @@ async function main(): Promise<void> {
 
   if (runValidate) {
     const args: string[] = [];
-    if (values['auto-create']) args.push('--auto-create');
 
     exitCode = await runScript('validate.ts', args);
     if (exitCode !== 0) {
