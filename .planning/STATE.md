@@ -15,7 +15,7 @@ Status: In Progress
 Last activity: 2026-02-15 - Completed Plan 08-06: Combined Import Orchestrator
 
 Progress: [████████████████████] 100% (60/60 total plans)
-Quick tasks: 16 completed
+Quick tasks: 17 completed
 
 ## Performance Metrics
 
@@ -23,7 +23,7 @@ Quick tasks: 16 completed
 - Total plans completed: 59
 - Average duration: 8 min
 - Total execution time: 7.8 hours
-- Quick tasks: 16 completed (avg 6 min)
+- Quick tasks: 17 completed (avg 6 min)
 
 **By Phase:**
 
@@ -43,6 +43,7 @@ Quick tasks: 16 completed
 - Trend: Phase 8 in progress - data import script development
 
 *Updated after each plan completion*
+| Phase quick P017 | 5 | 3 tasks | 8 files |
 | Phase 08 P06 | 4 | 3 tasks | 3 files |
 | Phase 08 P05 | 3 | 2 tasks | 2 files |
 | Phase 08 P04 | 2 | 2 tasks | 2 files |
@@ -282,6 +283,8 @@ Recent decisions affecting current work:
 - [Phase 08]: Merge strategy for child entities - add new, keep existing - protects manual edits
 - Combined orchestrator with --extract, --validate, --load flags for flexible pipeline execution (08-06)
 - npm scripts and Makefile targets provide convenient access to all import stages (08-06)
+- Import module moved to project root as standalone package with own dependencies and TypeScript config (quick-017)
+- Import scripts access backend database via relative imports (../../backend/src/db) for explicit coupling (quick-017)
 
 ### Pending Todos
 
@@ -317,14 +320,15 @@ None currently.
 | 014 | Refactor committee threshold to euro-only limits | 2026-02-15 | f6ea290b | [014-refactor-committee-threshold-to-euro-onl](./quick/014-refactor-committee-threshold-to-euro-onl/) |
 | 015 | Refactor committee threshold model with levels | 2026-02-15 | fa5a3ece | [015-refactor-committee-threshold-model-with-](./quick/015-refactor-committee-threshold-model-with-/) |
 | 016 | Add stats to referentials overview page | 2026-02-15 | a9f65819 | [016-add-stats-to-referentials-overview-page-](./quick/016-add-stats-to-referentials-overview-page-/) |
+| 017 | Refactor move import folder to project root | 2026-02-16 | b7cf1030 | [017-refactor-move-the-import-folder-out-of-b](./quick/017-refactor-move-the-import-folder-out-of-b/) |
 
 ## Session Continuity
 
-Last session: 2026-02-15
-Stopped at: Completed 08-06-PLAN.md: Combined Import Orchestrator
+Last session: 2026-02-16
+Stopped at: Completed quick-17-PLAN.md: Refactor move import folder to root
 Resume file: None
 Next: Continue Phase 8 - Data Import Script
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-15 (08-06 complete)*
+*Last updated: 2026-02-16 (quick-17 complete)*
