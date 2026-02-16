@@ -9,9 +9,14 @@ import { createReportingViews } from './reporting-views.js';
  * These are created on app startup if they don't exist.
  */
 const SYSTEM_STATUSES = [
+  // System statuses (cannot be deleted)
   { name: 'Draft', color: '#9CA3AF', displayOrder: 1, isSystemStatus: true, isReadOnly: false },
   { name: 'Completed', color: '#10B981', displayOrder: 100, isSystemStatus: true, isReadOnly: true },
   { name: 'Stopped', color: '#DC2626', displayOrder: 101, isSystemStatus: true, isReadOnly: true },
+  // Default workflow statuses (can be modified/deleted by users)
+  { name: 'Ready', color: '#3B82F6', displayOrder: 2, isSystemStatus: false, isReadOnly: false },
+  { name: 'In Progress', color: '#400080', displayOrder: 3, isSystemStatus: false, isReadOnly: false },
+  { name: 'At Risk', color: '#EF4444', displayOrder: 4, isSystemStatus: false, isReadOnly: false },
 ];
 
 /**
