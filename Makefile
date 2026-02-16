@@ -1,7 +1,7 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push db-fresh db-clean import-extract import-validate import-load import-all import-dry-run import-help
+.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help
 
 # Default target - show available commands
 help:
@@ -12,10 +12,8 @@ help:
 	@echo ""
 	@echo "Database:"
 	@echo "  make db-push      - Push schema changes to database (drizzle-kit push)"
-	@echo "  make db-reset     - Truncate all tables (empty database)"
+	@echo "  make db-reset     - Truncate all tables and seed essential data"
 	@echo "  make db-demo-data - Load demo data (departments, projects, etc.)"
-	@echo "  make db-fresh     - Full reset: push schema + truncate + demo data"
-	@echo "  make db-clean     - Clean reset: truncate + push schema (no demo data)"
 	@echo ""
 	@echo "Data Import:"
 	@echo "  make import-extract   - Extract data from Excel to CSV staging files"
@@ -33,7 +31,7 @@ dev:
 		"cd backend && npm run dev" \
 		"cd frontend && npm run dev"
 
-# Truncate all tables (empty database)
+# Truncate all tables and seed essential data
 db-reset:
 	cd backend && npm run db:reset
 
@@ -46,18 +44,6 @@ db-demo-data:
 db-push:
 	@echo "Pushing schema to database..."
 	cd backend && npx drizzle-kit push
-
-# Full reset: push schema + truncate + demo data
-db-fresh:
-	@echo "Full database reset..."
-	cd backend && npx drizzle-kit push && npm run db:reset && npm run db:demo-data
-	@echo "Database ready with fresh data."
-
-# Clean reset: truncate + push schema (no demo data)
-db-clean:
-	@echo "Clean database reset..."
-	cd backend && npm run db:reset && npx drizzle-kit push
-	@echo "Database ready (empty)."
 
 # Data Import
 import-extract: ## Extract data from Excel to CSV staging files
