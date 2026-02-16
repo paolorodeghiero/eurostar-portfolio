@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';
 import { parseFile } from '@fast-csv/parse';
 import { eq, sql } from 'drizzle-orm';
-import { db, pool } from '../../src/db/index.js';
+import { db, pool } from '../../backend/src/db/index.js';
 import {
   projects,
   projectTeams,
@@ -14,7 +14,7 @@ import {
   statuses,
   outcomes,
   departments,
-} from '../../src/db/schema.js';
+} from '../../backend/src/db/schema.js';
 import {
   resolveConflict,
   findChangedFields,

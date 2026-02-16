@@ -11,8 +11,8 @@
  * - Load: inserts referentials first, then main data
  */
 
-import { db } from '../../../src/db/index.js';
-import { teams, departments, statuses, outcomes } from '../../../src/db/schema.js';
+import { db } from '../../../backend/src/db/index.js';
+import { teams, departments, statuses, outcomes } from '../../../backend/src/db/schema.js';
 
 export interface ReferentialLookups {
   teams: Map<string, number>;      // name (lowercase) -> id
