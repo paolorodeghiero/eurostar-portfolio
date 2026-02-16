@@ -10,13 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:demo-data": "tsx src/db/demo-data.ts",
-    "db:reset": "tsx src/db/reset.ts",
-    "import": "tsx import/scripts/import.ts",
-    "import:extract": "tsx import/scripts/extract.ts",
-    "import:validate": "tsx import/scripts/validate.ts",
-    "import:load": "tsx import/scripts/load.ts",
-    "import:all": "tsx import/scripts/import.ts --all",
-    "import:dry-run": "tsx import/scripts/import.ts --all --dry-run"
+    "db:reset": "tsx src/db/reset.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",

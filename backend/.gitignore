@@ -14,11 +14,3 @@ uploads/*
 
 # Logs
 *.log
-
-# Import staging files (CSVs are generated, not committed)
-import/staging/*.csv
-import/staging/*.md
-
-# Import source files (Excel files are local, not committed)
-import/source/*
-!import/source/.gitkeep

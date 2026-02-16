@@ -47,19 +47,19 @@ db-push:
 
 # Data Import
 import-extract: ## Extract data from Excel to CSV staging files
-	cd backend && npm run import:extract
+	cd import && npm run extract
 
 import-validate: ## Validate staging CSV files (schema + cross-CSV consistency)
-	cd backend && npm run import:validate
+	cd import && npm run validate
 
 import-load: ## Load validated data to database
-	cd backend && npm run import:load
+	cd import && npm run load
 
 import-all: ## Run full import pipeline (extract -> validate -> load)
-	cd backend && npm run import:all
+	cd import && npm run all
 
 import-dry-run: ## Preview full import without database changes
-	cd backend && npm run import:dry-run
+	cd import && npm run dry-run
 
 import-help: ## Show import tool help
-	cd backend && npm run import -- --help
+	cd import && npm run import -- --help
