@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 8 (Data Import Script) - In Progress
 Plan: 6 of TBD (08-06)
 Status: In Progress
-Last activity: 2026-02-15 - Completed Plan 08-06: Combined Import Orchestrator
+Last activity: 2026-02-16 - Completed quick task 17: refactor: move the import folder out of backend at project root level
 
 Progress: [████████████████████] 100% (60/60 total plans)
 Quick tasks: 17 completed
