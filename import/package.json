@@ -1,0 +1,30 @@
+{
+  "name": "eurostar-portfolio-import",
+  "version": "1.0.0",
+  "description": "Data import pipeline for Eurostar Portfolio Tool",
+  "type": "module",
+  "scripts": {
+    "import": "tsx scripts/import.ts",
+    "extract": "tsx scripts/extract.ts",
+    "validate": "tsx scripts/validate.ts",
+    "load": "tsx scripts/load.ts",
+    "all": "tsx scripts/import.ts --all",
+    "dry-run": "tsx scripts/import.ts --all --dry-run"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.38.4",
+    "fast-csv": "^5.0.5",
+    "js-yaml": "^4.1.1",
+    "pg": "^8.13.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.12.0",
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
