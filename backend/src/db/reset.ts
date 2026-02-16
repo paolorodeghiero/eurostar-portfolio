@@ -1,9 +1,35 @@
 import 'dotenv/config';
-import { db, pool } from './index.js';
+import { execSync } from 'child_process';
 import { sql } from 'drizzle-orm';
-import { runStartupInit } from './init.js';
+import { db, pool } from './index.js';
+
+// All reporting views to drop (in the reporting schema)
+const REPORTING_VIEWS = [
+  'fact_invoices',
+  'fact_receipts',
+  'fact_projects',
+  'dim_date',
+  'dim_competence_month_patterns',
+  'dim_cost_tshirt_thresholds',
+  'dim_committee_thresholds',
+  'dim_committee_levels',
+  'dim_currency_rates',
+  'dim_cost_centers',
+  'dim_outcomes',
+  'dim_statuses',
+  'dim_teams',
+  'dim_departments',
+];
 
 async function reset() {
+  // Step 1: Drop reporting views
+  console.log('Dropping reporting views...');
+  for (const view of REPORTING_VIEWS) {
+    await db.execute(sql.raw(`DROP VIEW IF EXISTS reporting.${view} CASCADE`));
+  }
+  console.log('Reporting views dropped.\n');
+
+  // Step 2: Truncate all tables
   console.log('Truncating all tables...');
   await db.execute(sql.raw(`
     TRUNCATE
@@ -17,12 +43,19 @@ async function reset() {
   `));
   console.log('All tables truncated.\n');
 
-  // Run startup initialization to seed essential data
+  // Close pool before running drizzle-kit
+  await pool.end();
+
+  // Step 3: Push schema changes
+  console.log('Pushing schema changes...');
+  execSync('npx drizzle-kit push', { stdio: 'inherit' });
+  console.log('');
+
+  // Step 4: Seed essential data (run as separate process to get fresh db connection)
   console.log('Seeding essential data...');
-  await runStartupInit();
+  execSync('npx tsx src/db/seed-runner.ts', { stdio: 'inherit' });
 
   console.log('\n✅ Database reset complete.');
-  await pool.end();
 }
 
 reset().catch((err) => {
