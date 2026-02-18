@@ -259,7 +259,7 @@ Plans:
   5. Visual regression tests capture screenshots of all pages/routes
   6. CI runs all tests on every PR with PostgreSQL service container
   7. Coverage reports aim for 80%+ and are posted to PRs
-**Plans:** 6 plans
+**Plans:** 2/6 plans executed
 
 Plans:
 - [x] 10-01-PLAN.md — Test infrastructure setup (Vitest for frontend/backend)
