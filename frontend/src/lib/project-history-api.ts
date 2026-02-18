@@ -7,6 +7,8 @@ export interface HistoryChange {
   fieldLabel: string;
   oldValue: unknown;
   newValue: unknown;
+  resolvedOldValue?: string | null;
+  resolvedNewValue?: string | null;
 }
 
 export interface HistoryEntry {
@@ -55,7 +57,12 @@ export function formatOperation(operation: string): string {
 }
 
 // Format value for display
-export function formatValue(value: unknown): string {
+export function formatValue(value: unknown, resolvedValue?: string | null): string {
+  // If we have a resolved value, use it
+  if (resolvedValue !== undefined && resolvedValue !== null) {
+    return resolvedValue;
+  }
+  // Otherwise fall back to original formatting
   if (value === null || value === undefined) {
     return '(empty)';
   }

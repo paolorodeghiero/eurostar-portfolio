@@ -181,20 +181,20 @@ function HistoryEntryCard({ entry }: { entry: HistoryEntry }) {
                 </span>
                 {entry.operation === 'INSERT' ? (
                   <span className="text-green-700">
-                    {formatValue(change.newValue)}
+                    {formatValue(change.newValue, change.resolvedNewValue)}
                   </span>
                 ) : entry.operation === 'DELETE' ? (
                   <span className="text-red-700 line-through">
-                    {formatValue(change.oldValue)}
+                    {formatValue(change.oldValue, change.resolvedOldValue)}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">
                     <span className="text-muted-foreground line-through">
-                      {formatValue(change.oldValue)}
+                      {formatValue(change.oldValue, change.resolvedOldValue)}
                     </span>
                     <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span className="text-foreground">
-                      {formatValue(change.newValue)}
+                      {formatValue(change.newValue, change.resolvedNewValue)}
                     </span>
                   </span>
                 )}
