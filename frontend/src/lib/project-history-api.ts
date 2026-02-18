@@ -1,3 +1,5 @@
+import { apiClient } from './api-client';
+
 const API_BASE = '/api/projects';
 
 export interface HistoryChange {
@@ -35,13 +37,7 @@ export async function fetchProjectHistory(
   if (options?.offset) params.set('offset', options.offset.toString());
 
   const url = `${API_BASE}/${projectId}/history${params.toString() ? `?${params}` : ''}`;
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch project history');
-  }
-
-  return response.json();
+  return apiClient<HistoryResponse>(url);
 }
 
 // Format operation for display
