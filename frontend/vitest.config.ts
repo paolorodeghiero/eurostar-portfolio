@@ -8,6 +8,12 @@ export default mergeConfig(
       environment: 'jsdom',
       globals: true,
       setupFiles: './src/__tests__/setup.ts',
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/e2e/**', // Exclude Playwright e2e tests
+        '**/.{idea,git,cache,output,temp}/**',
+      ],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html'],

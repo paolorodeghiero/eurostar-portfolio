@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+
+// Note: MSW server setup moved to individual test files that need it
+// to avoid hanging issues in certain environments.
+// Import and use { server } from './mocks/server' in tests that need API mocking.
 
 // Mock window.matchMedia for responsive components
 Object.defineProperty(window, 'matchMedia', {
@@ -12,7 +15,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: () => {}, // deprecated
     addEventListener: () => {},
     removeEventListener: () => {},
-    dispatchEvent: () => true,
+    dispatchEvent: () => false,
   }),
 });
 
@@ -22,16 +25,3 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
   disconnect() {}
 };
-
-// MSW setup placeholders (to be added in Plan 03)
-beforeAll(() => {
-  // Start MSW server
-});
-
-afterEach(() => {
-  // Reset MSW handlers
-});
-
-afterAll(() => {
-  // Stop MSW server
-});
