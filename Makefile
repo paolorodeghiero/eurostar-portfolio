@@ -1,7 +1,7 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help
+.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch
 
 # Default target - show available commands
 help:
@@ -22,6 +22,13 @@ help:
 	@echo "  make import-all       - Run full import pipeline (extract -> validate -> load)"
 	@echo "  make import-dry-run   - Preview full import without database changes"
 	@echo "  make import-help      - Show import tool help"
+	@echo ""
+	@echo "Testing:"
+	@echo "  make test             - Run all tests (frontend + backend)"
+	@echo "  make test-frontend    - Run frontend tests"
+	@echo "  make test-backend     - Run backend tests"
+	@echo "  make test-coverage    - Generate coverage reports for both packages"
+	@echo "  make test-watch       - Instructions for running tests in watch mode"
 
 # Start both backend and frontend dev servers concurrently with labeled output
 dev:
@@ -63,3 +70,20 @@ import-dry-run: ## Preview full import without database changes
 
 import-help: ## Show import tool help
 	cd import && npm run import -- --help
+
+# Testing
+test: test-frontend test-backend
+	@echo "All tests passed"
+
+test-frontend:
+	cd frontend && npm run test:run
+
+test-backend:
+	cd backend && npm run test:run
+
+test-coverage:
+	cd frontend && npm run test:coverage
+	cd backend && npm run test:coverage
+
+test-watch:
+	@echo "Run 'npm test' in frontend/ or backend/ for watch mode"
