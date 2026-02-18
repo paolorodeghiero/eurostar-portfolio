@@ -1,4 +1,5 @@
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { sql } from 'drizzle-orm';
 import {
   departments,
   teams,
@@ -17,6 +18,10 @@ import {
   projectBudgetAllocations,
   receipts,
   invoices,
+  auditLog,
+  alertConfig,
+  currencyRates,
+  competenceMonthPatterns,
 } from '../../db/schema.js';
 
 /**
@@ -44,19 +49,30 @@ export async function seedTestData(db: any) {
     .values({ name: 'Finance Team', departmentId: dept2.id, description: 'Financial operations' })
     .returning();
 
-  // Insert statuses
-  const [statusDraft] = await db
-    .insert(statuses)
-    .values({ name: 'Draft', color: '#6b7280', displayOrder: 1, isSystemStatus: true, isReadOnly: false })
-    .returning();
-  const [statusActive] = await db
-    .insert(statuses)
-    .values({ name: 'Active', color: '#10b981', displayOrder: 2, isSystemStatus: false, isReadOnly: false })
-    .returning();
-  const [statusCompleted] = await db
-    .insert(statuses)
-    .values({ name: 'Completed', color: '#3b82f6', displayOrder: 3, isSystemStatus: true, isReadOnly: true })
-    .returning();
+  // Get or insert statuses (may already exist from startup init)
+  let statusDraft = await db.select().from(statuses).where(sql`name = 'Draft'`).limit(1).then((r: any) => r[0]);
+  if (!statusDraft) {
+    [statusDraft] = await db
+      .insert(statuses)
+      .values({ name: 'Draft', color: '#6b7280', displayOrder: 1, isSystemStatus: true, isReadOnly: false })
+      .returning();
+  }
+
+  let statusActive = await db.select().from(statuses).where(sql`name = 'Active'`).limit(1).then((r: any) => r[0]);
+  if (!statusActive) {
+    [statusActive] = await db
+      .insert(statuses)
+      .values({ name: 'Active', color: '#10b981', displayOrder: 2, isSystemStatus: false, isReadOnly: false })
+      .returning();
+  }
+
+  let statusCompleted = await db.select().from(statuses).where(sql`name = 'Completed'`).limit(1).then((r: any) => r[0]);
+  if (!statusCompleted) {
+    [statusCompleted] = await db
+      .insert(statuses)
+      .values({ name: 'Completed', color: '#3b82f6', displayOrder: 3, isSystemStatus: true, isReadOnly: true })
+      .returning();
+  }
 
   // Insert outcomes
   const [outcome1] = await db
@@ -145,6 +161,7 @@ export async function seedTestData(db: any) {
  */
 export async function clearTestData(db: any) {
   // Delete in FK-safe order (children before parents)
+  // Most dependent tables first
   await db.delete(projectBudgetAllocations);
   await db.delete(budgetLines);
   await db.delete(receipts);
@@ -152,16 +169,26 @@ export async function clearTestData(db: any) {
   await db.delete(projectChangeImpact);
   await db.delete(projectValues);
   await db.delete(projectTeams);
+  await db.delete(auditLog);
   await db.delete(projects);
+
+  // Reference data and config
   await db.delete(projectIdCounters);
+  await db.delete(alertConfig);
   await db.delete(costTshirtThresholds);
   await db.delete(committeeThresholds);
   await db.delete(committeeLevels);
+  await db.delete(currencyRates);
+  await db.delete(competenceMonthPatterns);
   await db.delete(costCenters);
   await db.delete(outcomes);
+
+  // Team and department structure
   await db.delete(teams);
   await db.delete(departments);
-  await db.delete(statuses);
+
+  // Delete non-system statuses only (system statuses are managed by startup init)
+  await db.delete(statuses).where(sql`is_system_status = false`);
 }
 
 /**

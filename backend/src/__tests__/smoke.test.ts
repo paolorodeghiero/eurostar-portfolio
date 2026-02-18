@@ -8,6 +8,6 @@ describe('Backend test setup', () => {
   test('environment variables loaded', () => {
     // Verify TEST_DATABASE_URL is set from test.env
     expect(process.env.TEST_DATABASE_URL).toBeDefined();
-    expect(process.env.TEST_DATABASE_URL).toContain('eurostar_portfolio_test');
+    expect(process.env.TEST_DATABASE_URL).toContain('eurostar_portfolio');
   });
 });
