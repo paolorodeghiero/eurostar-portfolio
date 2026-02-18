@@ -1,7 +1,7 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch
+.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch e2e e2e-headed
 
 # Default target - show available commands
 help:
@@ -29,6 +29,8 @@ help:
 	@echo "  make test-backend     - Run backend tests"
 	@echo "  make test-coverage    - Generate coverage reports for both packages"
 	@echo "  make test-watch       - Instructions for running tests in watch mode"
+	@echo "  make e2e              - Run E2E tests (requires backend running with DEV_MODE=true)"
+	@echo "  make e2e-headed       - Run E2E tests with visible browser"
 
 # Start both backend and frontend dev servers concurrently with labeled output
 dev:
@@ -87,3 +89,12 @@ test-coverage:
 
 test-watch:
 	@echo "Run 'npm test' in frontend/ or backend/ for watch mode"
+
+# E2E Testing
+# Note: Requires backend running with DEV_MODE=true
+# Start backend: cd backend && DEV_MODE=true npm run dev
+e2e:
+	cd frontend && npm run e2e
+
+e2e-headed:
+	cd frontend && npm run e2e:headed
