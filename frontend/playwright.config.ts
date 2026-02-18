@@ -33,8 +33,10 @@ export default defineConfig({
   ],
 
   // Start dev server before tests
+  // Note: Frontend requires backend API - assumes backend is already running on localhost:3000
+  // with DEV_MODE=true. Start backend separately with: cd ../backend && npm run dev
   webServer: {
-    command: 'npm run dev',
+    command: 'npx vite --config vite.config.e2e.ts',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120000
