@@ -246,6 +246,29 @@ Plans:
 Plans:
 - [ ] TBD (run /gsd:plan-phase 9 to break down)
 
+### Phase 10: Add test suite including frontend non-regression tests
+
+**Goal:** Comprehensive test suite with Vitest for unit/integration tests, Playwright for E2E and visual regression, MSW for API mocking, and CI/CD integration
+**Depends on:** Phase 9
+**Requirements:** TEST-INFRA, TEST-BACKEND-API, TEST-BACKEND-UNIT, TEST-FRONTEND-COMPONENT, TEST-FRONTEND-UNIT, TEST-E2E, TEST-VISUAL, TEST-CI
+**Success Criteria** (what must be TRUE):
+  1. Running `npm test` in both frontend and backend executes Vitest with coverage reporting
+  2. Backend API tests use Fastify injection against test database with isolated fixtures
+  3. Frontend component tests use React Testing Library with MSW for API mocking
+  4. E2E tests verify critical user journeys (auth, project CRUD, admin operations)
+  5. Visual regression tests capture screenshots of all pages/routes
+  6. CI runs all tests on every PR with PostgreSQL service container
+  7. Coverage reports aim for 80%+ and are posted to PRs
+**Plans:** 6 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Test infrastructure setup (Vitest for frontend/backend)
+- [ ] 10-02-PLAN.md — Backend API integration tests and unit tests
+- [ ] 10-03-PLAN.md — Frontend component tests with MSW
+- [ ] 10-04-PLAN.md — E2E tests with Playwright
+- [ ] 10-05-PLAN.md — Visual regression tests
+- [ ] 10-06-PLAN.md — CI/CD integration and verification
+
 ---
 *Roadmap created: 2026-02-03*
 *Depth: standard (6 phases derived from 72 requirements)*
