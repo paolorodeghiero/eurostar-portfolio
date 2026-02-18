@@ -25,10 +25,30 @@ export default defineConfig({
     video: 'on-first-retry'
   },
 
+  // Visual regression settings
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      threshold: 0.2,
+      animations: 'disabled'
+    }
+  },
+
   projects: [
     {
       name: 'chromium',
+      testDir: './e2e',
+      testIgnore: '**/visual/**',
       use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      name: 'visual-regression',
+      testDir: './e2e/visual',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Inject CSS to hide dynamic content
+        stylePath: './e2e/visual/hide-dynamic.css'
+      }
     }
   ],
 

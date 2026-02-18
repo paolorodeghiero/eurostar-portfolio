@@ -1,0 +1,34 @@
+/* Hide dynamic content for consistent visual snapshots */
+
+/* Hide timestamps and relative dates */
+[data-testid="timestamp"],
+[data-testid="last-activity"],
+time,
+.relative-time {
+  visibility: hidden !important;
+}
+
+/* Hide user-specific avatars/initials */
+[data-testid="user-avatar"],
+.user-initials {
+  visibility: hidden !important;
+}
+
+/* Disable animations and transitions */
+*, *::before, *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* Hide loading spinners */
+[data-testid="loading"],
+.loading-spinner {
+  visibility: hidden !important;
+}
+
+/* Stabilize scroll positions */
+[data-testid="virtual-scroll"] {
+  overflow: hidden !important;
+}
