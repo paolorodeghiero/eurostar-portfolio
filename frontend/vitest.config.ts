@@ -12,6 +12,7 @@ export default mergeConfig(
         '**/node_modules/**',
         '**/dist/**',
         '**/e2e/**', // Exclude Playwright e2e tests
+        'e2e/**', // Also exclude at root level
         '**/.{idea,git,cache,output,temp}/**',
       ],
       coverage: {
