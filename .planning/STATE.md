@@ -297,6 +297,7 @@ Recent decisions affecting current work:
 - Phase 7 added: Refactor and reorganize information between main table and sidebar
 - Phase 8 added: Data import script
 - Phase 9 added: Import budget file
+- Phase 10 added: Add test suite including frontend non-regression tests
 
 ### Blockers/Concerns
 
