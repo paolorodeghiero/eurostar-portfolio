@@ -12,10 +12,10 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 Phase: 8 (Data Import Script) - In Progress
 Plan: 6 of TBD (08-06)
 Status: In Progress
-Last activity: 2026-02-16 - Completed quick task 17: refactor: move the import folder out of backend at project root level
+Last activity: 2026-02-18 - Completed quick task 18: Use lookups in project history to display human-readable names
 
 Progress: [████████████████████] 100% (60/60 total plans)
-Quick tasks: 17 completed
+Quick tasks: 18 completed
 
 ## Performance Metrics
 
@@ -23,7 +23,7 @@ Quick tasks: 17 completed
 - Total plans completed: 59
 - Average duration: 8 min
 - Total execution time: 7.8 hours
-- Quick tasks: 17 completed (avg 6 min)
+- Quick tasks: 18 completed (avg 6 min)
 
 **By Phase:**
 
@@ -43,6 +43,7 @@ Quick tasks: 17 completed
 - Trend: Phase 8 in progress - data import script development
 
 *Updated after each plan completion*
+| Phase quick P018 | 4 | 2 tasks | 3 files |
 | Phase quick P017 | 5 | 3 tasks | 8 files |
 | Phase 08 P06 | 4 | 3 tasks | 3 files |
 | Phase 08 P05 | 3 | 2 tasks | 2 files |
@@ -71,6 +72,7 @@ Quick tasks: 17 completed
 | Phase 06 P05 | 8 | 2 tasks | 6 files |
 | Phase quick P016 | 9 | 3 tasks | 2 files |
 | Phase 08 P05 | 3 | 2 tasks | 2 files |
+| Phase quick-018 P01 | 4 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -321,14 +323,15 @@ None currently.
 | 015 | Refactor committee threshold model with levels | 2026-02-15 | fa5a3ece | [015-refactor-committee-threshold-model-with-](./quick/015-refactor-committee-threshold-model-with-/) |
 | 016 | Add stats to referentials overview page | 2026-02-15 | a9f65819 | [016-add-stats-to-referentials-overview-page-](./quick/016-add-stats-to-referentials-overview-page-/) |
 | 017 | Refactor move import folder to project root | 2026-02-16 | b7cf1030 | [017-refactor-move-the-import-folder-out-of-b](./quick/017-refactor-move-the-import-folder-out-of-b/) |
+| 018 | Use lookups in project history to display names | 2026-02-18 | 61bd53bf | [018-use-lookups-in-project-history-to-displa](./quick/018-use-lookups-in-project-history-to-displa/) |
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Stopped at: Completed quick-17-PLAN.md: Refactor move import folder to root
+Last session: 2026-02-18
+Stopped at: Completed quick-18-PLAN.md: Use lookups in project history to display human-readable names
 Resume file: None
 Next: Continue Phase 8 - Data Import Script
 
 ---
 *State initialized: 2026-02-03*
-*Last updated: 2026-02-16 (quick-17 complete)*
+*Last updated: 2026-02-18 (quick-18 complete)*
