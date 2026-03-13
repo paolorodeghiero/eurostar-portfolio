@@ -1,1 +1,0 @@
-src/server.ts:33:fastify.get('/api/me', async (request) => {
