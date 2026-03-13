@@ -1,8 +1,4 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "node .claude/hooks/gsd-statusline.js"
-  },
   "permissions": {
     "allow": [
       "Bash(date:*)",
@@ -22,18 +18,6 @@
       "Bash(git log:*)",
       "Bash(git diff:*)",
       "Bash(git tag:*)"
-    ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/gsd-check-update.js"
-          }
-        ]
-      }
     ]
   }
 }
