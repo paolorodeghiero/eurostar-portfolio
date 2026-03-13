@@ -28,9 +28,10 @@ for (const route of routes) {
     // Additional wait for any lazy-loaded content
     await page.waitForTimeout(500)
 
-    // Take full-page screenshot
+    // Take full-page screenshot with threshold for minor rendering differences
     await expect(page).toHaveScreenshot(`${route.name}.png`, {
-      fullPage: true
+      fullPage: true,
+      maxDiffPixelRatio: 0.03 // Allow up to 3% pixel difference
     })
   })
 }

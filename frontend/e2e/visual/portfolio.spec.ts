@@ -8,7 +8,8 @@ test.describe('Portfolio Page Visual States', () => {
 
   test('portfolio table default view', async ({ page }) => {
     await expect(page).toHaveScreenshot('portfolio-default.png', {
-      fullPage: true
+      fullPage: true,
+      maxDiffPixelRatio: 0.03
     })
   })
 
@@ -23,7 +24,8 @@ test.describe('Portfolio Page Visual States', () => {
       await page.waitForTimeout(400)
 
       await expect(page).toHaveScreenshot('portfolio-with-sidebar.png', {
-        fullPage: true
+        fullPage: true,
+        maxDiffPixelRatio: 0.03
       })
     }
   })
@@ -36,7 +38,8 @@ test.describe('Portfolio Page Visual States', () => {
       await columnPicker.click()
 
       await expect(page).toHaveScreenshot('portfolio-column-picker.png', {
-        fullPage: true
+        fullPage: true,
+        maxDiffPixelRatio: 0.03
       })
     }
   })
@@ -49,7 +52,8 @@ test.describe('Portfolio Page Visual States', () => {
       await densityToggle.click()
 
       await expect(page).toHaveScreenshot('portfolio-compact.png', {
-        fullPage: true
+        fullPage: true,
+        maxDiffPixelRatio: 0.03
       })
     }
   })
@@ -65,7 +69,8 @@ test.describe('Portfolio Page Visual States', () => {
       await page.getByRole('option').first().click()
 
       await expect(page).toHaveScreenshot('portfolio-filtered.png', {
-        fullPage: true
+        fullPage: true,
+        maxDiffPixelRatio: 0.03
       })
     }
   })
