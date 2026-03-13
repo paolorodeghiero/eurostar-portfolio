@@ -27,17 +27,15 @@ import {
 /**
  * Seed minimal required test data for backend tests
  * Creates deterministic data with fixed IDs for reliable assertions
+ * NOTE: Clears existing data first to ensure clean state
  */
 export async function seedTestData(db: any) {
+  // Clear any existing data first (handles app startup seeding conflicts)
+  await clearTestData(db);
+
   // Insert departments
-  const [dept1] = await db
-    .insert(departments)
-    .values({ name: 'IT Department' })
-    .returning();
-  const [dept2] = await db
-    .insert(departments)
-    .values({ name: 'Finance Department' })
-    .returning();
+  const [dept1] = await db.insert(departments).values({ name: 'IT Department' }).returning();
+  const [dept2] = await db.insert(departments).values({ name: 'Finance Department' }).returning();
 
   // Insert teams
   const [team1] = await db
@@ -50,27 +48,60 @@ export async function seedTestData(db: any) {
     .returning();
 
   // Get or insert statuses (may already exist from startup init)
-  let statusDraft = await db.select().from(statuses).where(sql`name = 'Draft'`).limit(1).then((r: any) => r[0]);
+  let statusDraft = await db
+    .select()
+    .from(statuses)
+    .where(sql`name = 'Draft'`)
+    .limit(1)
+    .then((r: any) => r[0]);
   if (!statusDraft) {
     [statusDraft] = await db
       .insert(statuses)
-      .values({ name: 'Draft', color: '#6b7280', displayOrder: 1, isSystemStatus: true, isReadOnly: false })
+      .values({
+        name: 'Draft',
+        color: '#6b7280',
+        displayOrder: 1,
+        isSystemStatus: true,
+        isReadOnly: false,
+      })
       .returning();
   }
 
-  let statusActive = await db.select().from(statuses).where(sql`name = 'Active'`).limit(1).then((r: any) => r[0]);
+  let statusActive = await db
+    .select()
+    .from(statuses)
+    .where(sql`name = 'Active'`)
+    .limit(1)
+    .then((r: any) => r[0]);
   if (!statusActive) {
     [statusActive] = await db
       .insert(statuses)
-      .values({ name: 'Active', color: '#10b981', displayOrder: 2, isSystemStatus: false, isReadOnly: false })
+      .values({
+        name: 'Active',
+        color: '#10b981',
+        displayOrder: 2,
+        isSystemStatus: false,
+        isReadOnly: false,
+      })
       .returning();
   }
 
-  let statusCompleted = await db.select().from(statuses).where(sql`name = 'Completed'`).limit(1).then((r: any) => r[0]);
+  let statusCompleted = await db
+    .select()
+    .from(statuses)
+    .where(sql`name = 'Completed'`)
+    .limit(1)
+    .then((r: any) => r[0]);
   if (!statusCompleted) {
     [statusCompleted] = await db
       .insert(statuses)
-      .values({ name: 'Completed', color: '#3b82f6', displayOrder: 3, isSystemStatus: true, isReadOnly: true })
+      .values({
+        name: 'Completed',
+        color: '#3b82f6',
+        displayOrder: 3,
+        isSystemStatus: true,
+        isReadOnly: true,
+      })
       .returning();
   }
 
@@ -123,25 +154,53 @@ export async function seedTestData(db: any) {
     .returning();
 
   // Insert committee thresholds (EUR-only)
-  await db.insert(committeeThresholds).values({ levelId: levelNotNecessary.id, maxAmount: '50000.00' });
-  await db.insert(committeeThresholds).values({ levelId: levelOptional.id, maxAmount: '250000.00' });
+  await db
+    .insert(committeeThresholds)
+    .values({ levelId: levelNotNecessary.id, maxAmount: '50000.00' });
+  await db
+    .insert(committeeThresholds)
+    .values({ levelId: levelOptional.id, maxAmount: '250000.00' });
   await db.insert(committeeThresholds).values({ levelId: levelMandatory.id, maxAmount: null }); // Unlimited
 
   // Insert cost T-shirt thresholds (EUR)
-  await db.insert(costTshirtThresholds).values({ size: 'XS', maxAmount: '10000.00', currency: 'EUR' });
-  await db.insert(costTshirtThresholds).values({ size: 'S', maxAmount: '50000.00', currency: 'EUR' });
-  await db.insert(costTshirtThresholds).values({ size: 'M', maxAmount: '100000.00', currency: 'EUR' });
-  await db.insert(costTshirtThresholds).values({ size: 'L', maxAmount: '250000.00', currency: 'EUR' });
-  await db.insert(costTshirtThresholds).values({ size: 'XL', maxAmount: '500000.00', currency: 'EUR' });
-  await db.insert(costTshirtThresholds).values({ size: 'XXL', maxAmount: '999999999.00', currency: 'EUR' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'XS', maxAmount: '10000.00', currency: 'EUR' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'S', maxAmount: '50000.00', currency: 'EUR' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'M', maxAmount: '100000.00', currency: 'EUR' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'L', maxAmount: '250000.00', currency: 'EUR' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'XL', maxAmount: '500000.00', currency: 'EUR' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'XXL', maxAmount: '999999999.00', currency: 'EUR' });
 
   // Insert cost T-shirt thresholds (GBP) - approx 0.85 conversion
-  await db.insert(costTshirtThresholds).values({ size: 'XS', maxAmount: '8500.00', currency: 'GBP' });
-  await db.insert(costTshirtThresholds).values({ size: 'S', maxAmount: '42500.00', currency: 'GBP' });
-  await db.insert(costTshirtThresholds).values({ size: 'M', maxAmount: '85000.00', currency: 'GBP' });
-  await db.insert(costTshirtThresholds).values({ size: 'L', maxAmount: '212500.00', currency: 'GBP' });
-  await db.insert(costTshirtThresholds).values({ size: 'XL', maxAmount: '425000.00', currency: 'GBP' });
-  await db.insert(costTshirtThresholds).values({ size: 'XXL', maxAmount: '999999999.00', currency: 'GBP' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'XS', maxAmount: '8500.00', currency: 'GBP' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'S', maxAmount: '42500.00', currency: 'GBP' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'M', maxAmount: '85000.00', currency: 'GBP' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'L', maxAmount: '212500.00', currency: 'GBP' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'XL', maxAmount: '425000.00', currency: 'GBP' });
+  await db
+    .insert(costTshirtThresholds)
+    .values({ size: 'XXL', maxAmount: '999999999.00', currency: 'GBP' });
 
   // Initialize project ID counter
   await db.insert(projectIdCounters).values({ year: 2026, lastId: 0 });
@@ -187,8 +246,9 @@ export async function clearTestData(db: any) {
   await db.delete(teams);
   await db.delete(departments);
 
-  // Delete non-system statuses only (system statuses are managed by startup init)
-  await db.delete(statuses).where(sql`is_system_status = false`);
+  // Delete ALL statuses in test mode (including system statuses)
+  // Tests need a clean slate - the app will re-seed on next startup if needed
+  await db.delete(statuses);
 }
 
 /**
@@ -210,7 +270,9 @@ export async function createTestProject(db: any, overrides: Partial<any> = {}) {
   const [project] = await db
     .insert(projects)
     .values({
-      projectId: overrides.projectId || `PRJ-2026-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`,
+      projectId:
+        overrides.projectId ||
+        `PRJ-2026-${String(Math.floor(Math.random() * 1000)).padStart(5, '0')}`,
       name: overrides.name || 'Test Project',
       leadTeamId: overrides.leadTeamId || defaultTeamId,
       statusId: overrides.statusId !== undefined ? overrides.statusId : defaultStatusId,

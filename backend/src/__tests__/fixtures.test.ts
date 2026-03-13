@@ -31,7 +31,7 @@ describe('Fixtures', () => {
   test('seedTestData creates statuses', async () => {
     const statusList = await db.select().from(statuses);
     expect(statusList.length).toBeGreaterThanOrEqual(3);
-    const statusNames = statusList.map((s) => s.name);
+    const statusNames = statusList.map((s: { name: string }) => s.name);
     expect(statusNames).toContain('Draft');
     expect(statusNames).toContain('Active');
     expect(statusNames).toContain('Completed');

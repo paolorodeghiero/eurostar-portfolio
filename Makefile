@@ -1,7 +1,7 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch-backend test-watch-frontend e2e e2e-headed e2e-debug visual visual-update test-all test-quick
+.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch-backend test-watch-frontend e2e e2e-headed e2e-debug visual visual-update test-all test-quick typecheck lint lint-fix format format-check
 
 # Default target - show available commands
 help:
@@ -37,6 +37,13 @@ help:
 	@echo "  make visual-update       - Update visual regression baselines"
 	@echo "  make test-all            - Run everything (unit, integration, E2E, visual)"
 	@echo "  make test-quick          - Quick pre-commit test (unit + integration)"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  make typecheck           - Run TypeScript type checking"
+	@echo "  make lint                - Run ESLint on all source files"
+	@echo "  make lint-fix            - Run ESLint with auto-fix"
+	@echo "  make format              - Format all files with Prettier"
+	@echo "  make format-check        - Check formatting without changes"
 
 # Start both backend and frontend dev servers concurrently with labeled output
 dev:
@@ -130,3 +137,30 @@ test-all: test e2e visual
 # Quick check before commit
 test-quick: test
 	@echo "Quick tests passed"
+
+# ============================================================
+# Linting & Formatting
+# ============================================================
+
+typecheck:
+	cd backend && npx tsc --noEmit
+	cd frontend && npx tsc --noEmit
+	@echo "Type checking passed"
+
+lint:
+	cd backend && npx eslint src/
+	cd frontend && npx eslint src/
+	@echo "Linting passed"
+
+lint-fix:
+	cd backend && npx eslint src/ --fix
+	cd frontend && npx eslint src/ --fix
+	@echo "Linting fixed"
+
+format:
+	npx prettier --write "**/*.{ts,tsx,json,md}"
+	@echo "Formatting complete"
+
+format-check:
+	npx prettier --check "**/*.{ts,tsx,json,md}"
+	@echo "Format check passed"

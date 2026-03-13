@@ -4,6 +4,7 @@
   "private": true,
   "description": "Eurostar IT Portfolio Management Tool",
   "scripts": {
+    "prepare": "husky",
     "test": "npm run test:backend && npm run test:frontend",
     "test:backend": "cd backend && npm run test:run",
     "test:frontend": "cd frontend && npm run test:run",
@@ -13,9 +14,22 @@
     "e2e": "cd frontend && npm run e2e",
     "e2e:visual": "cd frontend && npm run e2e:visual",
     "dev": "make dev",
-    "build": "make build"
+    "build": "make build",
+    "typecheck": "cd backend && npx tsc --noEmit && cd ../frontend && npx tsc --noEmit",
+    "lint": "cd backend && npx eslint src/ && cd ../frontend && npx eslint src/",
+    "lint:fix": "cd backend && npx eslint src/ --fix && cd ../frontend && npx eslint src/ --fix",
+    "format": "npx prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "npx prettier --check \"**/*.{ts,tsx,json,md}\""
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "prettier": "^3.0.0"
   }
 }
