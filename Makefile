@@ -1,7 +1,7 @@
 # Eurostar Portfolio - Development Commands
 # Project root: /mnt/c/Users/paolo.Rodeghiero/Projects/eurostar-portfolio-gsd
 
-.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch e2e e2e-headed
+.PHONY: help dev db-reset db-demo-data db-push import-extract import-validate import-load import-all import-dry-run import-help test test-frontend test-backend test-coverage test-watch-backend test-watch-frontend e2e e2e-headed e2e-debug visual visual-update test-all test-quick
 
 # Default target - show available commands
 help:
@@ -24,13 +24,19 @@ help:
 	@echo "  make import-help      - Show import tool help"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test             - Run all tests (frontend + backend)"
-	@echo "  make test-frontend    - Run frontend tests"
-	@echo "  make test-backend     - Run backend tests"
-	@echo "  make test-coverage    - Generate coverage reports for both packages"
-	@echo "  make test-watch       - Instructions for running tests in watch mode"
-	@echo "  make e2e              - Run E2E tests (requires backend running with DEV_MODE=true)"
-	@echo "  make e2e-headed       - Run E2E tests with visible browser"
+	@echo "  make test                - Run all unit/integration tests (frontend + backend)"
+	@echo "  make test-frontend       - Run frontend tests"
+	@echo "  make test-backend        - Run backend tests"
+	@echo "  make test-coverage       - Generate coverage reports for both packages"
+	@echo "  make test-watch-backend  - Run backend tests in watch mode"
+	@echo "  make test-watch-frontend - Run frontend tests in watch mode"
+	@echo "  make e2e                 - Run E2E tests (requires backend running)"
+	@echo "  make e2e-headed          - Run E2E tests with visible browser"
+	@echo "  make e2e-debug           - Run E2E tests in debug mode"
+	@echo "  make visual              - Run visual regression tests"
+	@echo "  make visual-update       - Update visual regression baselines"
+	@echo "  make test-all            - Run everything (unit, integration, E2E, visual)"
+	@echo "  make test-quick          - Quick pre-commit test (unit + integration)"
 
 # Start both backend and frontend dev servers concurrently with labeled output
 dev:
@@ -73,28 +79,54 @@ import-dry-run: ## Preview full import without database changes
 import-help: ## Show import tool help
 	cd import && npm run import -- --help
 
+# ============================================================
 # Testing
-test: test-frontend test-backend
-	@echo "All tests passed"
+# ============================================================
 
-test-frontend:
-	cd frontend && npm run test:run
+# Run all tests
+test: test-backend test-frontend
+	@echo "All unit/integration tests passed"
 
 test-backend:
 	cd backend && npm run test:run
 
+test-frontend:
+	cd frontend && npm run test:run
+
+# Run tests with coverage
 test-coverage:
-	cd frontend && npm run test:coverage
 	cd backend && npm run test:coverage
+	cd frontend && npm run test:coverage
+	@echo "Coverage reports: backend/coverage and frontend/coverage"
 
-test-watch:
-	@echo "Run 'npm test' in frontend/ or backend/ for watch mode"
+# Watch mode for development
+test-watch-backend:
+	cd backend && npm test
 
-# E2E Testing
-# Note: Requires backend running with DEV_MODE=true
-# Start backend: cd backend && DEV_MODE=true npm run dev
+test-watch-frontend:
+	cd frontend && npm test
+
+# E2E tests
 e2e:
 	cd frontend && npm run e2e
 
 e2e-headed:
 	cd frontend && npm run e2e:headed
+
+e2e-debug:
+	cd frontend && npm run e2e:debug
+
+# Visual regression tests
+visual:
+	cd frontend && npm run e2e:visual
+
+visual-update:
+	cd frontend && npm run e2e:visual:update
+
+# Run everything (full CI locally)
+test-all: test e2e visual
+	@echo "All tests passed (unit, integration, E2E, visual)"
+
+# Quick check before commit
+test-quick: test
+	@echo "Quick tests passed"
